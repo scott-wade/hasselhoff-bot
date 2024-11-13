@@ -163,7 +163,46 @@ void initPWMonChannel(int timer_number, int channel_number, float duty_cycle)
 }
 
 /* *******************************************************************************
-                    GPIO UTILITY FUNCTIONS
+                    TIMER UPDATE FUNCTIONS
+   ******************************************************************************* */
+
+void setDutyCycle(int timer_number, int channel_number, float duty_cycle)
+{
+    uint32_t * timer_base_address = mapTimerNumberToBaseAddress(timer_number);
+    uint32_t * arr_register = (uint32_t *)(timer_base_address + ARR_OFFSET);
+    uint32_t * ccr1_register = (uint32_t *)(timer_base_address + CCR1_OFFSET);
+    uint32_t * ccr2_register = (uint32_t *)(timer_base_address + CCR2_OFFSET);
+    uint32_t * ccr3_register = (uint32_t *)(timer_base_address + CCR3_OFFSET);
+    uint32_t * ccr4_register = (uint32_t *)(timer_base_address + CCR4_OFFSET);
+
+    uint32_t * reg_pointer;
+
+    uint32_t * ccr_register;
+    uint16_t OCxM_CLR;
+    uint16_t OCxM_PWM;
+    uint16_t CCxS_CLR;
+    uint16_t OCxPE;
+    switch (channel_number) {
+        case 1 : ccr_register = ccr1_register;
+        case 2 : ccr_register = ccr2_register;
+        case 3 : ccr_register = ccr3_register;
+        case 4 : ccr_register = ccr4_register;
+        default : fprintf(stderr, "Invalid Channel Number");
+    }
+
+    // Obtain ARR value
+    reg_pointer = (uint32_t *)arr_register;
+    uint16_t arr_value = *reg_pointer;
+    
+    // set duty cycle values for arr
+    uint16_t CCRx_DUTY = arr_value*duty_cycle; // force cast into an unsigned int
+    reg_pointer = (uint32_t *)ccr_register;
+    *reg_pointer = (uint16_t) CCRx_DUTY;
+
+}
+
+/* *******************************************************************************
+                    TIMER UTILITY FUNCTIONS
    ******************************************************************************* */
    
 uint32_t * mapTimerNumberToBaseAddress(int timer_number)
@@ -192,5 +231,4 @@ void enableAPB1RCCclock(int timer_number)
         case 14 : RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM14, ENABLE);
         default : fprintf(stderr, "Invalid Timer Number");
     }
-
 }

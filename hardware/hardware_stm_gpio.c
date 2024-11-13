@@ -41,7 +41,7 @@
 /* *******************************************************************************
                     GPIO INITIALIZATION
    ******************************************************************************* */
-void initGPIOasOutput(int port_number, int pin_number, int mode)
+void initGPIOasMode(int port_number, int pin_number, int mode)
 {
     uint32_t * port_base_address = mapPortNumbertoBaseAddress(port_number);
     uint32_t * moder_register = (uint32_t *) (port_base_address + MODER_REGISTER_OFFSET);
@@ -116,7 +116,7 @@ void initGPIOasOutput(int port_number, int pin_number, int mode)
         reg_pointer = (uint32_t *)odr_register;
         *reg_pointer = *reg_pointer & ODR_LO;
 
-    } else if (mode == 2) {
+    } else if (mode == 2) { // ALT FN 2
 
         /*GPIOB0 configured floating */
         uint32_t PUP_FLOAT = ~((uint32_t) ((1<<(2*pin_number+1)) + (1<<(2*pin_number))));
