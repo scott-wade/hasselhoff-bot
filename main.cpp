@@ -1,12 +1,35 @@
-#include "mbed.h"
+#define WHICH_NUCLEO 1 //change for compilation, 0 for remote, 1 for submarine
 
-DigitalOut myled(LED1);
+#include "main.h"
+#include "debug_mort.h"
+#include "state_machine/state_machine_sub.h"
+#include "state_machine/state_machine_remote.h"
 
-int main() {
-  while(1) {
-    myled = 1;
-    wait(0.2);
-    myled = 0;
-    wait(0.2);
-  }
+
+int main(void){
+
+    if (WHICH_NUCLEO == 0){
+        /* remote state machine */
+
+        /* initialization */
+        init_remote();
+
+        /* loop */
+        while(1){
+            event_handler_remote();
+        }
+
+    }else {
+        /* submarine state machine */
+
+        /* initialization */
+        init_sub();
+
+        /* loop */
+        while(1){
+            event_handler_sub();
+        }
+
+    }    
+
 }
