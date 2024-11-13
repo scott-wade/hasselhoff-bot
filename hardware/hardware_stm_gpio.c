@@ -56,7 +56,7 @@ void initGPIOasOutput(int port_number, int pin_number, int mode)
 
 
     // Enable Peripheral Clock (All GPIOs are on AHB1)
-    enableRCCclock(port_number);
+    enableAHB1RCCclock(port_number);
 
     /* Pin configuration */
     if (mode == 0) { // Input
@@ -212,7 +212,7 @@ uint32_t * mapPortNumbertoBaseAddress(int port_number)
     return port_base_address;
 }
 
-void enableRCCclock(int port_number)
+void enableAHB1RCCclock(int port_number)
 {
     switch (port_number) {
         case 0 : RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);

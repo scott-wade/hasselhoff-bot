@@ -8,62 +8,189 @@
   ******************************************************************************
   */
 
+#include "hardware_stm_timer.h"
 #include "hardware_stm_gpio.h"
 #include "stm32f4xx_rcc_mort.h"
 #include <cstdint>
 
 
 /* MACRO definitions----------------------------------------------------------*/
+// Timer Base Addresses
 #define TIM3_BASE_ADDRESS 0x40000400
-#define TIM3_SR (TIM3_BASE_ADDRESS + 0x10)
-#define TIM3_PSC (TIM3_BASE_ADDRESS + 0x28)
-#define TIM3_ARR (TIM3_BASE_ADDRESS + 0x2C)
-#define TIM3_CR1 (TIM3_BASE_ADDRESS + 0x00)
-#define TIM3_CCMR2 (TIM3_BASE_ADDRESS + 0x1C)
-#define TIM3_CCR3 (TIM3_BASE_ADDRESS + 0x3C)
-#define TIM3_CCER (TIM3_BASE_ADDRESS + 0x20)
-#define TIM3_CNT (TIM3_BASE_ADDRESS + 0x24)
+#define TIM4_BASE_ADDRESS 0x40000800
+#define TIM5_BASE_ADDRESS 0x40000C00
+#define TIM12_BASE_ADDRESS 0x40001800
+#define TIM13_BASE_ADDRESS 0x40001C00
+#define TIM14_BASE_ADDRESS 0x40002000
+
+// Timer Register Offsets
+#define SR_OFFSET 0x10
+#define PSC_OFFSET 0x28
+#define ARR_OFFSET 0x2C
+#define CR1_OFFSET 0x00
+#define CCMR1_OFFSET 0x18
+#define CCMR2_OFFSET 0x1C
+#define CCR1_OFFSET 0x34
+#define CCR2_OFFSET 0x38
+#define CCR3_OFFSET 0x3C
+#define CCR4_OFFSET 0x40
+#define CCER_OFFSET 0x20
+#define CNT_OFFSET 0x24
 
 
 /* Function definitions----------------------------------------------------------*/
-void initTim3 (uint16_t psc, uint16_t arr)
+void initTimer (int timer_number, uint16_t psc, uint16_t arr)
 {
+    // Timer addresses
+    uint32_t * timer_base_address = mapTimerNumberToBaseAddress(timer_number);
+    uint32_t * status_register = (uint32_t *) (timer_base_address + SR_OFFSET);
+    uint32_t * psc_register = (uint32_t *)(timer_base_address + PSC_OFFSET);
+    uint32_t * arr_register = (uint32_t *)(timer_base_address + ARR_OFFSET);
+    
     uint32_t * reg_pointer;
 
     // Enable APB1 clock
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
+    enableAPB1RCCclock(timer_number);
 
-    // Clear UIF flag in TIM3_SR
-    reg_pointer = (uint32_t *)TIM3_SR;
+    // Clear UIF flag in the SR
+    reg_pointer = (uint32_t *)status_register;
     uint32_t current_status = *reg_pointer;
     *reg_pointer = ~current_status; //clear UIF flag without logical operations
 
     // Set prescaler value
-    reg_pointer = (uint32_t *)TIM3_PSC;
+    reg_pointer = (uint32_t *)psc_register;
     *reg_pointer = psc;
 
     // Set auto-reload register value
-    reg_pointer = (uint32_t *)TIM3_ARR;
+    reg_pointer = (uint32_t *)arr_register;
     *reg_pointer = arr;
+}
+
+void enableTimer(int timer_number)
+{
+    uint32_t * timer_base_address = mapTimerNumberToBaseAddress(timer_number);
+
+    // enable Timer
+    uint16_t TIMCEN = 0b1;
+    uint32_t * reg_pointer = (uint32_t *)(timer_base_address + CR1_OFFSET);
+    *reg_pointer = *reg_pointer | TIMCEN;
+}
+
+void initPWMonChannel(int timer_number, int channel_number, float duty_cycle)
+{
+    uint32_t * timer_base_address = mapTimerNumberToBaseAddress(timer_number);
+    uint32_t * arr_register = (uint32_t *)(timer_base_address + ARR_OFFSET);
+    uint32_t * control_register = (uint32_t *)(timer_base_address + CR1_OFFSET);
+    uint32_t * ccmr1_register = (uint32_t *)(timer_base_address + CCMR1_OFFSET);
+    uint32_t * ccmr2_register = (uint32_t *)(timer_base_address + CCMR2_OFFSET);
+    uint32_t * ccr1_register = (uint32_t *)(timer_base_address + CCR1_OFFSET);
+    uint32_t * ccr2_register = (uint32_t *)(timer_base_address + CCR2_OFFSET);
+    uint32_t * ccr3_register = (uint32_t *)(timer_base_address + CCR3_OFFSET);
+    uint32_t * ccr4_register = (uint32_t *)(timer_base_address + CCR4_OFFSET);
+    uint32_t * ccer_register = (uint32_t *)(timer_base_address + CCER_OFFSET);
+    uint32_t * cnt_register = (uint32_t *)(timer_base_address + CNT_OFFSET);
     
-    // enable Timer 3
-    uint16_t TIM3CEN = 0b1;
-    reg_pointer = (uint32_t *)TIM3_CR1;
-    *reg_pointer = *reg_pointer | TIM3CEN;
+    uint32_t * reg_pointer;
+
+    uint32_t * ccmr_register;
+    uint32_t * ccr_register;
+    uint16_t OCxM_CLR;
+    uint16_t OCxM_PWM;
+    uint16_t CCxS_CLR;
+    uint16_t OCxPE;
+    switch (channel_number) {
+        case 1 : {
+                    ccmr_register = ccmr1_register; 
+                    ccr_register = ccr1_register;
+                    OCxM_CLR = ~((uint16_t) 0x70);
+                    OCxM_PWM = 0x60;
+                    CCxS_CLR = ~((uint16_t) 0b11);
+                    OCxPE = 0b1000;
+                }
+        case 2 : {
+                    ccmr_register = ccmr1_register; 
+                    ccr_register = ccr2_register;
+                    OCxM_CLR = ~((uint16_t) 0x7000);
+                    OCxM_PWM = 0x6000;
+                    CCxS_CLR = ~((uint16_t) 0x300);
+                    OCxPE = 0x400;
+                }
+        case 3 : {
+                    ccmr_register = ccmr2_register; 
+                    ccr_register = ccr3_register;
+                    OCxM_CLR = ~((uint16_t) 0x70);
+                    OCxM_PWM = 0x60;
+                    CCxS_CLR = ~((uint16_t) 0b11);
+                    OCxPE = 0b1000;
+                }
+        case 4 : {
+                    ccmr_register = ccmr2_register; 
+                    ccr_register = ccr4_register;
+                    OCxM_CLR = ~((uint16_t) 0x7000);
+                    OCxM_PWM = 0x6000;
+                    CCxS_CLR = ~((uint16_t) 0x300);
+                    OCxPE = 0x400;
+                }
+        default : fprintf(stderr, "Invalid Channel Number");
+    }
+
+    reg_pointer = (uint32_t *)ccmr_register; // point to CCMR2
+
+    *reg_pointer = *reg_pointer & OCxM_CLR; // clear bits in OCxM
+    *reg_pointer = *reg_pointer | OCxM_PWM; //set OCxM to toggle
+
+    // Set CHx to output by clearing CCxS
+    *reg_pointer = *reg_pointer & CCxS_CLR;
+
+    /* Set duty cycle counter */
+    // Obtain ARR value
+    reg_pointer = (uint32_t *)arr_register;
+    uint16_t arr_value = *reg_pointer;
+    
+    // set duty cycle values for arr
+    uint16_t CCRx_DUTY = arr_value*duty_cycle; // force cast into an unsigned int
+    reg_pointer = (uint32_t *)ccr_register;
+    *reg_pointer = (uint16_t) CCRx_DUTY;
+
+    // Set preload enable OCxPE on CCMR
+    reg_pointer = (uint32_t *)ccmr_register; // point to CCMR
+    *reg_pointer = *reg_pointer | OCxPE;
+
+    // enable Timer Channel x
+    uint16_t CCXE_EN = 0b1<<(4*(channel_number-1)); 
+    reg_pointer = (uint32_t *) ccer_register;
+    *reg_pointer = *reg_pointer | CCXE_EN;
 }
 
-uint16_t getTIM3CNT(void)
+/* *******************************************************************************
+                    GPIO UTILITY FUNCTIONS
+   ******************************************************************************* */
+   
+uint32_t * mapTimerNumberToBaseAddress(int timer_number)
 {
-    uint32_t * reg_pointer = (uint32_t *)TIM3_CNT;
-
-    // get TIM3 count and return
-    return *reg_pointer;
+    uint32_t * timer_base_address;
+    switch (timer_number) {
+        case 3 : timer_base_address = (uint32_t *)TIM3_BASE_ADDRESS;
+        case 4 : timer_base_address = (uint32_t *)TIM4_BASE_ADDRESS;
+        case 5 : timer_base_address = (uint32_t *)TIM5_BASE_ADDRESS;
+        case 12 : timer_base_address = (uint32_t *)TIM12_BASE_ADDRESS;
+        case 13: timer_base_address = (uint32_t *)TIM13_BASE_ADDRESS;
+        case 14 : timer_base_address = (uint32_t *)TIM14_BASE_ADDRESS;
+        default : fprintf(stderr, "Invalid Timer Number");
+    }
+    return timer_base_address;
 }
 
-void resetTIM3(void)
+void enableAPB1RCCclock(int timer_number)
 {
-    uint32_t * reg_pointer = (uint32_t *)TIM3_CNT;
+    switch (timer_number) {
+        case 3 : RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
+        case 4 : RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
+        case 5 : RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM5, ENABLE);
+        case 12 : RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM12, ENABLE);
+        case 13 : RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM13, ENABLE);
+        case 14 : RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM14, ENABLE);
+        default : fprintf(stderr, "Invalid Timer Number");
+    }
 
-    uint16_t TIM3RESET = 0;
-    *reg_pointer = TIM3RESET;
 }

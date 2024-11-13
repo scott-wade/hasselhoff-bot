@@ -10,9 +10,12 @@
 
 
 /*Function definitions---------------------------------------------------------*/
-void initTim3 (uint16_t psc, uint16_t arr);
-uint16_t getTIM3CNT(void);
-void resetTIM3(void);
+void initTimer (int timer_number, uint16_t psc, uint16_t arr);
+void enableTimer(int timer_number);
+void initPWMonChannel(int timer_number, int channel_number, float duty_cycle);
+
+uint32_t * mapTimerNumberToBaseAddress(int timer_number);
+void enableAPB1RCCclock(int timer_number);
 
 #ifdef __cplusplus
 }

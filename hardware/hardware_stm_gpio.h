@@ -34,7 +34,7 @@ int readGPIOinput(int port_number, int pin_number);
 
 // UTILITIES
 uint32_t * mapPortNumbertoBaseAddress(int port_number);
-void enableRCCclock(int port_number);
+void enableAHB1RCCclock(int port_number);
 
 
 #ifdef __cplusplus
