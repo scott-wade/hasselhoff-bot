@@ -8,6 +8,8 @@
  ******************************************************************************
  */
 
+// Page 887
+
 #include "hardware_stm_spi.h"
 #include "hardware_stm_gpio.h"
 #include "stdio.h"
@@ -111,12 +113,40 @@ void writeTX(SPI_t spi, uint16_t value)
     uint32_t *base_address = getSPIBaseAddr(spi.spi_id);
     uint32_t *data_register_address = (uint32_t *)(base_address + SPI_DATA_REGISTER_OFFSET);
     *data_register_address = value;
+    // wait for transmission to finish
+    while (!transmissionFinished(spi))
+    {
+        delay(1);
+    }
     // Toggle CS
     SETorCLEARGPIOoutput(spi.CS_PORT_NUM, spi.CS_PIN_NUM, 1);
 }
 
+bool transmissionFinished(SPI_t spi)
+{
+    /* Check if the transmission is finished */
+    uint32_t *base_address = getSPIBaseAddr(spi.spi_id);
+    uint32_t *status_register_address = (uint32_t *)(base_address + SPI_STATUS_REGISTER_OFFSET);
+    uint32_t status_register = *status_register_address;
+    return (status_register & 0b10) == 0;
+}
+
+bool dataAvailable(SPI_t spi)
+{
+    /* Check if data is available to be read */
+    uint32_t *base_address = getSPIBaseAddr(spi.spi_id);
+    uint32_t *status_register_address = (uint32_t *)(base_address + SPI_STATUS_REGISTER_OFFSET);
+    uint32_t status_register = *status_register_address;
+    return (status_register & 0b1) == 1;
+}
+
 uint16_t readRX(uint8_t spi_id)
 {
+    // Check if data is ready to be read
+    while (!dataAvailable(spi_id))
+    {
+        delay(1);
+    }
     /* Read from the RX buffer of an SPI */
     uint32_t *base_address = getSPIBaseAddr(spi_id);
     uint32_t *data_register_address = (uint32_t *)(base_address + SPI_DATA_REGISTER_OFFSET);
