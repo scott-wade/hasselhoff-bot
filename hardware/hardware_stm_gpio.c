@@ -40,8 +40,9 @@
 
 /* *******************************************************************************
                     GPIO INITIALIZATION
+    mapping port number: 0->A, 1->B, ... 7->H
    ******************************************************************************* */
-void initGPIOasMode(int port_number, int pin_number, int mode)
+void initGPIOasMode(int port_number, int pin_number, int mode, int open_drain, int pupd, int init_output, uint16_t alt_func)
 {
     uint32_t * port_base_address = mapPortNumbertoBaseAddress(port_number);
     uint32_t * moder_register = (uint32_t *) (port_base_address + MODER_REGISTER_OFFSET);
@@ -73,7 +74,7 @@ void initGPIOasMode(int port_number, int pin_number, int mode)
         *reg_pointer = *reg_pointer & MODER_CLR;
         *reg_pointer = *reg_pointer | MODER_OUT;
 
-    } else if (mode == 2) { // Alternate Function 2
+    } else if (mode == 2) { // Alternate Function mode
 
         uint32_t MODER_CLR = ~((uint32_t) ((1<<(2*pin_number+1)) + (1<<(2*pin_number))));
         uint32_t MODER_ALT = 1<<(2*pin_number+1);
@@ -85,63 +86,78 @@ void initGPIOasMode(int port_number, int pin_number, int mode)
         fprintf(stderr, "Invalid Mode");
     }
 
-    /*Pin configured as push-pull */
-    uint16_t TYPER_PUP = ~((uint16_t) 1<<pin_number);
-    reg_pointer = (uint32_t *)otyper_register;
-    *reg_pointer = *reg_pointer & TYPER_PUP; // don't need clear since this operation is a clear anyway
+    /*Push-pull v open drain configuration */
+    if(open_drain) {
+        uint16_t TYPER_OPEN_DR = ((uint16_t) 1<<pin_number);
+        reg_pointer = (uint32_t *)otyper_register;
+        *reg_pointer = *reg_pointer | TYPER_OPEN_DR; // don't need clear, just setting single bit
+    } else {
+        uint16_t TYPER_PUP = ~((uint16_t) 1<<pin_number);
+        reg_pointer = (uint32_t *)otyper_register;
+        *reg_pointer = *reg_pointer & TYPER_PUP; // don't need clear since this operation is a clear anyway
+    }
 
     /*Pin high speed */
     uint32_t OSPEEDR_HI = (uint32_t) ((1<<(2*pin_number+1)) + (1<<(2*pin_number)));
     reg_pointer = (uint32_t *)ospeedr_register;
     *reg_pointer = *reg_pointer | OSPEEDR_HI;
     
-    if (mode == 0) { // Input
-
-        /*Configure pulled-down*/
-        uint32_t PUP_CLR = ~((uint32_t) ((1<<(2*pin_number+1)) + (1<<(2*pin_number))));
-        uint32_t PUP_PD = (uint16_t) 1<<(2*pin_number+1);
+    /* pull up, pull down, neither config */
+    switch(pupd) {
         reg_pointer = (uint32_t *)pupdr_register;
-        *reg_pointer = *reg_pointer & PUP_CLR;
-        *reg_pointer = *reg_pointer | PUP_PD;
+        uint32_t PUPD_FLOAT = ~((uint32_t) ((1<<(2*pin_number+1)) + (1<<(2*pin_number))));
+        uint32_t PUPD_CLR = ~((uint32_t) ((1<<(2*pin_number+1)) + (1<<(2*pin_number))));
+        uint32_t PUPD_PU = (uint32_t) 1<<(2*pin_number);
+        uint32_t PUPD_PD = (uint32_t) 1<<(2*pin_number+1);    
+        /* Configured neither, ie floating */
+        case 0:           
+            *reg_pointer = *reg_pointer & PUPD_FLOAT;  // don't need clear since this operation is a clear anyway            
+            break;
+        /* Configured pull up */
+        case 1:
+            *reg_pointer = *reg_pointer & PUPD_CLR;
+            *reg_pointer = *reg_pointer | PUPD_PU;
+            break;
+        /* Configured pull-down */
+        case 2:
+            *reg_pointer = *reg_pointer & PUPD_CLR;
+            *reg_pointer = *reg_pointer | PUPD_PD;
+            break;
+        default:
+            fprintf(stderr, "Pull Up Pull Down Setting Not Handled / Invalid");
+            break;
+    }
 
-    } else if (mode == 1) { // Output
-
-        /*Pin configured floating */
-        uint32_t PUP_FLOAT = ~((uint32_t) ((1<<(2*pin_number+1)) + (1<<(2*pin_number))));
-        reg_pointer = (uint32_t *)pupdr_register;
-        *reg_pointer = *reg_pointer & PUP_FLOAT;  // don't need clear since this operation is a clear anyway
-        
-        /* Pin driven low to start out with */
-        uint16_t ODR_LO = ~((uint16_t) 1<<pin_number);
+    /* Output Pin Init State Config */
+    if(mode == 1) {
         reg_pointer = (uint32_t *)odr_register;
-        *reg_pointer = *reg_pointer & ODR_LO;
+        uint16_t ODR_CLR = ~((uint16_t) 1<<pin_number);
+        uint16_t ODR_SET = ((uint16_t) init_output << pin_number);
+        *reg_pointer = *reg_pointer & ODR_CLR;
+        *reg_pointer = *reg_pointer | ODR_SET;
+    }
 
-    } else if (mode == 2) { // ALT FN 2
-
-        /*GPIOB0 configured floating */
-        uint32_t PUP_FLOAT = ~((uint32_t) ((1<<(2*pin_number+1)) + (1<<(2*pin_number))));
-        reg_pointer = (uint32_t *)pupdr_register;
-        *reg_pointer = *reg_pointer & PUP_FLOAT;  // don't need clear since this operation is a clear anyway
-
-        /* Set Port B Pin 0 AFRL to AF2 */
+    /* Alternate Function Config */
+    if ((mode == 2) && (alt_func <= 15)) { // ALT FN MODE
+        /* Set Port & Pin to the AF value passed to init */
         uint32_t AFR_CLR;
-        uint32_t AFR_AF2;
+        uint32_t AFR_VAL;
         if (pin_number <= 7) { // AFRL register
             reg_pointer = (uint32_t *) afrl_register;
             AFR_CLR = ~((uint32_t) 0b1111<<(4*pin_number));
-            AFR_AF2 = 0b0010<<(4*pin_number);
+            AFR_VAL = alt_func<<(4*pin_number);
         }
         else {
             reg_pointer = (uint32_t *) afrh_register;
             AFR_CLR = ~((uint32_t) 0b1111<<(4*(pin_number-8)));
-            AFR_AF2 = 0b0010<<(4*(pin_number-8));
+            AFR_VAL = alt_func<<(4*(pin_number-8));
         }
 
         *reg_pointer = *reg_pointer & AFR_CLR; // clear bit for alternate function
-        *reg_pointer = *reg_pointer | AFR_AF2;
+        *reg_pointer = *reg_pointer | AFR_VAL;
 
     } else {
-        fprintf(stderr, "Invalid Mode");
+        fprintf(stderr, "Invalid alt function entry");
     }
      
 

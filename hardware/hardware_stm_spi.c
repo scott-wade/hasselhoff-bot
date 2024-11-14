@@ -38,6 +38,21 @@
 #define SPI_STATUS_REGISTER_RESET_MASK ~((uint32_t)0b11111101) // reset value for bit 1 is 1
 #define SPI_DATA_REGISTER_RESET_MASK ~((uint32_t)0xffff)
 
+void init_SPI(int SPI_number)
+{
+    switch(SPI_number){
+        case 1:
+            // setup GPIO pins as necessary
+            // PICO pin -> moder 2 for alt, open drain, neither PUPD, alt func = 5
+            // POCI pin -> moder 2 for alt, push-pull, neither PUPD, alt func = 5
+            // SCLK pin -> moder 2 for alt, push-pull, neither PUPD, alt func = 5
+            // CS pin(s) -> moder 1 for out, push pull, PU, ODR high
+            // turn on APB2 bus (SPI1 and SPI4)
+            // ensure SPI disabled
+            // configure SPI peripherals (clock phase, polarity, etc)
+            break;
+    }
+}
 
 
 void configureSPI(void){
