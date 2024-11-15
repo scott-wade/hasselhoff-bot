@@ -43,9 +43,9 @@ void configureSPIParent(uint8_t spi_id){
         using a base clock speed of 45MHz
     */
     
-    uint32_t* base_address = getSPIBaseAddr(spi_id);
-    uint32_t* control_register1_addr = (uint32_t*) (base_address + SPI_CONTROL_REGISTER1_OFFSET);
-    uint32_t* control_register2_addr = (uint32_t*) (base_address + SPI_CONTROL_REGISTER2_OFFSET);
+    uint32_t base_address = getSPIBaseAddr(spi_id);
+    uint32_t* control_register1_addr = (uint32_t *)(long)(base_address + SPI_CONTROL_REGISTER1_OFFSET);
+    uint32_t* control_register2_addr = (uint32_t *)(long)(base_address + SPI_CONTROL_REGISTER2_OFFSET);
 
     // enable SPI clock bus (APB2)
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
@@ -91,6 +91,7 @@ void configureSPIParent(uint8_t spi_id){
     // finally, write all that to SPI_CR1
     *control_register1_addr = baudrate_bits | cpol_cpha_bits | lsbfirst_bit | 
         software_cs_bits | parent_bit | dff_bit;
+
     
     //3. Write to SPI_CR2 register:
 
@@ -98,6 +99,7 @@ void configureSPIParent(uint8_t spi_id){
     *control_register2_addr = *control_register2_addr & SPI_CONTROL_REGISTER2_RESET_MASK;
     *control_register2_addr = *control_register2_addr | (uint16_t)(0b0 << 2); // set SSOE to 0
 
+    printf("SPI_CR2 reads %u\n", *control_register2_addr);
     //b) Set the FRF bit if the TI protocol is required.
         // not implementing TI protocol
     //4. Write to SPI_CRCPR register: Configure the CRC polynomial if needed.
@@ -108,6 +110,7 @@ void configureSPIParent(uint8_t spi_id){
 
     // finally, enable the SPI in SPI control register 1
     *control_register1_addr = *control_register1_addr | (uint16_t)(0b1 << 6);
+    printf("SPI_CR1 reads %u\n", *control_register1_addr);
 
 }
 
@@ -115,26 +118,41 @@ void configureSPIParent(uint8_t spi_id){
 
 void writeTX(uint8_t spi_id, uint16_t value){
     /* Write to the TX buffer of an SPI */
-    uint32_t* base_address = getSPIBaseAddr(spi_id);
-    uint32_t* data_register_address = (uint32_t*)(base_address + SPI_DATA_REGISTER_OFFSET);
+    uint32_t base_address = getSPIBaseAddr(spi_id);
+    uint32_t* data_register_address = (uint32_t*)(long)(base_address + SPI_DATA_REGISTER_OFFSET);
     *data_register_address = value;
 }
 
 uint16_t readRX(uint8_t spi_id){
     /* Read from the RX buffer of an SPI */
-    uint32_t* base_address = getSPIBaseAddr(spi_id);
-    uint32_t* data_register_address = (uint32_t*)(base_address + SPI_DATA_REGISTER_OFFSET);
+    uint32_t base_address = getSPIBaseAddr(spi_id);
+    uint32_t* data_register_address = (uint32_t*)(long)(base_address + SPI_DATA_REGISTER_OFFSET);
     return *data_register_address;
 }
 
-uint32_t* getSPIBaseAddr(uint8_t spi_id){
+uint16_t readSpiStatusRegister(uint8_t spi_id){
+    /*Read status register of an SPI*/
+    uint32_t base_address = getSPIBaseAddr(spi_id);
+    uint32_t* status_register_address = (uint32_t*)(long)(base_address + SPI_STATUS_REGISTER_OFFSET);
+    return *status_register_address;
+}
+
+uint32_t getSPIBaseAddr(uint8_t spi_id){
     // the SPI base address based on the SPI id
-    uint32_t * port_base_address;
+    uint32_t port_base_address;
     switch(spi_id){
-        case 1: port_base_address = (uint32_t*)SPI1_BASE_ADDRESS;
-        case 2: port_base_address = (uint32_t*)SPI2_BASE_ADDRESS;
-        case 3: port_base_address = (uint32_t*)SPI3_BASE_ADDRESS;
-        case 4: port_base_address = (uint32_t*)SPI4_BASE_ADDRESS;
+        case 1: 
+            port_base_address = (uint32_t)SPI1_BASE_ADDRESS;
+            break;
+        case 2: 
+            port_base_address = (uint32_t)SPI2_BASE_ADDRESS;
+            break;
+        case 3: 
+            port_base_address = (uint32_t)SPI3_BASE_ADDRESS;
+            break;
+        case 4: 
+            port_base_address = (uint32_t)SPI4_BASE_ADDRESS;
+            break;
     }
     return port_base_address;
 }

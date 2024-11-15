@@ -36,7 +36,7 @@ int main(void){
         /* DEBUGGING CODE */
         //testB0Set();
         //testB0Clear();
-        testReadRegOpMode();
+        testReadWriteRegOpMode();
     }
 
 }

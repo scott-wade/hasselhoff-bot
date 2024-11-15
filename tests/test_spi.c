@@ -13,20 +13,27 @@
 #include "../hardware/hardware_stm_spi.h"
 #include "../debug_mort.h"
 
+
 void testReadRegOpMode(void){
     /* Try to read the current RegOpMode settings register from the sx1278 */ 
     configureSPIParent(1);
-    // TODO configure gpio port for CS
+    
 
     uint8_t wnr = 0; // read
     uint8_t data = (uint8_t)(0b1 << 7);
     uint8_t addr = 0x01;
     uint8_t addr_packed = (uint8_t)(wnr << 7 | addr);
     uint16_t packet = (uint16_t)(addr_packed << 8 | data);
-
-    // TODO set CS to low
+    printf("packet: %u\n", packet);
+    // set CS pin A4 low
+    SETorCLEARGPIOoutput(0, 4, 0);
     writeTX(1, packet);
-    // TODO set CS to high
+    
+    // check status of txe bit
+    printf("status register: %u \n", readSpiStatusRegister(1));
+
+    // set CS pin A4 high
+    SETorCLEARGPIOoutput(0, 4, 1);
 
     uint16_t returnvalue = readRX(1);
     debugprint(returnvalue); // this should hopefully return something
@@ -46,27 +53,29 @@ void testReadWriteRegOpMode(void){
     // configure gpio port for CS
 
     uint8_t wnr = 1; // write
-    uint8_t data = (uint8_t)(0b1 << 7);
+    uint8_t data = (uint8_t)(0b1 << 7) | (uint8_t)(0b001);
     uint8_t addr = 0x01;
     uint8_t addr_packed = (uint8_t)(wnr << 7 | addr);
     uint16_t packet = (uint16_t)(addr_packed << 8 | data);
+    printf("packet: %u\n", packet);
 
     // set CS pin A4 low
     SETorCLEARGPIOoutput(0, 4, 0);
-    
     writeTX(1, packet);
+
     // set CS pin A4 high
     SETorCLEARGPIOoutput(0, 4, 1);
     uint16_t returnvalue = readRX(1);
-    debugprint(returnvalue); // this should hopefully return something
+    printf("Read value from register %u \n",returnvalue);
+    
 
     /* wrote a value and printed old register value, now let's see if it changed */
 
     wnr = 0; // read
-    data = (uint8_t)(0b1 << 7);
-    addr = 0x01;
-    addr_packed = (uint8_t)(wnr << 7 & addr);
-    packet = (uint16_t)(addr_packed << 8 & data);
+    addr_packed = (uint8_t)(wnr << 7 | addr);
+    packet = (uint16_t)(addr_packed << 8 | data);
+    printf("addr packed for read packet: %u \n", addr_packed);
+    printf("read packet: %u\n", packet);
 
     // set CS pin A4 low
     SETorCLEARGPIOoutput(0, 4, 0);
@@ -76,7 +85,7 @@ void testReadWriteRegOpMode(void){
     SETorCLEARGPIOoutput(0, 4, 1);
 
     returnvalue = readRX(1);
-    debugprint(returnvalue); // this should hopefully print something different
+    printf("Read value from register after write: %u \n",returnvalue); // this should hopefully print the same as packet
 
 
 }
