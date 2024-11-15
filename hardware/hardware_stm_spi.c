@@ -38,42 +38,36 @@
 #define SPI_STATUS_REGISTER_RESET_MASK ~((uint32_t)0b11111101) // reset value for bit 1 is 1
 #define SPI_DATA_REGISTER_RESET_MASK ~((uint32_t)0xffff)
 
-void init_SPI(int SPI_number)
-{
-    switch(SPI_number){
-        case 1:
-            // setup GPIO pins as necessary
-            // PICO pin -> moder 2 for alt, open drain, neither PUPD, alt func = 5
-            // POCI pin -> moder 2 for alt, push-pull, neither PUPD, alt func = 5
-            // SCLK pin -> moder 2 for alt, push-pull, neither PUPD, alt func = 5
-            // CS pin(s) -> moder 1 for out, push pull, PU, ODR high
-            // turn on APB2 bus (SPI1 and SPI4)
-            // ensure SPI disabled
-            // configure SPI peripherals (clock phase, polarity, etc)
-            break;
-    }
-}
-
-
-void configureSPI(uint8_t spi_id){
-    /* configure SPI as parent */
+void configureSPIParent(uint8_t spi_id){
+    /*  configure SPI as parent 
+        using a base clock speed of 45MHz
+    */
     
     uint32_t* base_address = getSPIBaseAddr(spi_id);
-    uint32_t* control_register1_addr = base_address + SPI_CONTROL_REGISTER1_OFFSET;
-    uint32_t* control_register2_addr = base_address + SPI_CONTROL_REGISTER2_OFFSET;
+    uint32_t* control_register1_addr = (uint32_t*) (base_address + SPI_CONTROL_REGISTER1_OFFSET);
+    uint32_t* control_register2_addr = (uint32_t*) (base_address + SPI_CONTROL_REGISTER2_OFFSET);
 
-    // enable SPI clock bus
+    // enable SPI clock bus (APB2)
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
 
     // disable SPI
     *control_register1_addr = *control_register1_addr & ~(uint16_t)(0b1 << 6);
 
-    //1. Write proper GPIO registers: Configure GPIO for MOSI, MISO and SCK pins.
+    // 1. Write proper GPIO registers: Configure GPIO for MOSI, MISO and SCK pins.
+    // PICO pin A6 -> moder 2 for alt, open drain, neither PUPD, alt func = 5
+    initGPIOasMode(0, 6, 2, 1, 0, 0, 5);
+    // POCI pin A7 -> moder 2 for alt, push-pull, neither PUPD, alt func = 5
+    initGPIOasMode(0, 7, 2, 0, 0, 0, 5);
+    // SCLK pin A5 -> moder 2 for alt, push-pull, neither PUPD, alt func = 5
+    initGPIOasMode(0, 5, 2, 0, 0, 0, 5);
+    // CS pin(s) A4 -> moder 1 for out, push pull, PU, ODR high
+    initGPIOasMode(0, 4, 1, 0, 1, 1, 0);
 
 
     //2. Write to the SPI_CR1 register:
     *control_register1_addr = *control_register2_addr & SPI_CONTROL_REGISTER1_RESET_MASK;
     //a) Configure the serial clock baud rate using the BR[2:0] bits (Note: 3).
-    uint16_t baudrate_bits = (uint16_t)(0b000 << 3); //fpclk/2
+    uint16_t baudrate_bits = (uint16_t)(0b000 << 3); //fpclk/2 = 45MHz
     //b) Configure the CPOL and CPHA bits combination to define one of the four
     //relationships between the data transfer and the serial clock. (Note: 2 - except the
     //case when CRC is enabled at TI mode).
