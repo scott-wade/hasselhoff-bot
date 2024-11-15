@@ -161,7 +161,7 @@ void initGPIOasMode(uint8_t port_number, uint8_t pin_number, uint8_t mode, uint8
         *reg_pointer = *reg_pointer & AFR_CLR; // clear bit for alternate function
         *reg_pointer = *reg_pointer | AFR_VAL;
 
-    } else {
+    } else if ((mode == 2) && (alt_func > 15)) {
         fprintf(stderr, "Invalid alt function entry");
     }
      
