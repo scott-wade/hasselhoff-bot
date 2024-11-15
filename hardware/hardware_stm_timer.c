@@ -9,7 +9,6 @@
   */
 
 #include "hardware_stm_timer.h"
-#include "hardware_stm_gpio.h"
 #include "stm32f4xx_rcc_mort.h"
 #include <cstdint>
 
@@ -42,10 +41,10 @@
 void initTimer (int timer_number, uint16_t psc, uint16_t arr)
 {
     // Timer addresses
-    uint32_t * timer_base_address = mapTimerNumberToBaseAddress(timer_number);
-    uint32_t * status_register = (uint32_t *) (timer_base_address + SR_OFFSET);
-    uint32_t * psc_register = (uint32_t *)(timer_base_address + PSC_OFFSET);
-    uint32_t * arr_register = (uint32_t *)(timer_base_address + ARR_OFFSET);
+    uint32_t timer_base_address = mapTimerNumberToBaseAddress(timer_number);
+    uint32_t * status_register = (uint32_t *)(long)(timer_base_address + SR_OFFSET);
+    uint32_t * psc_register = (uint32_t *)(long)(timer_base_address + PSC_OFFSET);
+    uint32_t * arr_register = (uint32_t *)(long)(timer_base_address + ARR_OFFSET);
     
     uint32_t * reg_pointer;
 
@@ -68,27 +67,25 @@ void initTimer (int timer_number, uint16_t psc, uint16_t arr)
 
 void enableTimer(int timer_number)
 {
-    uint32_t * timer_base_address = mapTimerNumberToBaseAddress(timer_number);
+    uint32_t timer_base_address = mapTimerNumberToBaseAddress(timer_number);
 
     // enable Timer
     uint16_t TIMCEN = 0b1;
-    uint32_t * reg_pointer = (uint32_t *)(timer_base_address + CR1_OFFSET);
+    uint32_t * reg_pointer = (uint32_t *)(long)(timer_base_address + CR1_OFFSET);
     *reg_pointer = *reg_pointer | TIMCEN;
 }
 
 void initPWMonChannel(int timer_number, int channel_number, float duty_cycle)
 {
-    uint32_t * timer_base_address = mapTimerNumberToBaseAddress(timer_number);
-    uint32_t * arr_register = (uint32_t *)(timer_base_address + ARR_OFFSET);
-    uint32_t * control_register = (uint32_t *)(timer_base_address + CR1_OFFSET);
-    uint32_t * ccmr1_register = (uint32_t *)(timer_base_address + CCMR1_OFFSET);
-    uint32_t * ccmr2_register = (uint32_t *)(timer_base_address + CCMR2_OFFSET);
-    uint32_t * ccr1_register = (uint32_t *)(timer_base_address + CCR1_OFFSET);
-    uint32_t * ccr2_register = (uint32_t *)(timer_base_address + CCR2_OFFSET);
-    uint32_t * ccr3_register = (uint32_t *)(timer_base_address + CCR3_OFFSET);
-    uint32_t * ccr4_register = (uint32_t *)(timer_base_address + CCR4_OFFSET);
-    uint32_t * ccer_register = (uint32_t *)(timer_base_address + CCER_OFFSET);
-    uint32_t * cnt_register = (uint32_t *)(timer_base_address + CNT_OFFSET);
+    uint32_t timer_base_address = mapTimerNumberToBaseAddress(timer_number);
+    uint32_t * arr_register = (uint32_t *)(long)(timer_base_address + ARR_OFFSET);
+    uint32_t * ccmr1_register = (uint32_t *)(long)(timer_base_address + CCMR1_OFFSET);
+    uint32_t * ccmr2_register = (uint32_t *)(long)(timer_base_address + CCMR2_OFFSET);
+    uint32_t * ccr1_register = (uint32_t *)(long)(timer_base_address + CCR1_OFFSET);
+    uint32_t * ccr2_register = (uint32_t *)(long)(timer_base_address + CCR2_OFFSET);
+    uint32_t * ccr3_register = (uint32_t *)(long)(timer_base_address + CCR3_OFFSET);
+    uint32_t * ccr4_register = (uint32_t *)(long)(timer_base_address + CCR4_OFFSET);
+    uint32_t * ccer_register = (uint32_t *)(long)(timer_base_address + CCER_OFFSET);
     
     uint32_t * reg_pointer;
 
@@ -106,6 +103,7 @@ void initPWMonChannel(int timer_number, int channel_number, float duty_cycle)
                     OCxM_PWM = 0x60;
                     CCxS_CLR = ~((uint16_t) 0b11);
                     OCxPE = 0b1000;
+                    break;
                 }
         case 2 : {
                     ccmr_register = ccmr1_register; 
@@ -114,6 +112,7 @@ void initPWMonChannel(int timer_number, int channel_number, float duty_cycle)
                     OCxM_PWM = 0x6000;
                     CCxS_CLR = ~((uint16_t) 0x300);
                     OCxPE = 0x400;
+                    break;
                 }
         case 3 : {
                     ccmr_register = ccmr2_register; 
@@ -122,6 +121,7 @@ void initPWMonChannel(int timer_number, int channel_number, float duty_cycle)
                     OCxM_PWM = 0x60;
                     CCxS_CLR = ~((uint16_t) 0b11);
                     OCxPE = 0b1000;
+                    break;
                 }
         case 4 : {
                     ccmr_register = ccmr2_register; 
@@ -130,6 +130,7 @@ void initPWMonChannel(int timer_number, int channel_number, float duty_cycle)
                     OCxM_PWM = 0x6000;
                     CCxS_CLR = ~((uint16_t) 0x300);
                     OCxPE = 0x400;
+                    break;
                 }
         default : fprintf(stderr, "Invalid Channel Number");
     }
@@ -168,26 +169,22 @@ void initPWMonChannel(int timer_number, int channel_number, float duty_cycle)
 
 void setDutyCycle(int timer_number, int channel_number, float duty_cycle)
 {
-    uint32_t * timer_base_address = mapTimerNumberToBaseAddress(timer_number);
-    uint32_t * arr_register = (uint32_t *)(timer_base_address + ARR_OFFSET);
-    uint32_t * ccr1_register = (uint32_t *)(timer_base_address + CCR1_OFFSET);
-    uint32_t * ccr2_register = (uint32_t *)(timer_base_address + CCR2_OFFSET);
-    uint32_t * ccr3_register = (uint32_t *)(timer_base_address + CCR3_OFFSET);
-    uint32_t * ccr4_register = (uint32_t *)(timer_base_address + CCR4_OFFSET);
+    uint32_t timer_base_address = mapTimerNumberToBaseAddress(timer_number);
+    uint32_t * arr_register = (uint32_t *)(long)(timer_base_address + ARR_OFFSET);
+    uint32_t * ccr1_register = (uint32_t *)(long)(timer_base_address + CCR1_OFFSET);
+    uint32_t * ccr2_register = (uint32_t *)(long)(timer_base_address + CCR2_OFFSET);
+    uint32_t * ccr3_register = (uint32_t *)(long)(timer_base_address + CCR3_OFFSET);
+    uint32_t * ccr4_register = (uint32_t *)(long)(timer_base_address + CCR4_OFFSET);
 
     uint32_t * reg_pointer;
 
     uint32_t * ccr_register;
-    uint16_t OCxM_CLR;
-    uint16_t OCxM_PWM;
-    uint16_t CCxS_CLR;
-    uint16_t OCxPE;
     switch (channel_number) {
-        case 1 : ccr_register = ccr1_register;
-        case 2 : ccr_register = ccr2_register;
-        case 3 : ccr_register = ccr3_register;
-        case 4 : ccr_register = ccr4_register;
-        default : fprintf(stderr, "Invalid Channel Number");
+        case 1 : {ccr_register = ccr1_register; break;}
+        case 2 : {ccr_register = ccr2_register; break;}
+        case 3 : {ccr_register = ccr3_register; break;}
+        case 4 : {ccr_register = ccr4_register; break;}
+        default : fprintf(stderr, "Received Invalid Channel Number at Set Duty cycle");
     }
 
     // Obtain ARR value
@@ -204,31 +201,41 @@ void setDutyCycle(int timer_number, int channel_number, float duty_cycle)
 /* *******************************************************************************
                     TIMER UTILITY FUNCTIONS
    ******************************************************************************* */
-   
-uint32_t * mapTimerNumberToBaseAddress(int timer_number)
+uint16_t getTIMCNT(int timer_number)
 {
-    uint32_t * timer_base_address;
+    uint32_t timer_base_address = mapTimerNumberToBaseAddress(timer_number);
+    uint32_t * reg_pointer = (uint32_t *)(long)(timer_base_address + CNT_OFFSET);
+
+    // get TIM count and return
+    return *reg_pointer;
+}
+   
+uint32_t mapTimerNumberToBaseAddress(int timer_number)
+{
+    uint32_t timer_base_address;
+
     switch (timer_number) {
-        case 3 : timer_base_address = (uint32_t *)TIM3_BASE_ADDRESS;
-        case 4 : timer_base_address = (uint32_t *)TIM4_BASE_ADDRESS;
-        case 5 : timer_base_address = (uint32_t *)TIM5_BASE_ADDRESS;
-        case 12 : timer_base_address = (uint32_t *)TIM12_BASE_ADDRESS;
-        case 13: timer_base_address = (uint32_t *)TIM13_BASE_ADDRESS;
-        case 14 : timer_base_address = (uint32_t *)TIM14_BASE_ADDRESS;
-        default : fprintf(stderr, "Invalid Timer Number");
+        case 3 : {timer_base_address = TIM3_BASE_ADDRESS; break;}
+        case 4 : {timer_base_address = TIM4_BASE_ADDRESS; break;}
+        case 5 : {timer_base_address = TIM5_BASE_ADDRESS; break;}
+        case 12 : {timer_base_address = TIM12_BASE_ADDRESS; break;}
+        case 13 : {timer_base_address = TIM13_BASE_ADDRESS; break;}
+        case 14 : {timer_base_address = TIM14_BASE_ADDRESS; break;}
+        default : fprintf(stderr, "Received Invalid Timer Number at Timer Base Address");
     }
+
     return timer_base_address;
 }
 
 void enableAPB1RCCclock(int timer_number)
 {
     switch (timer_number) {
-        case 3 : RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
-        case 4 : RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
-        case 5 : RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM5, ENABLE);
-        case 12 : RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM12, ENABLE);
-        case 13 : RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM13, ENABLE);
-        case 14 : RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM14, ENABLE);
-        default : fprintf(stderr, "Invalid Timer Number");
+        case 3 : {RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE); break;}
+        case 4 : {RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE); break;}
+        case 5 : {RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM5, ENABLE); break;}
+        case 12 : {RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM12, ENABLE); break;}
+        case 13 : {RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM13, ENABLE); break;}
+        case 14 : {RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM14, ENABLE); break;}
+        default : fprintf(stderr, "Received Invalid Timer Number at APB1 clock enable");
     }
 }

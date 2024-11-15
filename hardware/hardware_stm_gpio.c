@@ -47,14 +47,14 @@
    ******************************************************************************* */
 void initGPIOasMode(uint8_t port_number, uint8_t pin_number, uint8_t mode, uint8_t open_drain, uint8_t pupd, uint8_t init_output, uint8_t alt_func)
 {
-    uint32_t * port_base_address = mapPortNumbertoBaseAddress(port_number);
-    uint32_t * moder_register = (uint32_t *) (port_base_address + MODER_REGISTER_OFFSET);
-    uint32_t * otyper_register = (uint32_t *)(port_base_address + OTYPER_REGISTER_OFFSET);
-    uint32_t * ospeedr_register = (uint32_t *)(port_base_address + OSPEEDR_REGISTER_OFFSET);
-    uint32_t * pupdr_register = (uint32_t *)(port_base_address + PUPDR_REGISTER_OFFSET);
-    uint32_t * odr_register = (uint32_t *)(port_base_address + ODR_REGISTER_OFFSET);
-    uint32_t * afrl_register = (uint32_t *)(port_base_address + AFRL_REGISTER_OFFSET);
-    uint32_t * afrh_register = (uint32_t *)(port_base_address + AFRH_REGISTER_OFFSET);
+    uint32_t port_base_address = mapPortNumbertoBaseAddress(port_number);
+    uint32_t * moder_register = (uint32_t *)(long)(port_base_address + MODER_REGISTER_OFFSET);
+    uint32_t * otyper_register = (uint32_t *)(long)(port_base_address + OTYPER_REGISTER_OFFSET);
+    uint32_t * ospeedr_register = (uint32_t *)(long)(port_base_address + OSPEEDR_REGISTER_OFFSET);
+    uint32_t * pupdr_register = (uint32_t *)(long)(port_base_address + PUPDR_REGISTER_OFFSET);
+    uint32_t * odr_register = (uint32_t *)(long)(port_base_address + ODR_REGISTER_OFFSET);
+    uint32_t * afrl_register = (uint32_t *)(long)(port_base_address + AFRL_REGISTER_OFFSET);
+    uint32_t * afrh_register = (uint32_t *)(long)(port_base_address + AFRH_REGISTER_OFFSET);
     
     uint32_t * reg_pointer;
 
@@ -174,8 +174,8 @@ void SETorCLEARGPIOoutput(int port_number, int pin_number, int set)
     uint32_t ODR_LO = ~((uint32_t) 1<<pin_number);
     uint32_t ODR_HI = (uint32_t) 1<<pin_number;
 
-    uint32_t * port_base_address = mapPortNumbertoBaseAddress(port_number); 
-    uint32_t * reg_pointer = (uint32_t *)(port_base_address + ODR_REGISTER_OFFSET);
+    uint32_t port_base_address = mapPortNumbertoBaseAddress(port_number); 
+    uint32_t * reg_pointer = (uint32_t *)(long)(port_base_address + ODR_REGISTER_OFFSET);
 
     if (set) { // set pin HI
         *reg_pointer = *reg_pointer | ODR_HI;
@@ -202,30 +202,45 @@ int readGPIOinput(int port_number, int pin_number)
 
     // access GPIOC_6 from the IDR register
     uint32_t IDR_STATUS = 1<<pin_number;
-    uint32_t * port_base_address = mapPortNumbertoBaseAddress(port_number); 
-    reg_pointer = (uint32_t *)(port_base_address + IDR_REGISTER_OFFSET);
+    uint32_t port_base_address = mapPortNumbertoBaseAddress(port_number); 
+    reg_pointer = (uint32_t *)(long)(port_base_address + IDR_REGISTER_OFFSET);
     
     // Quaery its value using an AND operation
     value = *reg_pointer & IDR_STATUS; 
     return (value>0);  
 }
 
+int readGPIOoutput(int port_number, int pin_number)
+{
+    uint32_t value;
+    uint32_t *reg_pointer;
+
+    // access GPIOC_6 from the IDR register
+    uint32_t ODR_STATUS = 1<<pin_number;
+    uint32_t port_base_address = mapPortNumbertoBaseAddress(port_number); 
+    reg_pointer = (uint32_t *)(long)(port_base_address + ODR_REGISTER_OFFSET);
+    
+    // Quaery its value using an AND operation
+    value = *reg_pointer & ODR_STATUS; 
+    return (value>0);  
+}
+
 /* *******************************************************************************
                     GPIO UTILITY FUNCTIONS
    ******************************************************************************* */
-uint32_t * mapPortNumbertoBaseAddress(int port_number)
+uint32_t mapPortNumbertoBaseAddress(int port_number)
 {
-    uint32_t * port_base_address;
+    uint32_t port_base_address;
     switch (port_number) {
-        case 0 : port_base_address = (uint32_t *)PORTA_BASE_ADDRESS;
-        case 1 : port_base_address = (uint32_t *)PORTB_BASE_ADDRESS;
-        case 2 : port_base_address = (uint32_t *)PORTC_BASE_ADDRESS;
-        case 3 : port_base_address = (uint32_t *)PORTD_BASE_ADDRESS;
-        case 4 : port_base_address = (uint32_t *)PORTE_BASE_ADDRESS;
-        case 5 : port_base_address = (uint32_t *)PORTF_BASE_ADDRESS;
-        case 6 : port_base_address = (uint32_t *)PORTG_BASE_ADDRESS;
-        case 7 : port_base_address = (uint32_t *)PORTH_BASE_ADDRESS;
-        default : fprintf(stderr, "Unknown Port");
+        case 0 : {port_base_address = PORTA_BASE_ADDRESS; break;}
+        case 1 : {port_base_address = PORTB_BASE_ADDRESS; break;}
+        case 2 : {port_base_address = PORTC_BASE_ADDRESS; break;}
+        case 3 : {port_base_address = PORTD_BASE_ADDRESS; break;}
+        case 4 : {port_base_address = PORTE_BASE_ADDRESS; break;}
+        case 5 : {port_base_address = PORTF_BASE_ADDRESS; break;}
+        case 6 : {port_base_address = PORTG_BASE_ADDRESS; break;}
+        case 7 : {port_base_address = PORTH_BASE_ADDRESS; break;}
+        default : fprintf(stderr, "Received Unknown Port Number at Base Address Map");
     }
 
     return port_base_address;
@@ -234,15 +249,15 @@ uint32_t * mapPortNumbertoBaseAddress(int port_number)
 void enableAHB1RCCclock(int port_number)
 {
     switch (port_number) {
-        case 0 : RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
-        case 1 : RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
-        case 2 : RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
-        case 3 : RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
-        case 4 : RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
-        case 5 : RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOF, ENABLE);
-        case 6 : RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOG, ENABLE);
-        case 7 : RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOH, ENABLE);
-        default : fprintf(stderr, "Unknown Port");
+        case 0 : {RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE); break;}
+        case 1 : {RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE); break;}
+        case 2 : {RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE); break;}
+        case 3 : {RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE); break;}
+        case 4 : {RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE); break;}
+        case 5 : {RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOF, ENABLE); break;}
+        case 6 : {RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOG, ENABLE); break;}
+        case 7 : {RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOH, ENABLE); break;}
+        default : fprintf(stderr, "Received Unknown Port Number at AHB1 clock enable");
     }
 
 }
