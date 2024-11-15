@@ -41,6 +41,7 @@
 typedef struct
 {
     uint8_t id;
+    uint16_t timeout;
     int CS_PORT_NUM;
     int CS_PIN_NUM;
 } SPI_t;
@@ -140,12 +141,18 @@ bool dataAvailable(SPI_t spi)
     return (status_register & 0b1) == 1;
 }
 
-uint16_t readRX(uint8_t spi_id)
+uint16_t readRX(SPI_t spi)
 {
     // Check if data is ready to be read
-    while (!dataAvailable(spi_id))
+    uint16_t timeout;
+    while (!dataAvailable(spi.spi_id))
     {
         delay(1);
+        timeout++;
+        if (timeout > spi.timeout)
+        {
+            return 0;
+        }
     }
     /* Read from the RX buffer of an SPI */
     uint32_t *base_address = getSPIBaseAddr(spi_id);
