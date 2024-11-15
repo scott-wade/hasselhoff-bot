@@ -5,6 +5,7 @@
 #include "state_machine/state_machine_sub.h"
 #include "state_machine/state_machine_remote.h"
 #include "tests/test_spi.h"
+#include "tests/test_gpio.h"
 
 
 int main(void){
@@ -33,6 +34,8 @@ int main(void){
 
     }else if(WHICH_NUCLEO == 2){
         /* DEBUGGING CODE */
+        //testB0Set();
+        //testB0Clear();
         testReadRegOpMode();
     }
 

@@ -15,7 +15,7 @@
 
 void testReadRegOpMode(void){
     /* Try to read the current RegOpMode settings register from the sx1278 */ 
-    configureSPI(1);
+    configureSPIParent(1);
     // TODO configure gpio port for CS
 
     uint8_t wnr = 0; // read
@@ -42,7 +42,7 @@ void testReadRegOpMode(void){
 
 void testReadWriteRegOpMode(void){
     /* Try to write to the RegOpMode settings register from the sx1278 */ 
-    configureSPI(1);
+    configureSPIParent(1);
     // configure gpio port for CS
 
     uint8_t wnr = 1; // write
@@ -51,9 +51,12 @@ void testReadWriteRegOpMode(void){
     uint8_t addr_packed = (uint8_t)(wnr << 7 | addr);
     uint16_t packet = (uint16_t)(addr_packed << 8 | data);
 
-    // set CS to low
+    // set CS pin A4 low
+    SETorCLEARGPIOoutput(0, 4, 0);
+    
     writeTX(1, packet);
-    // set CS to high
+    // set CS pin A4 high
+    SETorCLEARGPIOoutput(0, 4, 1);
     uint16_t returnvalue = readRX(1);
     debugprint(returnvalue); // this should hopefully return something
 
@@ -65,9 +68,13 @@ void testReadWriteRegOpMode(void){
     addr_packed = (uint8_t)(wnr << 7 & addr);
     packet = (uint16_t)(addr_packed << 8 & data);
 
-    // set CS to low
+    // set CS pin A4 low
+    SETorCLEARGPIOoutput(0, 4, 0);
+
     writeTX(1, packet);
-    // set CS to high
+    // set CS pin A4 high
+    SETorCLEARGPIOoutput(0, 4, 1);
+
     returnvalue = readRX(1);
     debugprint(returnvalue); // this should hopefully print something different
 
