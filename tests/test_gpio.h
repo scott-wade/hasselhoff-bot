@@ -5,6 +5,9 @@
  extern "C" {
 #endif
 
+// function headers
+void testB0Set(void);
+void testB0Clear(void);
 
 #ifdef __cplusplus
 }
