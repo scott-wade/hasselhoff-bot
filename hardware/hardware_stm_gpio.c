@@ -41,9 +41,11 @@
 /* *******************************************************************************
                     GPIO INITIALIZATION
     mapping port number: 0->A, 1->B, ... 7->H
-    open_drain: 0 - not open drain, 1 - open drain
+    mode: 0-input, 1-output, 2-AF
+    open_drain: 0-pupd, 1-open drain
     pupd: 0-floating, 1-pull up, 2-pull down
-    init_output: 
+    init_output: [0,1] initial value if in output mode 
+    alt_func: number of alternate function mode
    ******************************************************************************* */
 void initGPIOasMode(uint8_t port_number, uint8_t pin_number, uint8_t mode, uint8_t open_drain, uint8_t pupd, uint8_t init_output, uint8_t alt_func)
 {
