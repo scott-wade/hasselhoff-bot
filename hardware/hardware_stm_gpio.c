@@ -41,8 +41,11 @@
 /* *******************************************************************************
                     GPIO INITIALIZATION
     mapping port number: 0->A, 1->B, ... 7->H
+    open_drain: 0 - not open drain, 1 - open drain
+    pupd: 0-floating, 1-pull up, 2-pull down
+    init_output: 
    ******************************************************************************* */
-void initGPIOasMode(int port_number, int pin_number, int mode, int open_drain, int pupd, int init_output, uint16_t alt_func)
+void initGPIOasMode(uint8_t port_number, uint8_t pin_number, uint8_t mode, uint8_t open_drain, uint8_t pupd, uint8_t init_output, uint8_t alt_func)
 {
     uint32_t * port_base_address = mapPortNumbertoBaseAddress(port_number);
     uint32_t * moder_register = (uint32_t *) (port_base_address + MODER_REGISTER_OFFSET);
@@ -87,7 +90,7 @@ void initGPIOasMode(int port_number, int pin_number, int mode, int open_drain, i
     }
 
     /*Push-pull v open drain configuration */
-    if(open_drain) {
+    if(open_drain > 0) {
         uint16_t TYPER_OPEN_DR = ((uint16_t) 1<<pin_number);
         reg_pointer = (uint32_t *)otyper_register;
         *reg_pointer = *reg_pointer | TYPER_OPEN_DR; // don't need clear, just setting single bit
@@ -132,9 +135,9 @@ void initGPIOasMode(int port_number, int pin_number, int mode, int open_drain, i
     if(mode == 1) {
         reg_pointer = (uint32_t *)odr_register;
         uint16_t ODR_CLR = ~((uint16_t) 1<<pin_number);
-        uint16_t ODR_SET = ((uint16_t) init_output << pin_number);
+        uint16_t ODR_SET = ((uint16_t) 0b1 << pin_number);
         *reg_pointer = *reg_pointer & ODR_CLR;
-        *reg_pointer = *reg_pointer | ODR_SET;
+        if(init_output>0) *reg_pointer = *reg_pointer | ODR_SET;
     }
 
     /* Alternate Function Config */
