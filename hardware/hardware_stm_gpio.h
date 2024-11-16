@@ -25,7 +25,7 @@
 
 /*Function definitions---------------------------------------------------------*/
 // GPIO initialization
-void initGPIOasMode(int port_number, int pin_number, int mode);
+void initGPIOasMode(uint8_t port_number, uint8_t pin_number, uint8_t mode, uint8_t open_drain, uint8_t pupd, uint8_t init_output, uint8_t alt_func);
 
 // SET, CLEAR and READ functions
 void SETorCLEARGPIOoutput(int port_number, int pin_number, int set);

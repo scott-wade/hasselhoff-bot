@@ -23,10 +23,14 @@
   void initMotorGPIOs()
   {
       /* Initialize Each Prop Pin GPIO into ALT FN 2 */
-      initGPIOasMode(BALLAST_CW_PROP_PIN[0], BALLAST_CW_PROP_PIN[1], 2);
-      initGPIOasMode(BALLAST_CCW_PROP_PIN[0], BALLAST_CCW_PROP_PIN[1], 2);
-      initGPIOasMode(PROPULSION_CW_PROP_PIN[0], PROPULSION_CW_PROP_PIN[1], 2);
-      initGPIOasMode(PROPULSION_CCW_PROP_PIN[0], PROPULSION_CCW_PROP_PIN[1], 2);
+      initGPIOasMode(BALLAST_CW_PROP_PIN[0], BALLAST_CW_PROP_PIN[1], 2, 
+        0, 0, 0, 2);
+      initGPIOasMode(BALLAST_CCW_PROP_PIN[0], BALLAST_CCW_PROP_PIN[1], 2, 
+        0, 0, 0, 2);
+      initGPIOasMode(PROPULSION_CW_PROP_PIN[0], PROPULSION_CW_PROP_PIN[1], 2, 
+        0, 0, 0, 2);
+      initGPIOasMode(PROPULSION_CCW_PROP_PIN[0], PROPULSION_CCW_PROP_PIN[1], 2, 
+        0, 0, 0, 2);
 
   }
 
