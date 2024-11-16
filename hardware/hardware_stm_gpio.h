@@ -23,9 +23,23 @@
 #define PIN_9   9
 #define PIN_10  10
 
-#define MODE_IN     0
-#define MODE_OUT    1
-#define MODE_AF2    2
+/*
+ * mapping port number: 0->A, 1->B, ... 7->H
+ * mode: 0-input, 1-output, 2-AF
+ * open_drain: 0-pupd, 1-open drain
+ * pupd: 0-floating, 1-pull up, 2-pull down
+ * init_output: [0,1] initial value if in output mode 
+ * alt_func: number of alternate function mode
+**/
+#define MODE_IN         0
+#define MODE_OUT        1
+#define MODE_AF2        2
+#define OD_PUPD         0
+#define OD_OPEN_DRAIN   0
+#define PUPD_FLOAT      0
+#define PUPD_UP         1
+#define PUPD_DOWN       2
+
 
 
 /*Function definitions---------------------------------------------------------*/
