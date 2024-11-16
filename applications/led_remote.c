@@ -27,9 +27,9 @@
 // Yellow: D3
 #define YELLOW_PORT     3 // D
 #define YELLOW_PIN      3
-// Green: C9
+// Green: C10
 #define GREEN_PORT      2 // C
-#define GREEN_PIN       9
+#define GREEN_PIN       10
 // White: C8
 #define WHITE_PORT      2 // C
 #define WHITE_PIN       8
@@ -259,18 +259,18 @@ int initStatusLEDs(void) {
     initGPIOasMode(RGB_RED_PORT, RGB_RED_PIN, MODE_OUT, OD_PUPD, PUPD_DOWN, initial_value, 0);
     
     // Set initial states for the LEDs
-    // setBlueLED();
-    clearBlueLED();
-    // setYellowLED();
-    clearYellowLED();
+    setBlueLED();
+    // clearBlueLED();
+    setYellowLED();
+    // clearYellowLED();
     setGreenLED();
     // clearGreenLED();
-    // setWhiteLED();
-    clearWhiteLED();
-    // setRgbGreenLED();
-    clearRgbGreenLED();
-    // setRgbRedLED();
-    clearRgbRedLED();
+    setWhiteLED();
+    // clearWhiteLED();
+    setRgbGreenLED();
+    // clearRgbGreenLED();
+    setRgbRedLED();
+    // clearRgbRedLED();
 
 
     return 0; // success
