@@ -6,7 +6,19 @@
 #endif
 
 /* Function definitions */
-
+int initStatusLEDs(void);
+int setBlueLED(void);
+int clearBlueLED(void);
+int setYellowLED(void);
+int clearYellowLED(void);
+int setGreenLED(void);
+int clearGreenLED(void);
+int setWhiteLED(void);
+int clearWhiteLED(void);
+int setRgbGreenLED(void);
+int clearRgbGreenLED(void);
+int setRgbRedLED(void);
+int clearRgbRedLED(void);
 
 #ifdef __cplusplus
 }

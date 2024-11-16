@@ -23,6 +23,11 @@
 #define PIN_9   9
 #define PIN_10  10
 
+#define MODE_IN     0
+#define MODE_OUT    1
+#define MODE_AF2    2
+
+
 /*Function definitions---------------------------------------------------------*/
 // GPIO initialization
 void initGPIOasMode(int port_number, int pin_number, int mode);

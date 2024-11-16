@@ -10,11 +10,11 @@
 
 
 #include "state_machine_remote.h"
+#include "led_remote.h"
 
 void init_remote(void){
     /* Initialize remote state machine */ 
-
-
+    initStatusLEDs();
 }
 
 

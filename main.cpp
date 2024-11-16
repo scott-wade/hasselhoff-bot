@@ -1,4 +1,4 @@
-#define WHICH_NUCLEO 1 //change for compilation, 0 for remote, 1 for submarine
+#define WHICH_NUCLEO 0 //change for compilation, 0 for remote, 1 for submarine
 
 #include "main.h"
 #include "debug_mort.h"

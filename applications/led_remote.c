@@ -19,7 +19,27 @@
 #define LED_SEG_DIG_0   0
 #define LED_SEG_DIG_1   0       
 #define LED_SEG_DIG_2   0       
-#define LED_SEG_DIG_3   0       
+#define LED_SEG_DIG_3   0   
+
+// Blue: D4
+#define BLUE_PORT       3 // D
+#define BLUE_PIN        4
+// Yellow: D3
+#define YELLOW_PORT     3 // D
+#define YELLOW_PIN      3
+// Green: C9
+#define GREEN_PORT      2 // C
+#define GREEN_PIN       9
+// White: C8
+#define WHITE_PORT      2 // C
+#define WHITE_PIN       8
+// RGB Green: E2
+#define RGB_GREEN_PORT  4 // E
+#define RGB_GREEN_PIN   2
+// RGB Red: E4
+#define RGB_RED_PORT    4 // E
+#define RGB_RED_PIN     4
+
 
 
 // Structs //////////////////////
@@ -163,6 +183,87 @@ int selectDigit(uint8_t selected_digit) {
 int setSegLED(uint8_t digit, uint8_t val) {
     selectDigit(digit);
     setDigitVal(val);
+
+    return 0; // success
+}
+
+// Setting and clearing status LEDs
+int setBlueLED(void) {
+    SETorCLEARGPIOoutput(BLUE_PORT, BLUE_PIN, 1);
+    return 0; // success
+}
+int clearBlueLED(void) {
+    SETorCLEARGPIOoutput(BLUE_PORT, BLUE_PIN, 0);
+    return 0; // success
+}
+int setYellowLED(void) {
+    SETorCLEARGPIOoutput(YELLOW_PORT, YELLOW_PIN, 1);
+    return 0; // success
+}
+int clearYellowLED(void) {
+    SETorCLEARGPIOoutput(YELLOW_PORT, YELLOW_PIN, 0);
+    return 0; // success
+}
+int setGreenLED(void) {
+    SETorCLEARGPIOoutput(GREEN_PORT, GREEN_PIN, 1);
+    return 0; // success
+}
+int clearGreenLED(void) {
+    SETorCLEARGPIOoutput(GREEN_PORT, GREEN_PIN, 0);
+    return 0; // success
+}
+int setWhiteLED(void) {
+    SETorCLEARGPIOoutput(WHITE_PORT, WHITE_PIN, 1);
+    return 0; // success
+}
+int clearWhiteLED(void) {
+    SETorCLEARGPIOoutput(WHITE_PORT, WHITE_PIN, 0);
+    return 0; // success
+}
+int setRgbGreenLED(void) {
+    SETorCLEARGPIOoutput(RGB_GREEN_PORT, RGB_GREEN_PIN, 1);
+    return 0; // success
+}
+int clearRgbGreenLED(void) {
+    SETorCLEARGPIOoutput(RGB_GREEN_PORT, RGB_GREEN_PIN, 0);
+    return 0; // success
+}
+int setRgbRedLED(void) {
+    SETorCLEARGPIOoutput(RGB_RED_PORT, RGB_RED_PIN, 1);
+    return 0; // success
+}
+int clearRgbRedLED(void) {
+    SETorCLEARGPIOoutput(RGB_RED_PORT, RGB_RED_PIN, 0);
+    return 0; // success
+}
+
+
+/* 
+ * Initialize status leds
+ */
+int initStatusLEDs(void) {
+    // Initalize all LEDs as output
+    initGPIOasMode(BLUE_PORT, BLUE_PIN, MODE_OUT);
+    initGPIOasMode(YELLOW_PORT, YELLOW_PIN, MODE_OUT);
+    initGPIOasMode(GREEN_PORT, GREEN_PIN, MODE_OUT);
+    initGPIOasMode(WHITE_PORT, WHITE_PIN, MODE_OUT);
+    initGPIOasMode(RGB_GREEN_PORT, RGB_GREEN_PIN, MODE_OUT);
+    initGPIOasMode(RGB_RED_PORT, RGB_RED_PIN, MODE_OUT);
+    
+    // Set initial states for the LEDs
+    setBlueLED();
+    // clearBlueLED();
+    setYellowLED();
+    // clearYellowLED();
+    setGreenLED();
+    // clearGreenLED();
+    setWhiteLED();
+    // clearWhiteLED();
+    setRgbGreenLED();
+    // clearRgbGreenLED();
+    setRgbRedLED();
+    // clearRgbRedLED();
+
 
     return 0; // success
 }
