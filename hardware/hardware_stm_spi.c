@@ -119,14 +119,16 @@ void configureSPIParent(uint8_t spi_id){
 void writeTX(uint8_t spi_id, uint16_t value){
     /* Write to the TX buffer of an SPI */
     uint32_t base_address = getSPIBaseAddr(spi_id);
-    uint32_t* data_register_address = (uint32_t*)(long)(base_address + SPI_DATA_REGISTER_OFFSET);
+    uint32_t* data_register_address = (uint32_t*)(long)
+                (base_address + SPI_DATA_REGISTER_OFFSET);
     *data_register_address = value;
 }
 
 uint16_t readRX(uint8_t spi_id){
     /* Read from the RX buffer of an SPI */
     uint32_t base_address = getSPIBaseAddr(spi_id);
-    uint32_t* data_register_address = (uint32_t*)(long)(base_address + SPI_DATA_REGISTER_OFFSET);
+    uint32_t* data_register_address = (uint32_t*)(long)
+                (base_address + SPI_DATA_REGISTER_OFFSET);
     return *data_register_address;
 }
 
@@ -135,6 +137,13 @@ uint16_t readSpiStatusRegister(uint8_t spi_id){
     uint32_t base_address = getSPIBaseAddr(spi_id);
     uint32_t* status_register_address = (uint32_t*)(long)(base_address + SPI_STATUS_REGISTER_OFFSET);
     return *status_register_address;
+}
+
+void resetSpiRXNE(uint8_t spi_id){
+    /* reset the RXNE status register flag */
+    uint32_t base_address = getSPIBaseAddr(spi_id);
+    uint32_t* status_register_address = (uint32_t*)(long)(base_address + SPI_STATUS_REGISTER_OFFSET);
+    *status_register_address = *status_register_address & ~((uint16_t)0b0);
 }
 
 uint32_t getSPIBaseAddr(uint8_t spi_id){

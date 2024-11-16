@@ -59,12 +59,16 @@ void testReadWriteRegOpMode(void){
     uint16_t packet = (uint16_t)(addr_packed << 8 | data);
     printf("packet: %u\n", packet);
 
-    // set CS pin A4 low
+    // set child select pin A4 low
     SETorCLEARGPIOoutput(0, 4, 0);
+
+    // write to our TX buffer
     writeTX(1, packet);
 
-    // set CS pin A4 high
+    // set child select pin A4 high
     SETorCLEARGPIOoutput(0, 4, 1);
+
+    // read from our RX buffer
     uint16_t returnvalue = readRX(1);
     printf("Read value from register %u \n",returnvalue);
     
