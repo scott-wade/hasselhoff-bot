@@ -106,17 +106,17 @@ void initGPIOasMode(uint8_t port_number, uint8_t pin_number, uint8_t mode, uint8
     uint32_t OSPEEDR_HI = (uint32_t) ((1<<(2*pin_number+1)) + (1<<(2*pin_number)));
     reg_pointer = (uint32_t *)ospeedr_register;
     *reg_pointer = *reg_pointer | OSPEEDR_HI;
-    
+
+    reg_pointer = (uint32_t *)pupdr_register;
+    uint32_t PUPD_FLOATING = ~((uint32_t) ((1<<(2*pin_number+1)) + (1<<(2*pin_number))));
+    uint32_t PUPD_CLR = ~((uint32_t) ((1<<(2*pin_number+1)) + (1<<(2*pin_number))));
+    uint32_t PUPD_PU = (uint32_t) 1<<(2*pin_number);
+    uint32_t PUPD_PD = (uint32_t) 1<<(2*pin_number+1);   
     /* pull up, pull down, neither config */
-    switch(pupd) {
-        reg_pointer = (uint32_t *)pupdr_register;
-        uint32_t PUPD_FLOAT = ~((uint32_t) ((1<<(2*pin_number+1)) + (1<<(2*pin_number))));
-        uint32_t PUPD_CLR = ~((uint32_t) ((1<<(2*pin_number+1)) + (1<<(2*pin_number))));
-        uint32_t PUPD_PU = (uint32_t) 1<<(2*pin_number);
-        uint32_t PUPD_PD = (uint32_t) 1<<(2*pin_number+1);    
+    switch(pupd) { 
         /* Configured neither, ie floating */
         case 0:           
-            *reg_pointer = *reg_pointer & PUPD_FLOAT;  // don't need clear since this operation is a clear anyway            
+            *reg_pointer = *reg_pointer & PUPD_FLOATING;  // don't need clear since this operation is a clear anyway            
             break;
         /* Configured pull up */
         case 1:
