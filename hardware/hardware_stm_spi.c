@@ -123,6 +123,24 @@ void writeTX(SPI_t spi, uint16_t value)
     SETorCLEARGPIOoutput(spi.CS_PORT_NUM, spi.CS_PIN_NUM, 1);
 }
 
+void writeTX(SPI_t spi, uint32_t *value)
+{
+    // Toggle CS
+    SETorCLEARGPIOoutput(spi.CS_PORT_NUM, spi.CS_PIN_NUM, 0);
+    /* Write to the TX buffer of an SPI */
+    uint32_t *base_address = getSPIBaseAddr(spi.spi_id);
+    uint32_t *data_register_address = (uint32_t *)(base_address + SPI_DATA_REGISTER_OFFSET);
+    memset(data_register_address, value, sizeof(uint32_t));
+    // *data_register_address = &value;
+    // wait for transmission to finish
+    while (!transmissionFinished(spi))
+    {
+        delay(1);
+    }
+    // Toggle CS
+    SETorCLEARGPIOoutput(spi.CS_PORT_NUM, spi.CS_PIN_NUM, 1);
+}
+
 bool transmissionFinished(SPI_t spi)
 {
     /* Check if the transmission is finished */
