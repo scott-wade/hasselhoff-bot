@@ -60,9 +60,8 @@ void initGPIOasMode(uint8_t port_number, uint8_t pin_number, uint8_t mode, uint8
     
     uint32_t * reg_pointer;
 
-
     // Enable Peripheral Clock (All GPIOs are on AHB1)
-    enableAHB1RCCclock(port_number);
+    enableAHB1GPIOclock(port_number);
 
     /* Pin configuration */
     if (mode == 0) { // Input
@@ -227,6 +226,23 @@ int readGPIOoutput(int port_number, int pin_number)
     return (value>0);  
 }
 
+void initGPIOasAnalog(int port_number, int pin_number) {
+    uint32_t* reg_pointer;
+    uint32_t port_base_address = mapPortNumbertoBaseAddress(port_number);
+    // 1. Enable the AHB1 clock
+    enableAHB1GPIOclock(port_number);
+    // 2. Setup GPIO pin as analog by writing setting bits 14 and 15 in the MODER register
+    reg_pointer = (uint32_t*) (uint32_t *)(long)(port_base_address + MODER_REGISTER_OFFSET);
+    *reg_pointer = *reg_pointer | ((uint32_t) (0b11 << (pin_number*2)));
+    // 3. Setup GPIO pin to be a push-pull output by writing to the OTYPER register
+    reg_pointer = (uint32_t *)(long)(port_base_address + OTYPER_REGISTER_OFFSET);
+    *reg_pointer = *reg_pointer & (~((uint32_t)(0x01 << pin_number))); // First clear bit
+    *reg_pointer = *reg_pointer | 0x00; // Set bit
+    // 4. Setup GPIO pin to be floating by writing to the PUPDR register
+    reg_pointer = (uint32_t*)(long)(port_base_address + PUPDR_REGISTER_OFFSET);
+    *reg_pointer = *reg_pointer & (~((uint32_t)(0b11 << (pin_number*2))));
+}
+
 /* *******************************************************************************
                     GPIO UTILITY FUNCTIONS
    ******************************************************************************* */
@@ -248,7 +264,7 @@ uint32_t mapPortNumbertoBaseAddress(int port_number)
     return port_base_address;
 }
 
-void enableAHB1RCCclock(int port_number)
+void enableAHB1GPIOclock(int port_number)
 {
     switch (port_number) {
         case 0 : {RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE); break;}
