@@ -37,6 +37,9 @@ typedef struct {
 } sub_t;
 
 
+/* Global Variables */
+static sub_t subState;
+
 /*Function definitions---------------------------------------------------------*/
 void init_sub(void);
 void init_timer();
