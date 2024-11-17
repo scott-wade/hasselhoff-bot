@@ -24,11 +24,12 @@ extern "C"
 #define PIN_10 10
 
     /*Function definitions---------------------------------------------------------*/
-    uint32_t *getSPIBaseAddr(uint8_t spi_id);
-    void configureSPI(uint8_t spi_id);
+    uint32_t getSPIBaseAddr(uint8_t spi_id);
+    void configureSPIParent(uint8_t spi_id);
     void writeTX(uint8_t spi_id, uint16_t value);
-    void writeTX(SPI_t spi, uint32_t *value);
     uint16_t readRX(uint8_t spi_id);
+    uint16_t readSpiStatusRegister(uint8_t spi_id);
+    void resetSpiRXNE(uint8_t spi_id);
 
 #ifdef __cplusplus
 }
