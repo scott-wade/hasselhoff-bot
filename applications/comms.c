@@ -1,9 +1,9 @@
 #include "comms.h"
 
-void send_comms(comms_type_t type, comms_payload_t payload)
+void send_comms(comms_type_t type, comms_payload_t* payload)
 {
     // Send the packet
-    payload.type = type;
+    payload->type = type;
     // Send the payload
     for (int i = 0; i < sizeof(payload); i++)
     {
@@ -11,7 +11,6 @@ void send_comms(comms_type_t type, comms_payload_t payload)
         if (i == sizeof(payload))
         {
             p = payload[i] << 8;
-            ;
         }
         else
         {
