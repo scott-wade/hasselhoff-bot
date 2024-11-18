@@ -1,4 +1,6 @@
+#include <cstdint>
 #define WHICH_NUCLEO 2 //change for compilation, 0 for remote, 1 for submarine, 2 for debug
+
 
 #include "main.h"
 #include "debug_mort.h"
@@ -32,18 +34,11 @@ int main(void){
 
     }else if(WHICH_NUCLEO == 2){
         /* DEBUGGING CODE */
-        
+        //testB0Set();
+        //testB0Clear();
+        //testReadWriteRegOpMode();
+        testSPIStateMachine();
+
     }
 
-}
-
-void delay(uint16_t ms)
-{
-    for(int i = 0; i < ms; i++)
-    {
-        for (int i = 0; i < ms; i++)
-        {
-            continue;
-        }
-    }
 }
