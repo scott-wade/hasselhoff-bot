@@ -47,23 +47,42 @@ void configureSPIParent(uint8_t spi_id){
     uint32_t* control_register1_addr = (uint32_t *)(long)(base_address + SPI_CONTROL_REGISTER1_OFFSET);
     uint32_t* control_register2_addr = (uint32_t *)(long)(base_address + SPI_CONTROL_REGISTER2_OFFSET);
 
-    // enable SPI clock bus (APB2)
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
+
+    switch(spi_id){
+        // enable SPI clock bus (APB2 for SPI1/4)
+        case 1: RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE); break;
+        case 4: RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI4, ENABLE); break;
+        default: fprintf(stderr, "Tried to init with invalid/unsupported SPI ID"); break;
+    }
 
     // disable SPI
     *control_register1_addr = *control_register1_addr & ~(uint16_t)(0b1 << 6);
 
     // 1. Write proper GPIO registers: Configure GPIO for MOSI, MISO and SCK pins.
-    // PICO pin A6 -> moder 2 for alt, open drain, neither PUPD, alt func = 5
-    initGPIOasMode(0, 6, 2, 1, 0, 0, 5);
-    // POCI pin A7 -> moder 2 for alt, push-pull, neither PUPD, alt func = 5
-    initGPIOasMode(0, 7, 2, 0, 0, 0, 5);
-    // SCLK pin A5 -> moder 2 for alt, push-pull, neither PUPD, alt func = 5
-    initGPIOasMode(0, 5, 2, 0, 0, 0, 5);
-    // CS pin(s) A4 -> moder 1 for out, push pull, PU, ODR high
-    initGPIOasMode(0, 4, 1, 0, 1, 1, 0);
 
+    switch(spi_id){
+        case 1:
+            // PICO pin A6 -> moder 2 for alt, open drain, neither PUPD, alt func = 5
+            initGPIOasMode(PORT_A, PIN_6, MODE_AF, OD_OPEN_DRAIN, PUPD_FLOAT, 0, 5);
+            // POCI pin A7 -> moder 2 for alt, push-pull, neither PUPD, alt func = 5
+            initGPIOasMode(PORT_A, PIN_7, MODE_AF, OD_PUPD, PUPD_FLOAT, 0, 5);
+            // SCLK pin B3 -> moder 2 for alt, push-pull, neither PUPD, alt func = 5
+            initGPIOasMode(PORT_B, PIN_3, MODE_AF, OD_PUPD, PUPD_FLOAT, 0, 5);
+            // CS pin(s) A15 -> moder 1 for out, push pull, PU, ODR high
+            initGPIOasMode(PORT_A, PIN_15, MODE_OUT, OD_PUPD, PUPD_UP, 1, 0);
+        break;
+        case 4:
+            //PICO/MISO pin  ->  moder 2 for alt, open drain, neither PUPD, alt func = 5
+            //POCI/MOSI pin  -> moder 2 for alt, push-pull, neither PUPD, alt func = 5
+            // SCLK pin  -> moder 2 for alt, push-pull, neither PUPD, alt func = 5
+            // CS pin  -> moder 1 for out, push pull, PU, ODR high
+        break;
+        default:
+            fprintf(stderr, "Tried to init with invalid SPI ID");
+        break;
 
+    }
+    
     //2. Write to the SPI_CR1 register:
     *control_register1_addr = *control_register2_addr & SPI_CONTROL_REGISTER1_RESET_MASK;
     //a) Configure the serial clock baud rate using the BR[2:0] bits (Note: 3).
@@ -162,6 +181,9 @@ uint32_t getSPIBaseAddr(uint8_t spi_id){
         case 4: 
             port_base_address = (uint32_t)SPI4_BASE_ADDRESS;
             break;
+        default:
+            fprintf(stderr, "Tried to get register address for invalid SPI ID");
+        break;
     }
     return port_base_address;
 }

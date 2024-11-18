@@ -22,6 +22,21 @@
 #define PIN_8   8
 #define PIN_9   9
 #define PIN_10  10
+#define PIN_11  11
+#define PIN_12  12
+#define PIN_13  13
+#define PIN_14  14
+#define PIN_15  15
+
+#define PORT_A 0
+#define PORT_B 1
+#define PORT_C 2
+#define PORT_D 3
+#define PORT_E 4
+#define PORT_F 5
+#define PORT_G 6
+#define PORT_H 7
+
 
 /*Function definitions---------------------------------------------------------*/
 uint32_t getSPIBaseAddr(uint8_t spi_id);
