@@ -3,14 +3,15 @@
 #define __HARDWARE_STM_SPI_H_
 
 #ifdef __cplusplus
- extern "C" {
+extern "C"
+{
 #endif
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_mort2.h"
 
-
 /* Macros for Everyone--------------------------------------------------------*/
+
 #define PIN_0   0
 #define PIN_1   1
 #define PIN_2   2
@@ -37,7 +38,6 @@
 #define PORT_G 6
 #define PORT_H 7
 
-
 /*Function definitions---------------------------------------------------------*/
 uint32_t getSPIBaseAddr(uint8_t spi_id);
 void configureSPIParent(uint8_t spi_id);
@@ -45,7 +45,6 @@ void writeTX(uint8_t spi_id, uint16_t value);
 uint16_t readRX(uint8_t spi_id);
 uint16_t readSpiStatusRegister(uint8_t spi_id);
 void resetSpiRXNE(uint8_t spi_id);
-
 
 
 #ifdef __cplusplus
