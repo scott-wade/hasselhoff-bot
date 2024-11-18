@@ -2,7 +2,7 @@
 
 void initSensor(bool analog)
 {
-    uint8_T MODE;
+    uint8_t MODE;
     if (analog)
     {
         MODE = 2; // Analog mode
@@ -11,7 +11,7 @@ void initSensor(bool analog)
     {
         MODE = 0; // Digital mode
     }
-    initGPIOasMode(IR_RANGE_PORT_NUM, IR_RANGE_PIN_NUM, MODE);
+    initGPIOasMode(IR_RANGE_PORT_NUM, IR_RANGE_PIN_NUM, MODE, 0, 1, 0, 0);
 }
 
 /* Deprecated */
@@ -28,5 +28,5 @@ uint8_t getSensorTripped(void)
 {
     // Read the digital value from the sensor
     // Return the digital value
-    return readGpioInput(IR_RANGE_PORT_NUM, IR_RANGE_PIN_NUM);
+    return readGPIOinput(IR_RANGE_PORT_NUM, IR_RANGE_PIN_NUM);
 }

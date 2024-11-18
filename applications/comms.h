@@ -17,7 +17,7 @@ typedef enum {
     ACK, // sub to remote and remote to sub
     IR_DETECTED, // sub to remote
     IR_LOST, // sub to remote
-    LANDED, // sub to remote
+    LANDED_MSG, // sub to remote
 } comms_type_t;
 
 typedef struct {
@@ -26,13 +26,13 @@ typedef struct {
     double heading_val; // Only non-zero in DRIVE_MSG
 } comms_payload_t;
 
-void send_comms(comms_type_t type, comms_payload_t payload);
+void send_comms(comms_type_t type, comms_payload_t* payload);
 
 
 // Callbacks
-void drive_cmd_cb(comms_payload_t payload);
-void land_cmd_cb(comms_payload_t payload);
-void ack_cb(comms_payload_t payload);
-void ir_detected_cb(comms_payload_t payload);
-void ir_lost_cb(comms_payload_t payload);
-void landed_cb(comms_payload_t payload);
+void drive_cmd_cb(comms_payload_t* payload);
+void land_cmd_cb(comms_payload_t* payload);
+void ack_cb(comms_payload_t* payload);
+void ir_detected_cb(comms_payload_t* payload);
+void ir_lost_cb(comms_payload_t* payload);
+void landed_cb(comms_payload_t* payload);

@@ -11,6 +11,7 @@
 
 /* MACROS for everyone--------------------------------------------------------*/
 
+#define SUB
 
 /* Type definisionts and enumerations*/
 
@@ -42,8 +43,8 @@ static sub_t subState;
 
 /*Function definitions---------------------------------------------------------*/
 void init_sub(void);
-void init_timer();
-void init_gpio();
+void init_timer(void);
+void init_gpio(void);
 void event_handler_sub(void);
 
 

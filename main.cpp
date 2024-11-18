@@ -4,7 +4,6 @@
 #include "debug_mort.h"
 #include "state_machine/state_machine_sub.h"
 #include "state_machine/state_machine_remote.h"
-#include "applications/test_spi.h"
 
 
 int main(void){
@@ -33,7 +32,18 @@ int main(void){
 
     }else if(WHICH_NUCLEO == 2){
         /* DEBUGGING CODE */
-        testReadRegOpMode();
+        
     }
 
+}
+
+void delay(uint16_t ms)
+{
+    for(int i = 0; i < ms; i++)
+    {
+        for (int i = 0; i < ms; i++)
+        {
+            continue;
+        }
+    }
 }
