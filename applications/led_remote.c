@@ -251,26 +251,26 @@ int initStatusLEDs(void) {
 
     // Initalize all LEDs as output
     int initial_value = 0;
-    initGPIOasMode(BLUE_PORT, BLUE_PIN, MODE_OUT, OD_PUPD, PUPD_DOWN, initial_value, 0);
-    initGPIOasMode(YELLOW_PORT, YELLOW_PIN, MODE_OUT, OD_PUPD, PUPD_DOWN, initial_value, 0);
-    initGPIOasMode(GREEN_PORT, GREEN_PIN, MODE_OUT, OD_PUPD, PUPD_DOWN, initial_value, 0);
-    initGPIOasMode(WHITE_PORT, WHITE_PIN, MODE_OUT, OD_PUPD, PUPD_DOWN, initial_value, 0);
-    initGPIOasMode(RGB_GREEN_PORT, RGB_GREEN_PIN, MODE_OUT, OD_PUPD, PUPD_DOWN, initial_value, 0);
-    initGPIOasMode(RGB_RED_PORT, RGB_RED_PIN, MODE_OUT, OD_PUPD, PUPD_DOWN, initial_value, 0);
+    initGPIOasMode(BLUE_PORT, BLUE_PIN, MODE_OUT, OD_PUPD, PUPD_FLOAT, initial_value, 0);
+    initGPIOasMode(YELLOW_PORT, YELLOW_PIN, MODE_OUT, OD_PUPD, PUPD_FLOAT, initial_value, 0);
+    initGPIOasMode(GREEN_PORT, GREEN_PIN, MODE_OUT, OD_PUPD, PUPD_FLOAT, initial_value, 0);
+    initGPIOasMode(WHITE_PORT, WHITE_PIN, MODE_OUT, OD_PUPD, PUPD_FLOAT, initial_value, 0);
+    initGPIOasMode(RGB_GREEN_PORT, RGB_GREEN_PIN, MODE_OUT, OD_PUPD, PUPD_FLOAT, initial_value, 0);
+    initGPIOasMode(RGB_RED_PORT, RGB_RED_PIN, MODE_OUT, OD_PUPD, PUPD_FLOAT, initial_value, 0);
     
     // Set initial states for the LEDs
-    setBlueLED();
-    // clearBlueLED();
-    setYellowLED();
-    // clearYellowLED();
-    setGreenLED();
-    // clearGreenLED();
-    setWhiteLED();
-    // clearWhiteLED();
-    setRgbGreenLED();
-    // clearRgbGreenLED();
-    setRgbRedLED();
-    // clearRgbRedLED();
+    // setBlueLED();
+    clearBlueLED();
+    // setYellowLED();
+    clearYellowLED();
+    // setGreenLED();
+    clearGreenLED();
+    // setWhiteLED();
+    clearWhiteLED();
+    // setRgbGreenLED();
+    clearRgbGreenLED();
+    // setRgbRedLED();
+    clearRgbRedLED();
 
 
     return 0; // success

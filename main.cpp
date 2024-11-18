@@ -1,5 +1,5 @@
 #include <cstdint>
-#define WHICH_NUCLEO 2 //change for compilation, 0 for remote, 1 for submarine, 2 for debug
+#define WHICH_NUCLEO 0 //change for compilation, 0 for remote, 1 for submarine, 2 for debug
 
 
 #include "main.h"

@@ -64,21 +64,21 @@ void initGPIOasMode(uint8_t port_number, uint8_t pin_number, uint8_t mode, uint8
     enableAHB1GPIOclock(port_number);
 
     /* Pin configuration */
-    if (mode == 0) { // Input
+    if (mode == MODE_IN) { // Input
 
         uint32_t MODER_IN = ~((uint32_t) ((1<<(2*pin_number+1)) + (1<<(2*pin_number))));
         reg_pointer = (uint32_t *)moder_register;
         *reg_pointer = *reg_pointer & MODER_IN;
 
-    } else if (mode == 1) { // Output
+    } else if (mode == MODE_OUT) { // Output
 
-        uint32_t MODER_CLR = ~((uint32_t) ((1<<(2*pin_number+1)) + (1<<(2*pin_number))));
+        uint32_t MODER_CLR = ~((uint32_t) (0b11 << (2*pin_number)));
         uint32_t MODER_OUT = 1<<(2*pin_number);
         reg_pointer = (uint32_t *)moder_register;
         *reg_pointer = *reg_pointer & MODER_CLR;
         *reg_pointer = *reg_pointer | MODER_OUT;
 
-    } else if (mode == 2) { // Alternate Function mode
+    } else if (mode == MODE_AF2) { // Alternate Function mode
 
         uint32_t MODER_CLR = ~((uint32_t) ((1<<(2*pin_number+1)) + (1<<(2*pin_number))));
         uint32_t MODER_ALT = 1<<(2*pin_number+1);
@@ -96,9 +96,11 @@ void initGPIOasMode(uint8_t port_number, uint8_t pin_number, uint8_t mode, uint8
         reg_pointer = (uint32_t *)otyper_register;
         *reg_pointer = *reg_pointer | TYPER_OPEN_DR; // don't need clear, just setting single bit
     } else {
-        uint16_t TYPER_PUP = ~((uint16_t) 1<<pin_number);
+        uint32_t TYPER_PUP = ~((uint32_t) 1<<(2*pin_number));
+        uint32_t OTYPER_PP = 0x00;
         reg_pointer = (uint32_t *)otyper_register;
-        *reg_pointer = *reg_pointer & TYPER_PUP; // don't need clear since this operation is a clear anyway
+        *reg_pointer = *reg_pointer & ~TYPER_PUP; // Clear the bit
+        *reg_pointer = *reg_pointer | OTYPER_PP; // Set the bit, although is just 0
     }
 
     /*Pin high speed */
@@ -107,23 +109,24 @@ void initGPIOasMode(uint8_t port_number, uint8_t pin_number, uint8_t mode, uint8
     *reg_pointer = *reg_pointer | OSPEEDR_HI;
 
     reg_pointer = (uint32_t *)pupdr_register;
-    uint32_t PUPD_FLOATING = ~((uint32_t) ((1<<(2*pin_number+1)) + (1<<(2*pin_number))));
-    uint32_t PUPD_CLR = ~((uint32_t) ((1<<(2*pin_number+1)) + (1<<(2*pin_number))));
+    uint32_t PUPD_FLOATING = 0; // Just 0
+    uint32_t PUPD_CLR = ~((uint32_t) 0b11 << (2*pin_number));
     uint32_t PUPD_PU = (uint32_t) 1<<(2*pin_number);
     uint32_t PUPD_PD = (uint32_t) 1<<(2*pin_number+1);   
     /* pull up, pull down, neither config */
     switch(pupd) { 
         /* Configured neither, ie floating */
-        case 0:           
-            *reg_pointer = *reg_pointer & PUPD_FLOATING;  // don't need clear since this operation is a clear anyway            
+        case PUPD_FLOAT:           
+            *reg_pointer = *reg_pointer & PUPD_CLR;
+            *reg_pointer = *reg_pointer | PUPD_FLOATING;      
             break;
         /* Configured pull up */
-        case 1:
+        case PUPD_UP:
             *reg_pointer = *reg_pointer & PUPD_CLR;
             *reg_pointer = *reg_pointer | PUPD_PU;
             break;
         /* Configured pull-down */
-        case 2:
+        case PUPD_DOWN:
             *reg_pointer = *reg_pointer & PUPD_CLR;
             *reg_pointer = *reg_pointer | PUPD_PD;
             break;
@@ -133,16 +136,16 @@ void initGPIOasMode(uint8_t port_number, uint8_t pin_number, uint8_t mode, uint8
     }
 
     /* Output Pin Init State Config */
-    if(mode == 1) {
+    if(mode == MODE_OUT) {
         reg_pointer = (uint32_t *)odr_register;
-        uint16_t ODR_CLR = ~((uint16_t) 1<<pin_number);
-        uint16_t ODR_SET = ((uint16_t) 0b1 << pin_number);
+        uint32_t ODR_CLR = ~((uint32_t) 1 << pin_number);
+        uint32_t ODR_SET = ((uint32_t) 1 << pin_number);
         *reg_pointer = *reg_pointer & ODR_CLR;
-        if(init_output>0) *reg_pointer = *reg_pointer | ODR_SET;
+        if(init_output > 0) *reg_pointer = *reg_pointer | ODR_SET;
     }
 
     /* Alternate Function Config */
-    if ((mode == 2) && (alt_func <= 15)) { // ALT FN MODE
+    if ((mode == MODE_AF2) && (alt_func <= 15)) { // ALT FN MODE
         /* Set Port & Pin to the AF value passed to init */
         uint32_t AFR_CLR;
         uint32_t AFR_VAL;
@@ -160,7 +163,7 @@ void initGPIOasMode(uint8_t port_number, uint8_t pin_number, uint8_t mode, uint8
         *reg_pointer = *reg_pointer & AFR_CLR; // clear bit for alternate function
         *reg_pointer = *reg_pointer | AFR_VAL;
 
-    } else if ((mode == 2) && (alt_func > 15)) {
+    } else if ((mode == MODE_AF2) && (alt_func > 15)) {
         fprintf(stderr, "Invalid alt function entry");
     }
      
