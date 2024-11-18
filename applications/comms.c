@@ -7,7 +7,17 @@ void send_comms(comms_type_t type, comms_payload_t payload)
     // Send the payload
     for (int i = 0; i < sizeof(payload); i++)
     {
-        writeTX(SPI1, payload[i]);
+        uint16_t p = 0;
+        if (i == sizeof(payload))
+        {
+            p = payload[i] << 8;
+            ;
+        }
+        else
+        {
+            p = payload[i] << 8 | payload[i + 1];
+        }
+        writeTX(1, p);
         delay(1);
     }
 }
@@ -18,7 +28,7 @@ void recv_comms()
     comms_payload_t payload;
     for (int i = 0; i < sizeof(payload); i++)
     {
-        payload[i] = readRX(SPI1);
+        payload[i] = readRX(1);
         delay(1);
     }
     // Call the appropriate callback
