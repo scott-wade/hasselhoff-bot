@@ -61,7 +61,7 @@ typedef struct {
  * Set the digit value
  * @param val: is int between 0-9
  */
-int setDigitVal(uint8_t val) {
+int set_digit_value(uint8_t val) {
     // Initialize led segments based on the desired value
     led_segs_t led_segs = {.dp=false, .a=false, .b=false, .c=false, .d=false, .e=false, .f=false, .g=false};
     switch (val) {
@@ -156,7 +156,7 @@ int setDigitVal(uint8_t val) {
  * Select one of the 4 digits in the 4-digit display to output to
  * @param selected_digit: is int between 0-3
  */
-int selectDigit(uint8_t selected_digit) {
+int select_digit(uint8_t selected_digit) {
     if (selected_digit < 0 || selected_digit > 3) {
         printf("[ERROR] led_remote.c: %d must be between 0-3\n", selected_digit);
         return -1; // error
@@ -180,59 +180,59 @@ int selectDigit(uint8_t selected_digit) {
  * @param digit: is int between 0-3 to select which of the 4 digits to output to
  * @param val: is int between 0-9 to set the digit value to display
  */
-int setSegLED(uint8_t digit, uint8_t val) {
-    selectDigit(digit);
-    setDigitVal(val);
+int set_seg_led(uint8_t digit, uint8_t val) {
+    select_digit(digit);
+    set_digit_value(val);
 
     return 0; // success
 }
 
 // Setting and clearing status LEDs
-int setBlueLED(void) {
+int set_blue_led(void) {
     SETorCLEARGPIOoutput(BLUE_PORT, BLUE_PIN, 1);
     return 0; // success
 }
-int clearBlueLED(void) {
+int clear_blue_led(void) {
     SETorCLEARGPIOoutput(BLUE_PORT, BLUE_PIN, 0);
     return 0; // success
 }
-int setYellowLED(void) {
+int set_yellow_led(void) {
     SETorCLEARGPIOoutput(YELLOW_PORT, YELLOW_PIN, 1);
     return 0; // success
 }
-int clearYellowLED(void) {
+int clear_yellow_led(void) {
     SETorCLEARGPIOoutput(YELLOW_PORT, YELLOW_PIN, 0);
     return 0; // success
 }
-int setGreenLED(void) {
+int set_green_led(void) {
     SETorCLEARGPIOoutput(GREEN_PORT, GREEN_PIN, 1);
     return 0; // success
 }
-int clearGreenLED(void) {
+int clear_green_led(void) {
     SETorCLEARGPIOoutput(GREEN_PORT, GREEN_PIN, 0);
     return 0; // success
 }
-int setWhiteLED(void) {
+int set_white_led(void) {
     SETorCLEARGPIOoutput(WHITE_PORT, WHITE_PIN, 1);
     return 0; // success
 }
-int clearWhiteLED(void) {
+int clear_white_led(void) {
     SETorCLEARGPIOoutput(WHITE_PORT, WHITE_PIN, 0);
     return 0; // success
 }
-int setRgbGreenLED(void) {
+int set_rgb_green_led(void) {
     SETorCLEARGPIOoutput(RGB_GREEN_PORT, RGB_GREEN_PIN, 1);
     return 0; // success
 }
-int clearRgbGreenLED(void) {
+int clear_rgb_green_led(void) {
     SETorCLEARGPIOoutput(RGB_GREEN_PORT, RGB_GREEN_PIN, 0);
     return 0; // success
 }
-int setRgbRedLED(void) {
+int set_rgb_red_led(void) {
     SETorCLEARGPIOoutput(RGB_RED_PORT, RGB_RED_PIN, 1);
     return 0; // success
 }
-int clearRgbRedLED(void) {
+int clear_rgb_red_led(void) {
     SETorCLEARGPIOoutput(RGB_RED_PORT, RGB_RED_PIN, 0);
     return 0; // success
 }
@@ -259,18 +259,18 @@ int init_status_leds(void) {
     initGPIOasMode(RGB_RED_PORT, RGB_RED_PIN, MODE_OUT, OD_PUPD, PUPD_FLOAT, initial_value, 0);
     
     // Set initial states for the LEDs
-    // setBlueLED();
-    clearBlueLED();
-    // setYellowLED();
-    clearYellowLED();
-    // setGreenLED();
-    clearGreenLED();
-    // setWhiteLED();
-    clearWhiteLED();
-    // setRgbGreenLED();
-    clearRgbGreenLED();
-    // setRgbRedLED();
-    clearRgbRedLED();
+    // set_blue_led();
+    clear_blue_led();
+    // set_yellow_led();
+    clear_yellow_led();
+    // set_green_led();
+    clear_green_led();
+    // set_white_led();
+    clear_white_led();
+    // set_rgb_green_led();
+    clear_rgb_green_led();
+    // set_rgb_red_led();
+    clear_rgb_red_led();
 
 
     return 0; // success
