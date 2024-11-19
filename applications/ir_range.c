@@ -1,6 +1,6 @@
 #include "ir_range.h"
 
-void initSensor(bool analog)
+void initSensor(uint8_t analog)
 {
     uint8_t MODE;
     if (analog)
