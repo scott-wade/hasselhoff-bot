@@ -20,3 +20,7 @@
   #define BALLAST_CCW_PROP_CH 2
   #define PROPULSION_CW_PROP_CH 3
   #define PROPULSION_CCW_PROP_CH 4
+
+  /* Infrared Sensor Pin Assignments */
+  #define IR_RANGE_PORT_NUM 6
+  #define IR_RANGE_PIN_NUM 0

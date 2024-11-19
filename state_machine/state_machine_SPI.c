@@ -78,3 +78,21 @@ void requestSpiTransmit(uint8_t child_id, uint16_t packet, uint16_t* read_var_ad
     SPI_OUTGOING_PACKET = packet;
     SPI_READ_ADDR = read_var_addr;
 }
+
+
+
+
+void SPI1_IRQHandler(void){
+    // handle the interrupt events for SPI1
+
+    // define the address in memory for the SPI1 SR
+
+
+}
+
+void SPI4_IRQHandler(void){
+    // handle the interrupt events for SPI4
+
+
+
+}
