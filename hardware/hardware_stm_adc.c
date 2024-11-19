@@ -14,52 +14,6 @@
  * @param num_channels: number of channels
  */
 void initADCwithDMA(int adc_num, uint32_t* adc_channels, int num_channels) {
-    //  // Set addresses
-    // uint32_t adc_base_address = mapAdcNumbertoBaseAddress(adc_num);
-    // uint32_t * sr_register = (uint32_t *)(long)(adc_base_address + ADC_SR_REGISTER_OFFSET);
-    // uint32_t * cr1_register = (uint32_t *)(long)(adc_base_address + ADC_CR1_REGISTER_OFFSET);
-    // uint32_t * cr2_register = (uint32_t *)(long)(adc_base_address + ADC_CR2_REGISTER_OFFSET);
-    // uint32_t * smpr1_register = (uint32_t *)(long)(adc_base_address + ADC_SMPR1_REGISTER_OFFSET);
-    // uint32_t * smpr2_register = (uint32_t *)(long)(adc_base_address + ADC_SMPR2_REGISTER_OFFSET);
-    // uint32_t * sqr1_register = (uint32_t *)(long)(adc_base_address + ADC_SQR1_REGISTER_OFFSET);
-    // uint32_t * sqr2_register = (uint32_t *)(long)(adc_base_address + ADC_SQR2_REGISTER_OFFSET);
-    // uint32_t * sqr3_register = (uint32_t *)(long)(adc_base_address + ADC_SQR3_REGISTER_OFFSET);
-    // uint32_t * dr_register = (uint32_t *)(long)(adc_base_address + ADC_DR_REGISTER_OFFSET);
-
-    // uint32_t* reg_pointer;
-    // // 1. Enable the APB2 clock
-    // enableAHB2ADCclock(adc_num);
-    // // 2. Setup the clock Prescaler to divide the clock by 4 by writing to
-    // //      the ADC_COMMON_CCR_REGISTER
-    // reg_pointer = (uint32_t*) ADC_COMMON_CCR_REGISTER;
-    // *reg_pointer = ADC_PRESCALER_4;
-    // // Clear status register
-    // reg_pointer = (uint32_t*) sr_register;
-    // *reg_pointer = 0;
-    // // 3. Configure the ADC to be 12 bit resolution, and end of conversion interrupt 
-    // //      disabled by writing to the CR1 register in ADC
-    // reg_pointer = (uint32_t*) cr1_register;
-    // *reg_pointer = 0;
-    // // 4. Configure the ADC to have the external trigger disabled, right data alignment, 
-    // //      ADC_DDS, DMA, EOC set at the end of each regular conversion and single conversion 
-    // //      enabled by setting EOCS to the CR2 register in ADC
-    // reg_pointer = (uint32_t*) cr2_register;
-    // *reg_pointer = ADC_EOCS + ADC_DDS + ADC_DMA;
-    // // 5. Select to have 1 conversion by writing a 0 to the L bits in SQR1 register in ADC
-    // reg_pointer = (uint32_t*) sqr1_register;
-    // *reg_pointer = ADC_1_CONVERSIONS;
-    // // 6. Configure the sequence of conversions by writing channel number to SQ1 in the SQR3 register of ADC
-    // reg_pointer = (uint32_t*) sqr3_register;
-    // *reg_pointer = (adc_channels[0] << ADC_SQ1);
-    // // 7. Choose 480 cycles of sampling for channel number in ADC by writing all ones to the SMP7 bits in the ADC SMPR2 register.
-    // reg_pointer = (uint32_t*)smpr2_register;
-    // *reg_pointer = (uint32_t)(0b111<<(adc_channels[0]*3));
-    // // 8. Turn the ADC on by setting the ADON bit in the CR2 register in ADC
-    // reg_pointer = (uint32_t*) cr2_register;
-    // *reg_pointer = *reg_pointer | ADC_ADON;
-    // // 11. NOTE: A conversion will not start until the SWSTART bit in CR2 bit is set, but we need to wait a few clock cycles for that.
-
-
     // Set addresses
     uint32_t adc_base_address = mapAdcNumbertoBaseAddress(adc_num);
     uint32_t * sr_register = (uint32_t *)(long)(adc_base_address + ADC_SR_REGISTER_OFFSET);
