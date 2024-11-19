@@ -14,6 +14,7 @@
 #include "../hardware/hardware_stm_gpio.h"
 #include <cstdint>
 #include "../globals.h"
+#include "../applications/comms.h"
 
 // global variables for state machine
 uint16_t* SPI_READ_ADDR = NULL; // address to send current RX to
@@ -32,9 +33,9 @@ void event_handler_spi(void){
     /* Checks and handles events for spi */
     // state machine local vars
     static uint8_t state = 0; // 0 for IDLE, i for CSi
-    static uint8_t cs_pins[10]; // support 3 devices for now
-    cs_pins[0] = 0; // CS1 is pin A4
-    cs_pins[1] = 4; // CS1 is pin A4
+    static uint8_t cs_pins[6]; // support 3 devices for now
+    cs_pins[0] = 0; // CS1 is pin A15
+    cs_pins[1] = 15; // CS1 is pin A15
 
     // check for events
 

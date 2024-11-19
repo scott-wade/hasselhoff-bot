@@ -45,6 +45,8 @@ void writeTX(uint8_t spi_id, uint16_t value);
 uint16_t readRX(uint8_t spi_id);
 uint16_t readSpiStatusRegister(uint8_t spi_id);
 void resetSpiRXNE(uint8_t spi_id);
+void enableSpiTXEInterrupts(uint8_t spi_id);
+void disableSpiTXEInterrupts(uint8_t spi_id);
 
 
 #ifdef __cplusplus

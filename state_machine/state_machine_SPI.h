@@ -8,10 +8,21 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include <cstdint>
+#include "queue.h"
 
 /* MACROS for everyone--------------------------------------------------------*/
 
 
+/* Data structures for SPI state machine */
+typedef struct{
+    uint8_t child_id; //SPI ID
+    uint32_t txQueue;
+    uint32_t* read_var_addr;
+} transmitEvent;
+
+typedef struct{
+    uint16_t recieved_packet;
+}recieveEvent;
 
 /*Function definitions---------------------------------------------------------*/
 void init_state_machine_spi(void);
