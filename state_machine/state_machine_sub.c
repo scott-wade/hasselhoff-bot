@@ -15,8 +15,8 @@
 void init_sub(void){
     /* Initialize sub state machine */ 
     subState.state = INITIALISING;
-    subState.initialised = false;
-    subState.beam_detected = false;
+    subState.initialised = 0;
+    subState.beam_detected = 0;
 }
 
 
@@ -31,7 +31,7 @@ void event_handler_sub(void){
 
     switch (current_event) {
         case INITIALISED:
-            subState.initialised = true;
+            subState.initialised = 1;
             subState.state = IDLE;
             break;
         default:

@@ -11,10 +11,6 @@
 
 /* MACROS for everyone--------------------------------------------------------*/
 
-#define SUB
-
-/* Type definisionts and enumerations*/
-
 typedef enum {
     INITIALISED, // Transition to IDLE
     PACKET_RECEIVED, // Behaviour is state dependent
@@ -33,8 +29,8 @@ typedef enum {
 
 typedef struct {
     sub_states_t state;
-    bool initialised;
-    bool beam_detected;
+    uint8_t initialised;
+    uint8_t beam_detected;
 } sub_t;
 
 
