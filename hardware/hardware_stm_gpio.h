@@ -39,7 +39,8 @@
 #define PUPD_FLOAT      0
 #define PUPD_UP         1
 #define PUPD_DOWN       2
-
+#define PORT_A          0
+#define PORT_B          1
 
 
 /*Function definitions---------------------------------------------------------*/

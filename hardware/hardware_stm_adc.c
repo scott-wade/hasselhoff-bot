@@ -64,18 +64,59 @@ void initADCwithDMA(int adc_num, uint32_t adc_channel) {
  * @param port_number: pin's port number
  * @param pin_number: pin number
  * @param adc_number: number of the ADC to use
- * @param dma_number: select either DMA1 or DMA2
- * @param dma_channel: the dma channel that corresponds to the ADC, eg. DMA 2 stream 0 channel 2 for ADC3
+ * @param dma_number: select either DMA1 or DMA2 (1-2)
+ * @param dma_channel: the dma channel (0-7) that corresponds to the ADC, eg. DMA 2 stream 0 channel 2 for ADC3
  * @param dest_addr: destination address to store the value into
  */
 void initADCpinWithDMA(int port_number, int pin_number, int adc_number, uint32_t adc_channel,
-                       int dma_number, int dma_channel, uint32_t dest_addr) {
+                       int dma_number, int dma_channel, uint16_t* dest_addr) {
     int num_transfers = 1; // Only 1 transfer in this case
     initGPIOasAnalog(port_number, pin_number); // Init analog pin
     initADCwithDMA(adc_number, adc_channel); // Init ADC
-    initDMAForAdc(dma_number, dma_channel, adc_number, num_transfers, dest_addr);
+    initDMAForAdc(dma_number, dma_channel, adc_number, num_transfers, dest_addr); // Init DMA
 }
 
+
+/*
+ * Get ADC value directly from the ADC register
+ * @param adc_num, what ADC to use (1-2)
+ */
+uint32_t get_adc_val(int adc_num) {
+    uint32_t* reg_pointer;
+    uint32_t value;
+    uint32_t adc_base_address = mapAdcNumbertoBaseAddress(adc_num);
+    uint32_t * sr_register = (uint32_t *)(long)(adc_base_address + ADC_SR_REGISTER_OFFSET);
+    uint32_t * dr_register = (uint32_t *)(long)(adc_base_address + ADC_DR_REGISTER_OFFSET);
+
+    // Read value of status register
+    value = *reg_pointer;
+
+    // Check if end of conversion (EOC)
+    if ((*sr_register & ADC_EOC) > 0) {
+        // Only first 12 bits are relevant
+        value = *dr_register & 0xFFF;
+        return value;
+    } else {
+        fprintf(stderr, "ADC_EOC not set\n");
+    }
+}
+
+/*
+ * Start the conversion for specified ADC
+ * @param adc_num, what ADC to use (1-2)
+ */
+void startADCConversion(int adc_num) 
+{
+    // Need to have a small delay before enabling SWSTART
+    // to allow ADC time to actually turn on
+    uint32_t adc_base_address = mapAdcNumbertoBaseAddress(adc_num);
+    uint32_t * sr_register = (uint32_t *)(long)(adc_base_address + ADC_SR_REGISTER_OFFSET);
+    uint32_t * cr2_register = (uint32_t *)(long)(adc_base_address + ADC_CR2_REGISTER_OFFSET);
+    // Clear status register
+    *sr_register = 0;
+    // Set the SWSTART bit in CR2 register
+    *cr2_register = *cr2_register | ADC_SWSTART;
+}
 
 /* *******************************************************************************
                     ADC UTILITY FUNCTIONS
@@ -87,7 +128,7 @@ uint32_t mapAdcNumbertoBaseAddress(int adc_num)
         case 1 : {adc_base_address = ADC_1_BASE_ADDRESS; break;}
         case 2 : {adc_base_address = ADC_2_BASE_ADDRESS; break;}
         case 3 : {adc_base_address = ADC_3_BASE_ADDRESS; break;}
-        default : fprintf(stderr, "Received Unknown Adc Number at Base Address Map");
+        default : fprintf(stderr, "Received Unknown Adc Number %d at Base Address Map\n", adc_num);
     }
 
     return adc_base_address;
@@ -98,7 +139,7 @@ void enableAHB2ADCclock(int adc_num)
         case 1 : {RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE); break;}
         case 2 : {RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC2, ENABLE); break;}
         case 3 : {RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC3, ENABLE); break;}
-        default : fprintf(stderr, "Received Unknown Port Number at AHB2 clock enable");
+        default : fprintf(stderr, "Received Unknown Port Number at AHB2 clock enable\n");
     }
 
 }

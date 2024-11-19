@@ -12,7 +12,7 @@
  * @param num_transfers: the number of transfers that DMA will do
  * @param dest_addr: destination address to store the value into
  */
-void initDMAForAdc( int dma_number, int dma_channel, int adc_number, int num_transfers, uint32_t dest_addr ) {
+void initDMAForAdc( int dma_number, int dma_channel, int adc_number, int num_transfers, uint16_t* dest_addr ) {
     uint32_t* reg_pointer;
     uint32_t dma_base_address = mapDmaNumbertoBaseAddress(dma_number);
     uint32_t adc_base_address = mapAdcNumbertoBaseAddress(adc_number);
@@ -36,14 +36,14 @@ void initDMAForAdc( int dma_number, int dma_channel, int adc_number, int num_tra
     // 4. Write the address of the ADC Data Register in the DMA S0PAR Register to
     //      tell it to transfer from that address.
     reg_pointer = (uint32_t *)(long)(dma_base_address + DMA_S0PAR_REGISTER_OFFSET);
-    uint32_t ADC_DR_REGISTER = dma_base_address + ADC_DR_REGISTER_OFFSET;
+    uint32_t ADC_DR_REGISTER = adc_base_address + ADC_DR_REGISTER_OFFSET;
     *reg_pointer = ADC_DR_REGISTER;
     // 5. Write the address of a buﬀer where you can store the values transfered in memory 
     //      to the S0M0AR register so the DMA stream 0 knows to transfer data to that buﬀer.
     reg_pointer = (uint32_t *)(long)(dma_base_address + DMA_S0M0AR_REGISTER_OFFSET);
-    *reg_pointer = dest_addr;
+    *reg_pointer = (uint32_t)dest_addr;
     // ---------------------
-    // 6. Enabled the DMA
+    // 6. Enable the DMA
     reg_pointer = (uint32_t *)(long)(dma_base_address + DMA_S0CR_REGISTER_OFFSET);
     *reg_pointer = *reg_pointer | DMA_SxCR_STREAM_ENABLE;
 }
@@ -61,7 +61,7 @@ void enableAHB1DMAclock(int dma_number)
     switch (dma_number) {
         case 1 : {RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA1, ENABLE); break;}
         case 2 : {RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2, ENABLE); break;}
-        default : fprintf(stderr, "Received Unknown DMA Number at AHB1 clock enable");
+        default : fprintf(stderr, "Received Unknown DMA Number at AHB1 clock enable\n");
     }
 
 }
@@ -71,7 +71,7 @@ uint32_t mapDmaNumbertoBaseAddress(int dma_number)
     switch (dma_number) {
         case 1 : {dma_base_address = DMA1_BASE_ADDRESS; break;}
         case 2 : {dma_base_address = DMA2_BASE_ADDRESS; break;}
-        default : fprintf(stderr, "Received Unknown Port Number at Base Address Map");
+        default : fprintf(stderr, "Received Unknown Port Number at Base Address Map\n");
     }
     return dma_base_address;
 }

@@ -45,6 +45,10 @@
 #define ADC_SMP_5_MX                (uint32_t)(0b111<<(5*3))
 #define ADC_SMP_6_MX                (uint32_t)(0b111<<(6*3))
 #define ADC_SMP_7_MX                (uint32_t)(0b111<<(7*3))
+#define ADC_1                       1
+#define ADC_2                       2
+#define ADC_3                       3
+
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
@@ -53,6 +57,10 @@
 /* Function definitions ---------------------------------------------------------*/
 void enableAHB2ADCclock(int adc_num);
 uint32_t mapAdcNumbertoBaseAddress(int adc_num);
+void initADCpinWithDMA(int port_number, int pin_number, int adc_number, uint32_t adc_channel,
+                       int dma_number, int dma_channel, uint16_t* dest_addr);
+uint32_t get_adc_val(int adc_num);
+void startADCConversion(int adc_num);
 
 #ifdef __cplusplus
 }

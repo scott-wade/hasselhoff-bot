@@ -241,7 +241,7 @@ int clearRgbRedLED(void) {
 /* 
  * Initialize status leds
  */
-int initStatusLEDs(void) {
+int init_status_leds(void) {
     // mapping port number: 0->A, 1->B, ... 7->H
     // mode: 0-input, 1-output, 2-AF
     // open_drain: 0-pupd, 1-open drain

@@ -8,6 +8,9 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_mort2.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <cstdint>
 
 /* MACROS for everyone--------------------------------------------------------*/
 

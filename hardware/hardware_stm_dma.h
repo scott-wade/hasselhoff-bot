@@ -34,10 +34,13 @@
 #define DMA_SxCR_DIR_PERTOMEM       (uint32_t)0
 #define DMA_SxCR_STREAM_ENABLE      (uint32_t)1
 
+#define DMA_1                       1
+#define DMA_2                       2
+
 /* Function definitions ---------------------------------------------------------*/
 void enableAHB1DMAclock(int dma_number);
 uint32_t mapDmaNumbertoBaseAddress(int dma_number);
-void initDMAForAdc( int dma_number, int dma_channel, int adc_number, int num_transfers, uint32_t dest_addr );
+void initDMAForAdc( int dma_number, int dma_channel, int adc_number, int num_transfers, uint16_t* dest_addr );
 
 
 

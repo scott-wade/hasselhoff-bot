@@ -87,7 +87,7 @@ void initGPIOasMode(uint8_t port_number, uint8_t pin_number, uint8_t mode, uint8
         *reg_pointer = *reg_pointer | MODER_ALT;
 
     } else {
-        fprintf(stderr, "Invalid Mode");
+        fprintf(stderr, "Invalid Mode\n");
     }
 
     /*Push-pull v open drain configuration */
@@ -131,7 +131,7 @@ void initGPIOasMode(uint8_t port_number, uint8_t pin_number, uint8_t mode, uint8
             *reg_pointer = *reg_pointer | PUPD_PD;
             break;
         default:
-            fprintf(stderr, "Pull Up Pull Down Setting Not Handled / Invalid");
+            fprintf(stderr, "Pull Up Pull Down Setting Not Handled / Invalid\n");
             break;
     }
 
@@ -164,7 +164,7 @@ void initGPIOasMode(uint8_t port_number, uint8_t pin_number, uint8_t mode, uint8
         *reg_pointer = *reg_pointer | AFR_VAL;
 
     } else if ((mode == MODE_AF2) && (alt_func > 15)) {
-        fprintf(stderr, "Invalid alt function entry");
+        fprintf(stderr, "Invalid alt function entry\n");
     }
      
 
@@ -261,7 +261,7 @@ uint32_t mapPortNumbertoBaseAddress(int port_number)
         case 5 : {port_base_address = PORTF_BASE_ADDRESS; break;}
         case 6 : {port_base_address = PORTG_BASE_ADDRESS; break;}
         case 7 : {port_base_address = PORTH_BASE_ADDRESS; break;}
-        default : fprintf(stderr, "Received Unknown Port Number at Base Address Map");
+        default : fprintf(stderr, "Received Unknown Port Number at Base Address Map\n");
     }
 
     return port_base_address;
@@ -278,7 +278,7 @@ void enableAHB1GPIOclock(int port_number)
         case 5 : {RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOF, ENABLE); break;}
         case 6 : {RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOG, ENABLE); break;}
         case 7 : {RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOH, ENABLE); break;}
-        default : fprintf(stderr, "Received Unknown Port Number at AHB1 clock enable");
+        default : fprintf(stderr, "Received Unknown Port Number at AHB1 clock enable\n");
     }
 
 }

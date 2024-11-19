@@ -1,7 +1,6 @@
-#include <cstdint>
 #define WHICH_NUCLEO 0 //change for compilation, 0 for remote, 1 for submarine, 2 for debug
 
-
+#include <cstdint>
 #include "main.h"
 #include "debug_mort.h"
 #include "state_machine/state_machine_sub.h"
@@ -9,6 +8,8 @@
 #include "tests/test_spi.h"
 #include "tests/test_gpio.h"
 #include "state_machine_SPI.h"
+#include "inputs_remote.h"
+#include "hardware_stm_adc.h"
 
 
 int main(void){
@@ -18,10 +19,14 @@ int main(void){
 
         /* initialization */
         init_remote();
-
+        
         /* loop */
         while(1){
-            event_handler_remote();
+            startADCConversion(ADC_1);
+
+            printf("TARGET DEPTH: %u\n", get_target_depth());
+            // event_handler_remote();
+            delay(10);
         }
 
     }else if(WHICH_NUCLEO == 1) {
