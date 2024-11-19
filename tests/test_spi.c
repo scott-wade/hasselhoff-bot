@@ -13,6 +13,7 @@
 #include "../hardware/hardware_stm_spi.h"
 #include "../state_machine/state_machine_SPI.h"
 #include "../debug_mort.h"
+#include "../state_machine/spi_queue.h"
 
 
 void testReadRegOpMode(void){
@@ -128,4 +129,31 @@ void testSPIStateMachine(void){
             spi_rx = 0;
         }
     }
+}
+
+
+void testSPIQueue(void){
+    Queue* testQueue = createQueue(sizeof(transmitEvent));
+
+    // create a test event
+    uint32_t returnvalue = 0;
+    transmitEvent testEvent;
+    testEvent.txQueue = createQueue(sizeof(uint8_t));
+    testEvent.child_id = 47;
+    testEvent.read_var_addr = &returnvalue;
+
+    // add that event to the queue
+    enqueue(testQueue, &testEvent);
+
+    if(!isEmpty(testQueue)){
+        printf("testQueue is not Empty (PASS)\n");
+    }else{
+        printf("testQueue is Empty (BAD)\n");
+    }
+
+    // try to retrieve the event from the queue
+
+    transmitEvent returnedEvent = *(transmitEvent*)dequeue(testQueue);
+    printf("Want 47, got child id %u\n", returnedEvent.child_id); // should get 47
+
 }

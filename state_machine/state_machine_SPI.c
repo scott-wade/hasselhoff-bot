@@ -15,6 +15,7 @@
 #include <cstdint>
 #include "../globals.h"
 #include "../applications/comms.h"
+#include "state_machine_SPI.h"
 
 // global variables for state machine
 uint16_t* SPI_READ_ADDR = NULL; // address to send current RX to
@@ -27,6 +28,7 @@ void init_state_machine_spi(void){
     // i think the GPIO config stuff should go here and not in configureSPIParent
 
 }
+
 
 
 void event_handler_spi(void){
@@ -81,7 +83,32 @@ void requestSpiTransmit(uint8_t child_id, uint16_t packet, uint16_t* read_var_ad
 }
 
 
+void spiInterruptHandler(uint8_t spi_id){
+    // check to see if it is a transmit or recieve event
 
+    // if transmit event
+        // if state == IDLE
+            // disableSpiTXEInterrupts(SPI id)
+        // if state == TXi
+            // Start Timeout timer
+            // If TransmitQueue not empty:
+                // writeTX(TransmitQueue.pop())
+                // Reset TXE interrupt
+            // If TransmitQueue empty, disable TXE interrupt in SPIx_CR2
+
+    // if recieve event
+        // if state == IDLE
+            //readRX() and set according event flags
+            //writeTX(acknowledgement packet)"
+        // if state not IDLE
+            // RecieveQueue.append(readRX())
+            // clear RXNE
+            // If TransmitQueue.empty:
+                // setGPIO(CSi pin) if necessary
+                // Transition to IDLE
+                // Stop timeout timer
+                // *SPI_current_read_to = RecieveQueue.asint"
+}
 
 void SPI1_IRQHandler(void){
     // handle the interrupt events for SPI1
@@ -89,11 +116,15 @@ void SPI1_IRQHandler(void){
     // define the address in memory for the SPI1 SR
 
 
+    // call spiInterruptHandler(1);
+    
+
 }
 
 void SPI4_IRQHandler(void){
     // handle the interrupt events for SPI4
 
+    // check to see if it is a transmit or recieve event
 
-
+    // call spiInterruptHandler(4);
 }

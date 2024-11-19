@@ -1,4 +1,4 @@
-#define WHICH_NUCLEO 0 //change for compilation, 0 for remote, 1 for submarine, 2 for debug
+#define WHICH_NUCLEO 2 //change for compilation, 0 for remote, 1 for submarine, 2 for debug
 
 #include <cstdint>
 #include "main.h"
@@ -26,7 +26,6 @@ int main(void){
 
             printf("TARGET DEPTH: %u\n", get_target_depth());
             // event_handler_remote();
-            delay(10);
         }
 
     }else if(WHICH_NUCLEO == 1) {
@@ -45,7 +44,8 @@ int main(void){
         //testB0Set();
         //testB0Clear();
         //testReadWriteRegOpMode();
-        testSPIStateMachine();
+        //testSPIStateMachine();
+        testSPIQueue();
 
     }
 

@@ -10,6 +10,7 @@
 #include <cstdint>
 #include "queue.h"
 #include "main.h"
+#include "spi_queue.h"
 
 /* MACROS for everyone--------------------------------------------------------*/
 
@@ -17,7 +18,7 @@
 /* Data structures for SPI state machine */
 typedef struct{
     uint8_t child_id; //SPI ID
-    uint32_t txQueue;
+    Queue* txQueue;
     uint32_t* read_var_addr;
 } transmitEvent;
 
