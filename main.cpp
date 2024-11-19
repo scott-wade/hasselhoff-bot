@@ -6,6 +6,7 @@
 #include "debug_mort.h"
 #include "state_machine/state_machine_sub.h"
 #include "state_machine/state_machine_remote.h"
+#include "tests/test_spi.h"
 
 
 int main(void){

@@ -12,6 +12,7 @@
 #include "hardware_stm_gpio.h"
 #include "stdio.h"
 #include "stm32f4xx_rcc_mort.h"
+#include "hardware_stm_interrupt.h"
 #include <cstdint>
 
 /* Macro Definitions */
@@ -114,17 +115,27 @@ void configureSPIParent(uint8_t spi_id){
 
     // a) Configure SSOE (Note: 1 & 2).
     *control_register2_addr = *control_register2_addr & SPI_CONTROL_REGISTER2_RESET_MASK;
-    *control_register2_addr = *control_register2_addr | (uint16_t)(0b0 << 2); // set SSOE to 0
+    uint16_t SSOE_MASK = (uint16_t)(0b0 << 2); // set SSOE to 0
+
+    // enable interrupts on TXE=1 (bit 7) and RXNE=1 (bit 6) in SPI_CR2
+    // but don't enable TXE interrupts in init, enable them on transmission to avoid runaway interrupts
+    uint16_t INTERRUPT_MASK = (uint16_t)(0b1 << 6);
+
+    // set SPI_CR2
+    *control_register2_addr = *control_register2_addr | SSOE_MASK | INTERRUPT_MASK;
 
     printf("SPI_CR2 reads %u\n", *control_register2_addr);
+     
 
-    //b) Set the FRF bit if the TI protocol is required.
-        // not implementing TI protocol
-    //4. Write to SPI_CRCPR register: Configure the CRC polynomial if needed.
-        // not implementing CRC
-
-
-    // do we need to reset the status register?
+    // Enable the interrupts
+    switch (spi_id){
+        case 1: 
+            enableSPI1Interrupt();
+            break;
+        case 4: 
+            enableSPI4Interrupt();
+            break;
+    }
 
     // finally, enable the SPI in SPI control register 1
     *control_register1_addr = *control_register1_addr | (uint16_t)(0b1 << 6);
@@ -148,6 +159,22 @@ uint16_t readRX(uint8_t spi_id)
     uint32_t* data_register_address = (uint32_t*)(long)
                 (base_address + SPI_DATA_REGISTER_OFFSET);
     return *data_register_address;
+}
+
+void enableSpiTXEInterrupts(uint8_t spi_id){
+    // enable the SPI TXE interrupt for SPIi, where i = spi_id
+    uint32_t base_address = getSPIBaseAddr(spi_id);
+    uint32_t* control_register2_addr = (uint32_t *)(long)(base_address + SPI_CONTROL_REGISTER2_OFFSET);
+    uint16_t ENABLE_TXE_MASK = 0b1 << 7;
+    *control_register2_addr = *control_register2_addr | ENABLE_TXE_MASK;
+}
+
+void disableSpiTXEInterrupts(uint8_t spi_id){
+    // disable the SPI TXE interrupt for SPIi, where i = spi_id
+    uint32_t base_address = getSPIBaseAddr(spi_id);
+    uint32_t* control_register2_addr = (uint32_t *)(long)(base_address + SPI_CONTROL_REGISTER2_OFFSET);
+    uint16_t ENABLE_TXE_MASK = 0b1 << 7;
+    *control_register2_addr = *control_register2_addr & ~ENABLE_TXE_MASK;
 }
 
 uint16_t readSpiStatusRegister(uint8_t spi_id){
@@ -186,3 +213,5 @@ uint32_t getSPIBaseAddr(uint8_t spi_id){
     }
     return port_base_address;
 }
+
+
