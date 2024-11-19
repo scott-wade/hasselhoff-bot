@@ -18,6 +18,7 @@ void init_remote(void){
     init_status_leds();
     init_target_depth_knob();
     init_joysticks();
+    init_seg_display();
 }
 
 

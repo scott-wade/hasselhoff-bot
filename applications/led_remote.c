@@ -7,19 +7,33 @@
 
 
 // Constants ////////////////////
-#define LED_SEG_PORT    0
-#define LED_SEG_DP      0
-#define LED_SEG_A       0
-#define LED_SEG_B       0
-#define LED_SEG_C       0
-#define LED_SEG_D       0
-#define LED_SEG_E       0
-#define LED_SEG_F       0
-#define LED_SEG_G       0
-#define LED_SEG_DIG_0   0
-#define LED_SEG_DIG_1   0       
-#define LED_SEG_DIG_2   0       
-#define LED_SEG_DIG_3   0   
+#define LED_SEG_DIG_0           0
+#define LED_SEG_DIG_1           1
+#define LED_SEG_DIG_2           2
+#define LED_SEG_DIG_3           3
+#define LED_SEG_A_PORT          PORT_D // D6
+#define LED_SEG_A_PIN           6
+#define LED_SEG_B_PORT          PORT_D // D2
+#define LED_SEG_B_PIN           2
+#define LED_SEG_C_PORT          PORT_B // B1
+#define LED_SEG_C_PIN           1
+#define LED_SEG_D_PORT          PORT_F // F4
+#define LED_SEG_D_PIN           4
+#define LED_SEG_E_PORT          PORT_B // B6
+#define LED_SEG_E_PIN           6
+#define LED_SEG_F_PORT          PORT_D // D7
+#define LED_SEG_F_PIN           7
+#define LED_SEG_G_PORT          PORT_B // B5   
+#define LED_SEG_G_PIN           5
+#define LED_SEG_DIG_0_PORT      PORT_D // D5
+#define LED_SEG_DIG_0_PIN       5
+#define LED_SEG_DIG_1_PORT      PORT_G  // G3
+#define LED_SEG_DIG_1_PIN       3       
+#define LED_SEG_DIG_2_PORT      PORT_G // G2       
+#define LED_SEG_DIG_2_PIN       2       
+#define LED_SEG_DIG_3_PORT      PORT_C // C7   
+#define LED_SEG_DIG_3_PIN       7
+
 
 // Blue: D4
 #define BLUE_PORT       3 // D
@@ -40,7 +54,8 @@
 #define RGB_RED_PORT    4 // E
 #define RGB_RED_PIN     4
 
-
+// Variables
+int led_display_values[4];
 
 // Structs //////////////////////
 typedef struct {
@@ -56,6 +71,57 @@ typedef struct {
 
 
 // Function definitions //
+
+/*
+ * Sets the internal values for the segument display
+ * However does not start the cycling of the leds!
+ * @param values: 4 int values to be displayed, one for each digit
+ */
+void set_led_display(int values[4]) {
+    int len = 4;
+    for (int i=0; i<len; i++) {
+        led_display_values[i] = values[i];
+    }
+}
+
+
+/*
+ * For the 4-digit led segment display, only 1 digit can be displayed at a time
+ * cuz all digits are connected together internally
+ * So need to cycle through each digit in order to display all 4 digits
+ */
+void cycle_led_display( void ) {
+    // Calculate the current digit to be displayed on the led
+    static int prev_digit = 0;
+    int curr_digit = (prev_digit + 1) % 4; // Cycle 0 -> 1 -> 2 -> 3 -> 0 -> 1...
+    prev_digit = curr_digit;
+
+    // Set the led display
+    set_seg_led(curr_digit, led_display_values[curr_digit]);
+}
+
+/*
+ * Initialize pins for 7-segment display to outputs
+ */
+int init_seg_display( void ) 
+{   
+    // Initalize the 4 Digit Pins
+    int digit_pin_init_val = 0; // Digit pins are off at HIGH
+    initGPIOasMode(LED_SEG_DIG_0_PORT, LED_SEG_DIG_0_PIN, MODE_OUT, OD_PUPD, PUPD_FLOAT, digit_pin_init_val, 0);   
+    initGPIOasMode(LED_SEG_DIG_1_PORT, LED_SEG_DIG_1_PIN, MODE_OUT, OD_PUPD, PUPD_FLOAT, digit_pin_init_val, 0);    
+    initGPIOasMode(LED_SEG_DIG_2_PORT, LED_SEG_DIG_2_PIN, MODE_OUT, OD_PUPD, PUPD_FLOAT, digit_pin_init_val, 0);    
+    initGPIOasMode(LED_SEG_DIG_3_PORT, LED_SEG_DIG_3_PIN, MODE_OUT, OD_PUPD, PUPD_FLOAT, digit_pin_init_val, 0);    
+
+    // Initialize the A-G pins
+    int seg_pin_init_val = 1; // A-G pins are off at LOW
+    initGPIOasMode(LED_SEG_A_PORT, LED_SEG_A_PIN, MODE_OUT, OD_PUPD, PUPD_FLOAT, seg_pin_init_val, 0);
+    initGPIOasMode(LED_SEG_B_PORT, LED_SEG_B_PIN, MODE_OUT, OD_PUPD, PUPD_FLOAT, seg_pin_init_val, 0);
+    initGPIOasMode(LED_SEG_C_PORT, LED_SEG_C_PIN, MODE_OUT, OD_PUPD, PUPD_FLOAT, seg_pin_init_val, 0);
+    initGPIOasMode(LED_SEG_D_PORT, LED_SEG_D_PIN, MODE_OUT, OD_PUPD, PUPD_FLOAT, seg_pin_init_val, 0);
+    initGPIOasMode(LED_SEG_E_PORT, LED_SEG_E_PIN, MODE_OUT, OD_PUPD, PUPD_FLOAT, seg_pin_init_val, 0);
+    initGPIOasMode(LED_SEG_F_PORT, LED_SEG_F_PIN, MODE_OUT, OD_PUPD, PUPD_FLOAT, seg_pin_init_val, 0);
+    initGPIOasMode(LED_SEG_G_PORT, LED_SEG_G_PIN, MODE_OUT, OD_PUPD, PUPD_FLOAT, seg_pin_init_val, 0);
+}
 
 /* 
  * Set the digit value
@@ -140,14 +206,13 @@ int set_digit_value(uint8_t val) {
     }
 
     // Set the values on the pins
-    SETorCLEARGPIOoutput(LED_SEG_PORT, LED_SEG_DP, led_segs.dp);
-    SETorCLEARGPIOoutput(LED_SEG_PORT, LED_SEG_A, led_segs.a);
-    SETorCLEARGPIOoutput(LED_SEG_PORT, LED_SEG_B, led_segs.b);
-    SETorCLEARGPIOoutput(LED_SEG_PORT, LED_SEG_C, led_segs.c);
-    SETorCLEARGPIOoutput(LED_SEG_PORT, LED_SEG_D, led_segs.d);
-    SETorCLEARGPIOoutput(LED_SEG_PORT, LED_SEG_E, led_segs.e);
-    SETorCLEARGPIOoutput(LED_SEG_PORT, LED_SEG_F, led_segs.f);
-    SETorCLEARGPIOoutput(LED_SEG_PORT, LED_SEG_G, led_segs.g);
+    SETorCLEARGPIOoutput(LED_SEG_A_PORT, LED_SEG_A_PIN, led_segs.a);
+    SETorCLEARGPIOoutput(LED_SEG_B_PORT, LED_SEG_B_PIN, led_segs.b);
+    SETorCLEARGPIOoutput(LED_SEG_C_PORT, LED_SEG_C_PIN, led_segs.c);
+    SETorCLEARGPIOoutput(LED_SEG_D_PORT, LED_SEG_D_PIN, led_segs.d);
+    SETorCLEARGPIOoutput(LED_SEG_E_PORT, LED_SEG_E_PIN, led_segs.e);
+    SETorCLEARGPIOoutput(LED_SEG_F_PORT, LED_SEG_F_PIN, led_segs.f);
+    SETorCLEARGPIOoutput(LED_SEG_G_PORT, LED_SEG_G_PIN, led_segs.g);
 
     return 0; // success
 }
@@ -167,10 +232,11 @@ int select_digit(uint8_t selected_digit) {
     digits[selected_digit] = false;
 
     // Set the pin outputs
-    SETorCLEARGPIOoutput(LED_SEG_PORT, LED_SEG_DIG_0, digits[0]);
-    SETorCLEARGPIOoutput(LED_SEG_PORT, LED_SEG_DIG_1, digits[1]);
-    SETorCLEARGPIOoutput(LED_SEG_PORT, LED_SEG_DIG_2, digits[2]);
-    SETorCLEARGPIOoutput(LED_SEG_PORT, LED_SEG_DIG_3, digits[3]);
+    SETorCLEARGPIOoutput(LED_SEG_DIG_0_PORT, LED_SEG_DIG_0_PIN, digits[0]);
+    SETorCLEARGPIOoutput(LED_SEG_DIG_1_PORT, LED_SEG_DIG_1_PIN, digits[1]);
+    SETorCLEARGPIOoutput(LED_SEG_DIG_2_PORT, LED_SEG_DIG_2_PIN, digits[2]);
+    SETorCLEARGPIOoutput(LED_SEG_DIG_3_PORT, LED_SEG_DIG_3_PIN, digits[3]);
+
 
     return 0; // success
 }

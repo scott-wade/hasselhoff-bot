@@ -42,6 +42,12 @@
 #define PUPD_DOWN       2
 #define PORT_A          0
 #define PORT_B          1
+#define PORT_C          2
+#define PORT_D          3
+#define PORT_E          4
+#define PORT_F          5
+#define PORT_G          6
+
 
 
 /*Function definitions---------------------------------------------------------*/
