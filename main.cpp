@@ -40,12 +40,20 @@ int main(void){
         }
 
     }else if(WHICH_NUCLEO == 2){
-        /* DEBUGGING CODE */
+        /* DEBUGGING CODE PARENT */
         //testB0Set();
         //testB0Clear();
         //testReadWriteRegOpMode();
         //testSPIStateMachine();
-        testSPIQueue();
+        testNucleoTransmitting();
+
+    }else if(WHICH_NUCLEO == 3){
+        /* DEBUGGING CODE CHILD */
+        //testB0Set();
+        //testB0Clear();
+        //testReadWriteRegOpMode();
+        //testSPIStateMachine();
+        testNucleoReceiving();
 
     }
 

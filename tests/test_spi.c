@@ -14,11 +14,12 @@
 #include "../state_machine/state_machine_SPI.h"
 #include "../debug_mort.h"
 #include "../state_machine/spi_queue.h"
+#include <cstdint>
 
 
 void testReadRegOpMode(void){
     /* Try to read the current RegOpMode settings register from the sx1278 */ 
-    configureSPIParent(1);
+    configureSPIPeripheral(SPI_PARENT,1);
     
 
     uint8_t wnr = 0; // read
@@ -51,7 +52,7 @@ void testReadRegOpMode(void){
 
 void testReadWriteRegOpMode(void){
     /* Try to write to the RegOpMode settings register from the sx1278 */ 
-    configureSPIParent(1);
+    configureSPIPeripheral(SPI_PARENT,1);
     // configure gpio port for CS
 
     uint8_t wnr = 1; // write
@@ -101,7 +102,7 @@ void testSPIStateMachine(void){
     /* should print rx = 4*/ 
 
     // initialize SPI state machine
-    init_state_machine_spi();
+    init_state_machine_spi(1);
 
     // init debugging packet 
     uint8_t wnr = 0; // read
@@ -112,13 +113,13 @@ void testSPIStateMachine(void){
     printf("packet: %u\n", packet);
 
     // var to read from spi to
-    uint16_t spi_rx = 0;
+    uint32_t spi_rx = 0;
 
     // run state machine
     int delaything = 0;
 
     while(1){
-        event_handler_spi();
+        event_handler_spi(NUCLEO_PARENT);
         delaything = delaything + 1;
         if(delaything == 100000){
             requestSpiTransmit(1, packet, &spi_rx);
@@ -157,3 +158,47 @@ void testSPIQueue(void){
     printf("Want 47, got child id %u\n", returnedEvent.child_id); // should get 47
 
 }
+
+void testNucleoTransmitting(void){
+    // send periodic DEBUG packets (header=0xde) with 0xad as the data value
+    init_state_machine_spi(NUCLEO_PARENT);
+    
+
+    uint32_t iter = 0;
+    uint32_t read_var = 0;
+    uint32_t read_var_prev = read_var;
+    uint16_t packet = (uint16_t)(0xde << 8 & 0xad);
+    while (1){
+
+        if(iter >= 10000){
+            requestSpiTransmit(1, packet, &read_var);
+        }
+        event_handler_spi(NUCLEO_PARENT);
+        if(read_var_prev != read_var) {
+            printf("read var changed from %u to %u \n", read_var_prev, read_var);
+            read_var_prev = read_var;
+        }
+
+    }
+
+}
+
+void testNucleoReceiving(void){
+
+    init_state_machine_spi(NUCLEO_CHILD);
+
+    while(1){
+        // service spi state machine
+        event_handler_spi(NUCLEO_CHILD);
+
+        if (!isEmpty(SPI_COMMS_RECIEVED_QUEUE)){// approximation for a recieved msg event handler
+            // dequeue the recieved data
+            uint8_t data = *(uint8_t*)dequeue(SPI_COMMS_RECIEVED_QUEUE);
+            // print it out
+            printf("Recieved data: %u \n", data);
+        }
+    }
+
+}
+
+

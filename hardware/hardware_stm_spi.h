@@ -38,9 +38,16 @@ extern "C"
 #define PORT_G 6
 #define PORT_H 7
 
+//typedef
+
+typedef enum{
+    SPI_PARENT,
+    SPI_CHILD
+}Spi_Hierarchy_t;
+
 /*Function definitions---------------------------------------------------------*/
 uint32_t getSPIBaseAddr(uint8_t spi_id);
-void configureSPIParent(uint8_t spi_id);
+void configureSPIPeripheral(Spi_Hierarchy_t spi_type, uint8_t spi_id);
 void writeTX(uint8_t spi_id, uint16_t value);
 uint16_t readRX(uint8_t spi_id);
 uint16_t readSpiStatusRegister(uint8_t spi_id);
