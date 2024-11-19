@@ -167,18 +167,19 @@ void testNucleoTransmitting(void){
     uint32_t iter = 0;
     uint32_t read_var = 0;
     uint32_t read_var_prev = read_var;
-    uint16_t packet = (uint16_t)(0xde << 8 & 0xad);
-    while (1){
-
-        if(iter >= 10000){
+    uint16_t packet = (uint16_t)(0xdead);
+    for (int i = 0; i < 100000000; i++){
+        if(iter >= 10000000){
             requestSpiTransmit(1, packet, &read_var);
+            printf("Requesting Transmission with packet %u\n", packet);
         }
         event_handler_spi(NUCLEO_PARENT);
-        if(read_var_prev != read_var) {
+        if(!isEmpty(SPI_COMMS_RECIEVED_QUEUE)){
+            read_var = *(uint16_t*)dequeue(SPI_COMMS_RECIEVED_QUEUE);
             printf("read var changed from %u to %u \n", read_var_prev, read_var);
             read_var_prev = read_var;
         }
-
+        iter ++;
     }
 
 }

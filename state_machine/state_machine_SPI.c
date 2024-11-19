@@ -25,6 +25,7 @@
 Queue* SPI_COMMS_EVENT_QUEUE;
 Queue* SPI_SENSOR_EVENT_QUEUE;
 transmitEvent CURRENT_COMMS_TRANSMIT_EVENT;
+
 transmitEvent CURRENT_SENSOR_TRANSMIT_EVENT;
 Queue* SPI_COMMS_RECIEVED_QUEUE;
 Queue* SPI_SENSOR_RECIEVED_QUEUE;
@@ -38,16 +39,19 @@ void init_state_machine_spi(Spi_State_Machine_t spi_type){
             configureSPIPeripheral(SPI_PARENT, 1);
             SPI_COMMS_EVENT_QUEUE = createQueue(sizeof(transmitEvent));
             SPI_COMMS_RECIEVED_QUEUE = createQueue(sizeof(uint8_t));
+            CURRENT_COMMS_TRANSMIT_EVENT.txQueue = createQueue(sizeof(uint16_t));
         break;
         case NUCLEO_CHILD: // initialize a child on SPI1
-            configureSPIPeripheral(SPI_PARENT, 1);
+            configureSPIPeripheral(SPI_CHILD, 1);
             SPI_COMMS_EVENT_QUEUE = createQueue(sizeof(transmitEvent));
             SPI_COMMS_RECIEVED_QUEUE = createQueue(sizeof(uint8_t));
+            CURRENT_COMMS_TRANSMIT_EVENT.txQueue = createQueue(sizeof(uint16_t));
         break;
         case SENSOR_PARENT: // initialize a parent on SPI4
-            configureSPIPeripheral(SPI_CHILD, 4);
+            configureSPIPeripheral(SPI_PARENT, 4);
             SPI_SENSOR_EVENT_QUEUE = createQueue(sizeof(transmitEvent));
             SPI_SENSOR_RECIEVED_QUEUE = createQueue(sizeof(uint8_t));
+            CURRENT_SENSOR_TRANSMIT_EVENT.txQueue = createQueue(sizeof(uint16_t));
         break;
         default: printf(stderr, "Unsupported/incorrect SPI Machine type"); break;
 
@@ -69,12 +73,12 @@ void event_handler_spi(Spi_State_Machine_t spi_type){
     uint8_t spi_id;
     if(spi_type == SENSOR_PARENT) spi_id = 4;
     else spi_id = 1;
-
     // check for events
     switch(spi_type){
         case NUCLEO_PARENT: // parent on SPI1
             if (!isEmpty(SPI_COMMS_EVENT_QUEUE)){
                 CURRENT_COMMS_TRANSMIT_EVENT = *(transmitEvent*)dequeue(SPI_COMMS_EVENT_QUEUE);
+                printf("Dequeued spi comms event \n");
             }
         break;
         case NUCLEO_CHILD: // child on SPI1
@@ -107,10 +111,11 @@ void event_handler_spi(Spi_State_Machine_t spi_type){
             state = SPI_SENSOR_STATE;} break;
         default: printf(stderr, "Unsupported/incorrect SPI Machine type"); break;
     }
+
     if((!isEmpty(currentEvent.txQueue)) && (state == 0)){// begin transmission
         // state transition
         if (currentEvent.child_id > 3){
-            fprintf(stderr, "Requested unsupported SPI child %u\n", SPI_TRANSMIT_FLAG);
+            fprintf(stderr, "Requested unsupported SPI child %u\n", currentEvent.child_id);
         }else{
             state = currentEvent.child_id;
         }
@@ -126,7 +131,9 @@ void event_handler_spi(Spi_State_Machine_t spi_type){
             SETorCLEARGPIOoutput(cs_pins[state/2], cs_pins[state/2+1], 0);
 
         // write to TX buffer
-        writeTX(1, SPI_OUTGOING_PACKET);
+        uint16_t currpacket = *(uint16_t*)dequeue(currentEvent.txQueue);
+        printf("writing to tx: %u\n", currpacket);
+        writeTX(spi_id, currpacket);
         // enable TXE interrupt
         enableSpiTXEInterrupts(spi_id);
     }
@@ -143,6 +150,8 @@ void requestSpiTransmit(uint8_t child_id, uint16_t packet, uint32_t* read_var_ad
     enqueue(testEvent.txQueue, &packet); //TODO change this to add support for multi packet comms
     testEvent.child_id = child_id;
     testEvent.read_var_addr = read_var_addr;
+    
+    enqueue(SPI_COMMS_EVENT_QUEUE, &testEvent);
 }
 
 
@@ -207,10 +216,11 @@ void spiInterruptHandler(uint8_t spi_id){
 
     // if transmit event
     if ((current_status_register & TXE_MASK) > 0){
+        printf("Handling TXE interrupt\n");
         if (*stateptr == 0){ // if state == IDLE
             // disableSpiTXEInterrupts(SPI id)
             disableSpiTXEInterrupts(spi_id);
-        }else{// if state == TXi
+        }else if (*stateptr > 0){// if state == TXi
             // TODO Start Timeout timer
             if (!isEmpty(transmitQueue)){// If TransmitQueue not empty:
                 uint16_t packet = *(uint16_t*)dequeue(transmitQueue);

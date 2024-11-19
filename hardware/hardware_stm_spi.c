@@ -67,7 +67,7 @@ void configureSPIPeripheral(Spi_Hierarchy_t spi_type, uint8_t spi_id){
             initGPIOasMode(PORT_A, PIN_7, MODE_AF, OD_PUPD, PUPD_FLOAT, 0, 5);
             // SCLK pin B3 -> moder 2 for alt, push-pull, neither PUPD, alt func = 5
             initGPIOasMode(PORT_B, PIN_3, MODE_AF, OD_PUPD, PUPD_FLOAT, 0, 5);
-            // CS pin(s) A15 -> moder 1 for out, push pull, PU, ODR high
+            // CS pin(s) A15 -> moder 1 for out, push pull, PU, ODR low
             initGPIOasMode(PORT_A, PIN_15, MODE_OUT, OD_PUPD, PUPD_UP, 1, 0);
         break;
         case 4:
@@ -103,7 +103,9 @@ void configureSPIPeripheral(Spi_Hierarchy_t spi_type, uint8_t spi_id){
     // is at idle state).
     //  not implementing CRC for now
     // f) Configure SSM and SSI (Note: 2).
-    uint16_t software_cs_bits = (uint16_t)(0b11 << 8); // manage cs with software
+    uint16_t software_cs_bits;
+    if(spi_type==SPI_PARENT) software_cs_bits = (uint16_t)(0b11 << 8); // manage cs with software
+    if(spi_type==SPI_CHILD) software_cs_bits = (uint16_t)(0b10 << 8); 
     // g) Configure the MSTR bit (in multimaster NSS configuration, avoid conflict state on
     // NSS if parent is configured to prevent MODF error).
     uint16_t parent_bit;
@@ -156,6 +158,7 @@ void writeTX(uint8_t spi_id, uint16_t value)
     uint32_t* data_register_address = (uint32_t*)(long)
                 (base_address + SPI_DATA_REGISTER_OFFSET);
     *data_register_address = value;
+    printf("Wrote to DR\n");
 }
 
 uint16_t readRX(uint8_t spi_id)
