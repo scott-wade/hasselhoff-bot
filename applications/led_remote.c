@@ -27,9 +27,9 @@
 // Yellow: D3
 #define YELLOW_PORT     3 // D
 #define YELLOW_PIN      3
-// Green: C9
+// Green: C10
 #define GREEN_PORT      2 // C
-#define GREEN_PIN       9
+#define GREEN_PIN       10
 // White: C8
 #define WHITE_PORT      2 // C
 #define WHITE_PIN       8
@@ -241,7 +241,7 @@ int clearRgbRedLED(void) {
 /* 
  * Initialize status leds
  */
-int initStatusLEDs(void) {
+int init_status_leds(void) {
     // mapping port number: 0->A, 1->B, ... 7->H
     // mode: 0-input, 1-output, 2-AF
     // open_drain: 0-pupd, 1-open drain
@@ -251,20 +251,20 @@ int initStatusLEDs(void) {
 
     // Initalize all LEDs as output
     int initial_value = 0;
-    initGPIOasMode(BLUE_PORT, BLUE_PIN, MODE_OUT, OD_PUPD, PUPD_DOWN, initial_value, 0);
-    initGPIOasMode(YELLOW_PORT, YELLOW_PIN, MODE_OUT, OD_PUPD, PUPD_DOWN, initial_value, 0);
-    initGPIOasMode(GREEN_PORT, GREEN_PIN, MODE_OUT, OD_PUPD, PUPD_DOWN, initial_value, 0);
-    initGPIOasMode(WHITE_PORT, WHITE_PIN, MODE_OUT, OD_PUPD, PUPD_DOWN, initial_value, 0);
-    initGPIOasMode(RGB_GREEN_PORT, RGB_GREEN_PIN, MODE_OUT, OD_PUPD, PUPD_DOWN, initial_value, 0);
-    initGPIOasMode(RGB_RED_PORT, RGB_RED_PIN, MODE_OUT, OD_PUPD, PUPD_DOWN, initial_value, 0);
+    initGPIOasMode(BLUE_PORT, BLUE_PIN, MODE_OUT, OD_PUPD, PUPD_FLOAT, initial_value, 0);
+    initGPIOasMode(YELLOW_PORT, YELLOW_PIN, MODE_OUT, OD_PUPD, PUPD_FLOAT, initial_value, 0);
+    initGPIOasMode(GREEN_PORT, GREEN_PIN, MODE_OUT, OD_PUPD, PUPD_FLOAT, initial_value, 0);
+    initGPIOasMode(WHITE_PORT, WHITE_PIN, MODE_OUT, OD_PUPD, PUPD_FLOAT, initial_value, 0);
+    initGPIOasMode(RGB_GREEN_PORT, RGB_GREEN_PIN, MODE_OUT, OD_PUPD, PUPD_FLOAT, initial_value, 0);
+    initGPIOasMode(RGB_RED_PORT, RGB_RED_PIN, MODE_OUT, OD_PUPD, PUPD_FLOAT, initial_value, 0);
     
     // Set initial states for the LEDs
     // setBlueLED();
     clearBlueLED();
     // setYellowLED();
     clearYellowLED();
-    setGreenLED();
-    // clearGreenLED();
+    // setGreenLED();
+    clearGreenLED();
     // setWhiteLED();
     clearWhiteLED();
     // setRgbGreenLED();

@@ -11,10 +11,12 @@
 
 #include "state_machine_remote.h"
 #include "led_remote.h"
+#include "inputs_remote.h"
 
 void init_remote(void){
     /* Initialize remote state machine */ 
-    initStatusLEDs();
+    init_status_leds();
+    init_target_depth_knob();
 }
 
 
