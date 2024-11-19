@@ -12,9 +12,11 @@
 #include <cstdlib>
 #include "debug_mort.h"
 #include "hardware_stm_gpio.h"
-// #include "mbed.h"
 #include <cstdio>
 #include <cstdlib>
+#include <stdlib.h>
+#include <stdio.h>
+#include <cstdint>
 
 /* MACROS for everyone--------------------------------------------------------*/
 

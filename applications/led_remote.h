@@ -6,7 +6,7 @@
 #endif
 
 /* Function definitions */
-int initStatusLEDs(void);
+int init_status_leds(void);
 int setBlueLED(void);
 int clearBlueLED(void);
 int setYellowLED(void);

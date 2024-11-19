@@ -132,7 +132,7 @@ void initPWMonChannel(int timer_number, int channel_number, float duty_cycle)
                     OCxPE = 0x400;
                     break;
                 }
-        default : fprintf(stderr, "Invalid Channel Number");
+        default : fprintf(stderr, "Invalid Channel Number\n");
     }
 
     reg_pointer = (uint32_t *)ccmr_register; // point to CCMR2
@@ -184,7 +184,7 @@ void setDutyCycle(int timer_number, int channel_number, float duty_cycle)
         case 2 : {ccr_register = ccr2_register; break;}
         case 3 : {ccr_register = ccr3_register; break;}
         case 4 : {ccr_register = ccr4_register; break;}
-        default : fprintf(stderr, "Received Invalid Channel Number at Set Duty cycle");
+        default : fprintf(stderr, "Received Invalid Channel Number at Set Duty cycle\n");
     }
 
     // Obtain ARR value
@@ -221,7 +221,7 @@ uint32_t mapTimerNumberToBaseAddress(int timer_number)
         case 12 : {timer_base_address = TIM12_BASE_ADDRESS; break;}
         case 13 : {timer_base_address = TIM13_BASE_ADDRESS; break;}
         case 14 : {timer_base_address = TIM14_BASE_ADDRESS; break;}
-        default : fprintf(stderr, "Received Invalid Timer Number at Timer Base Address");
+        default : fprintf(stderr, "Received Invalid Timer Number at Timer Base Address\n");
     }
 
     return timer_base_address;
@@ -236,6 +236,6 @@ void enableAPB1RCCclock(int timer_number)
         case 12 : {RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM12, ENABLE); break;}
         case 13 : {RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM13, ENABLE); break;}
         case 14 : {RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM14, ENABLE); break;}
-        default : fprintf(stderr, "Received Invalid Timer Number at APB1 clock enable");
+        default : fprintf(stderr, "Received Invalid Timer Number at APB1 clock enable\n");
     }
 }

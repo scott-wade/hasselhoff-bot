@@ -44,7 +44,7 @@ void event_handler_spi(void){
     if((SPI_TRANSMIT_FLAG > 0) && (state == 0)){// begin transmission
         // state transition
         if (SPI_TRANSMIT_FLAG > 3){
-            fprintf(stderr, "Requested unsupported SPI child %u", SPI_TRANSMIT_FLAG);
+            fprintf(stderr, "Requested unsupported SPI child %u\n", SPI_TRANSMIT_FLAG);
         }else{
             state = SPI_TRANSMIT_FLAG;
         }
