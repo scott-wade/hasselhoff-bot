@@ -6,26 +6,31 @@
 #include "hardware_stm_gpio.h"
 #include "hardware_stm_dma.h"
 
+
 #define MAX_POT_VAL     3900 // Empirically measured max potentiometer value
 
 
 // Variables to store DMA value outputs
 uint16_t target_depth;
+uint16_t joystick[2]; // [x,y]
 
 /* 
  * Initialize the target depth knob with ADC and DMA
  */
 int init_target_depth_knob(void) {
+    // Init variable
+    target_depth = 0;
     // Connected to 
     // Pin: PB0 
     // ADC: ADC12_IN8 (ADC 1 and 2 channel 8), use ADC1, channel 8
-    // DMA: 2, channel 0 works with ADC1
+    // DMA: 2, channel 0 stream 0 works with ADC1
     initADCpinWithDMA(PORT_B, 
                       0,  /* pin_number */
                       ADC_1, /* adc_number */ 
                       8,  /* adc_channel*/
                       DMA_2,  /* dma_number */
                       0,  /* dma_channel */ 
+                      0,  /* dma_stream */ 
                       &target_depth /* dest_addr */);
 
     return 0; // success
@@ -40,11 +45,44 @@ uint16_t get_target_depth(void) {
                            1, 17); // Desired range
 }
 
+/*
+ * Initialize the joystick analog inputs
+ */
+int init_joysticks(void) {
+    // Init variable 
+    joystick[0] = 0;
+    joystick[1] = 0;
+    // Y-stick connected to 
+    // Pin: PA4
+    // ADC: ADC12_IN4 (ADC 1 and 2 channel 4), use ADC2, channel 4
+    // DMA: 2, channel 0 works with ADC1
+    // ---
+    // X-stick connected to 
+    // Pin: PA5
+    // ADC: ADC12_IN5 (ADC 1 and 2 channel 5), use ADC2, channel 5
+    // DMA: 2, channel 1 stream 2 works with ADC2
+    int port_numbers[] = {PORT_A, PORT_A};
+    int pin_numbers[] = {5, 4};
+    uint32_t adc_channels[] = {5, 4};
+    initADCpinsWithDMA(port_numbers, 
+                       pin_numbers,
+                       // ADC
+                       ADC_2, /* adc_number */ 
+                       adc_channels,
+                       // DMA
+                       DMA_2,  /* dma_number */
+                       1,  /* dma_channel */ 
+                       2,  /* dma_stream */ 
+                       joystick, /* dest_addr */
+                       2 /* num_pins */ );
+
+    return 0; // success
+}
+
 
 /* *******************************************************************************
                     INPUTS UTILITY FUNCTIONS
    ******************************************************************************* */
-
 /*
  * Convert an analog integer that is in the [input_min, input_max] range
  * and maps to the desired [output_min, output_max] range
@@ -65,4 +103,18 @@ int analog2discrete(int val, int input_min, int input_max, int output_min, int o
 
     // Map val from input range [input_min, input_max] to output range [output_min, output_max]
     return (int)((float)(val - input_min) / (input_max - input_min) * (output_max - output_min) + output_min);
+}
+
+
+/*
+ * Returns joystick x value
+ */
+uint16_t get_joystick_x(void) {
+    return joystick[0];
+}
+/*
+ * Returns joystick y value
+ */
+uint16_t get_joystick_y(void) {
+    return joystick[1];
 }

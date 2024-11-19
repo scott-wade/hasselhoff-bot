@@ -40,8 +40,7 @@
 /* Function definitions ---------------------------------------------------------*/
 void enableAHB1DMAclock(int dma_number);
 uint32_t mapDmaNumbertoBaseAddress(int dma_number);
-void initDMAForAdc( int dma_number, int dma_channel, int adc_number, int num_transfers, uint16_t* dest_addr );
-
+void initDMAForAdc( int dma_number, int dma_channel, int dma_stream, int adc_number, int num_transfers, uint16_t* dest_addr );
 
 
 #ifdef __cplusplus

@@ -23,7 +23,6 @@
 #define bool uint8_t
 
 /*Function definitions---------------------------------------------------------*/
-void delay(uint16_t ms);
 
 
 #ifdef __cplusplus

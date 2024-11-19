@@ -17,6 +17,7 @@ void init_remote(void){
     /* Initialize remote state machine */ 
     init_status_leds();
     init_target_depth_knob();
+    init_joysticks();
 }
 
 

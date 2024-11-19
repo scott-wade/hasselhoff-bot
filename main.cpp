@@ -23,8 +23,11 @@ int main(void){
         /* loop */
         while(1){
             startADCConversion(ADC_1);
+            startADCConversion(ADC_2);
 
             printf("TARGET DEPTH: %u\n", get_target_depth());
+            printf("JOYSTICK: [%u, %u]\n", get_joystick_x(), get_joystick_y());
+
             // event_handler_remote();
             delay(10);
         }
