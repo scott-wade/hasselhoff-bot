@@ -1,4 +1,4 @@
-#define WHICH_NUCLEO 2 //change for compilation, 0 for remote, 1 for submarine, 2 for debug remote, 3 for debug sub3
+#define WHICH_NUCLEO 94 //change for compilation, 0 for remote, 1 for submarine, 2 for debug remote, 3 for debug sub3, 94 for NZ debugging
 #include <cstdint>
 #include "main.h"
 #include "debug_mort.h"
@@ -54,6 +54,19 @@ int main(void){
         //testSPIStateMachine();
         testNucleoReceiving();
 
+    }else if (WHICH_NUCLEO == 94){
+        /* initialization */
+        // initialize the sub clock
+        initSubClock();
+        // initialize my gpio for debugging
+        // initalize a queue and timeout array (utility and debugging)
+        
+        /* loop */
+        while(1){
+            // service event queue
+            // check on the timeouts
+        }
     }
+
 
 }
