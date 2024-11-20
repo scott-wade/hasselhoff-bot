@@ -38,12 +38,10 @@ void initSubClock(void)
 }
 
 // function iterates the counter intended for timer overflow
-// TODO:
- // add a call to this from the interrupt controller
 void wrapTimer(void)
 {
     timeWrapCount++;
-    printf("debug time wrap");
+    // printf("ms transpired %.1f \n", getSubMS()); // debug
 }
 
 // calculate & return the number of ms surpassed
