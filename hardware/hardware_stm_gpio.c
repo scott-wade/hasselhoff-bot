@@ -60,26 +60,25 @@ void initGPIOasMode(uint8_t port_number, uint8_t pin_number, uint8_t mode, uint8
     
     uint32_t * reg_pointer;
 
-
     // Enable Peripheral Clock (All GPIOs are on AHB1)
-    enableAHB1RCCclock(port_number);
+    enableAHB1GPIOclock(port_number);
 
     /* Pin configuration */
-    if (mode == 0) { // Input
+    if (mode == MODE_IN) { // Input
 
         uint32_t MODER_IN = ~((uint32_t) ((1<<(2*pin_number+1)) + (1<<(2*pin_number))));
         reg_pointer = (uint32_t *)moder_register;
         *reg_pointer = *reg_pointer & MODER_IN;
 
-    } else if (mode == 1) { // Output
+    } else if (mode == MODE_OUT) { // Output
 
-        uint32_t MODER_CLR = ~((uint32_t) ((1<<(2*pin_number+1)) + (1<<(2*pin_number))));
+        uint32_t MODER_CLR = ~((uint32_t) (0b11 << (2*pin_number)));
         uint32_t MODER_OUT = 1<<(2*pin_number);
         reg_pointer = (uint32_t *)moder_register;
         *reg_pointer = *reg_pointer & MODER_CLR;
         *reg_pointer = *reg_pointer | MODER_OUT;
 
-    } else if (mode == 2) { // Alternate Function mode
+    } else if (mode == MODE_AF2) { // Alternate Function mode
 
         uint32_t MODER_CLR = ~((uint32_t) ((1<<(2*pin_number+1)) + (1<<(2*pin_number))));
         uint32_t MODER_ALT = 1<<(2*pin_number+1);
@@ -88,7 +87,7 @@ void initGPIOasMode(uint8_t port_number, uint8_t pin_number, uint8_t mode, uint8
         *reg_pointer = *reg_pointer | MODER_ALT;
 
     } else {
-        fprintf(stderr, "Invalid Mode");
+        fprintf(stderr, "Invalid Mode\n");
     }
 
     /*Push-pull v open drain configuration */
@@ -97,9 +96,11 @@ void initGPIOasMode(uint8_t port_number, uint8_t pin_number, uint8_t mode, uint8
         reg_pointer = (uint32_t *)otyper_register;
         *reg_pointer = *reg_pointer | TYPER_OPEN_DR; // don't need clear, just setting single bit
     } else {
-        uint16_t TYPER_PUP = ~((uint16_t) 1<<pin_number);
+        uint32_t TYPER_PUP = ~((uint32_t) 1<<(2*pin_number));
+        uint32_t OTYPER_PP = 0x00;
         reg_pointer = (uint32_t *)otyper_register;
-        *reg_pointer = *reg_pointer & TYPER_PUP; // don't need clear since this operation is a clear anyway
+        *reg_pointer = *reg_pointer & ~TYPER_PUP; // Clear the bit
+        *reg_pointer = *reg_pointer | OTYPER_PP; // Set the bit, although is just 0
     }
 
     /*Pin high speed */
@@ -108,42 +109,43 @@ void initGPIOasMode(uint8_t port_number, uint8_t pin_number, uint8_t mode, uint8
     *reg_pointer = *reg_pointer | OSPEEDR_HI;
 
     reg_pointer = (uint32_t *)pupdr_register;
-    uint32_t PUPD_FLOATING = ~((uint32_t) ((1<<(2*pin_number+1)) + (1<<(2*pin_number))));
-    uint32_t PUPD_CLR = ~((uint32_t) ((1<<(2*pin_number+1)) + (1<<(2*pin_number))));
+    uint32_t PUPD_FLOATING = 0; // Just 0
+    uint32_t PUPD_CLR = ~((uint32_t) 0b11 << (2*pin_number));
     uint32_t PUPD_PU = (uint32_t) 1<<(2*pin_number);
     uint32_t PUPD_PD = (uint32_t) 1<<(2*pin_number+1);   
     /* pull up, pull down, neither config */
     switch(pupd) { 
         /* Configured neither, ie floating */
-        case 0:           
-            *reg_pointer = *reg_pointer & PUPD_FLOATING;  // don't need clear since this operation is a clear anyway            
+        case PUPD_FLOAT:           
+            *reg_pointer = *reg_pointer & PUPD_CLR;
+            *reg_pointer = *reg_pointer | PUPD_FLOATING;      
             break;
         /* Configured pull up */
-        case 1:
+        case PUPD_UP:
             *reg_pointer = *reg_pointer & PUPD_CLR;
             *reg_pointer = *reg_pointer | PUPD_PU;
             break;
         /* Configured pull-down */
-        case 2:
+        case PUPD_DOWN:
             *reg_pointer = *reg_pointer & PUPD_CLR;
             *reg_pointer = *reg_pointer | PUPD_PD;
             break;
         default:
-            fprintf(stderr, "Pull Up Pull Down Setting Not Handled / Invalid");
+            fprintf(stderr, "Pull Up Pull Down Setting Not Handled / Invalid\n");
             break;
     }
 
     /* Output Pin Init State Config */
-    if(mode == 1) {
+    if(mode == MODE_OUT) {
         reg_pointer = (uint32_t *)odr_register;
-        uint16_t ODR_CLR = ~((uint16_t) 1<<pin_number);
-        uint16_t ODR_SET = ((uint16_t) 0b1 << pin_number);
+        uint32_t ODR_CLR = ~((uint32_t) 1 << pin_number);
+        uint32_t ODR_SET = ((uint32_t) 1 << pin_number);
         *reg_pointer = *reg_pointer & ODR_CLR;
-        if(init_output>0) *reg_pointer = *reg_pointer | ODR_SET;
+        if(init_output > 0) *reg_pointer = *reg_pointer | ODR_SET;
     }
 
     /* Alternate Function Config */
-    if ((mode == 2) && (alt_func <= 15)) { // ALT FN MODE
+    if ((mode == MODE_AF2) && (alt_func <= 15)) { // ALT FN MODE
         /* Set Port & Pin to the AF value passed to init */
         uint32_t AFR_CLR;
         uint32_t AFR_VAL;
@@ -161,8 +163,8 @@ void initGPIOasMode(uint8_t port_number, uint8_t pin_number, uint8_t mode, uint8
         *reg_pointer = *reg_pointer & AFR_CLR; // clear bit for alternate function
         *reg_pointer = *reg_pointer | AFR_VAL;
 
-    } else if ((mode == 2) && (alt_func > 15)) {
-        fprintf(stderr, "Invalid alt function entry");
+    } else if ((mode == MODE_AF2) && (alt_func > 15)) {
+        fprintf(stderr, "Invalid alt function entry\n");
     }
      
 
@@ -227,6 +229,23 @@ int readGPIOoutput(int port_number, int pin_number)
     return (value>0);  
 }
 
+void initGPIOasAnalog(int port_number, int pin_number) {
+    uint32_t* reg_pointer;
+    uint32_t port_base_address = mapPortNumbertoBaseAddress(port_number);
+    // 1. Enable the AHB1 clock
+    enableAHB1GPIOclock(port_number);
+    // 2. Setup GPIO pin as analog by writing setting bits 14 and 15 in the MODER register
+    reg_pointer = (uint32_t*) (uint32_t *)(long)(port_base_address + MODER_REGISTER_OFFSET);
+    *reg_pointer = *reg_pointer | ((uint32_t) (0b11 << (pin_number*2)));
+    // 3. Setup GPIO pin to be a push-pull output by writing to the OTYPER register
+    reg_pointer = (uint32_t *)(long)(port_base_address + OTYPER_REGISTER_OFFSET);
+    *reg_pointer = *reg_pointer & (~((uint32_t)(0x01 << pin_number))); // First clear bit
+    *reg_pointer = *reg_pointer | 0x00; // Set bit
+    // 4. Setup GPIO pin to be floating by writing to the PUPDR register
+    reg_pointer = (uint32_t*)(long)(port_base_address + PUPDR_REGISTER_OFFSET);
+    *reg_pointer = *reg_pointer & (~((uint32_t)(0b11 << (pin_number*2))));
+}
+
 /* *******************************************************************************
                     GPIO UTILITY FUNCTIONS
    ******************************************************************************* */
@@ -242,13 +261,13 @@ uint32_t mapPortNumbertoBaseAddress(int port_number)
         case 5 : {port_base_address = PORTF_BASE_ADDRESS; break;}
         case 6 : {port_base_address = PORTG_BASE_ADDRESS; break;}
         case 7 : {port_base_address = PORTH_BASE_ADDRESS; break;}
-        default : fprintf(stderr, "Received Unknown Port Number at Base Address Map");
+        default : fprintf(stderr, "Received Unknown Port Number at Base Address Map\n");
     }
 
     return port_base_address;
 }
 
-void enableAHB1RCCclock(int port_number)
+void enableAHB1GPIOclock(int port_number)
 {
     switch (port_number) {
         case 0 : {RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE); break;}
@@ -259,7 +278,7 @@ void enableAHB1RCCclock(int port_number)
         case 5 : {RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOF, ENABLE); break;}
         case 6 : {RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOG, ENABLE); break;}
         case 7 : {RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOH, ENABLE); break;}
-        default : fprintf(stderr, "Received Unknown Port Number at AHB1 clock enable");
+        default : fprintf(stderr, "Received Unknown Port Number at AHB1 clock enable\n");
     }
 
 }

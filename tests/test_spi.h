@@ -8,6 +8,9 @@
 void testReadWriteRegOpMode(void);
 void testReadRegOpMode(void);
 void testSPIStateMachine(void);
+void testSPIQueue(void);
+void testNucleoTransmitting(void);
+void testNucleoReceiving(void);
 
 #ifdef __cplusplus
 }

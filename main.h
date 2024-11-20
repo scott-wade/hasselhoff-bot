@@ -7,21 +7,21 @@
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f4xx_mort2.h"
+#include "hardware/stm32f4xx_mort2.h"
 #include <cstdio>
 #include <cstdlib>
 #include "debug_mort.h"
-#include "hardware_stm_gpio.h"
-// #include "mbed.h"
-#include <cstdio>
-#include <cstdlib>
+#include "hardware/hardware_stm_gpio.h"
+#include <stdlib.h>
+#include <stdio.h>
+
 
 /* MACROS for everyone--------------------------------------------------------*/
 
-#define bool uint8_t
+#define SUB 1
 
 /*Function definitions---------------------------------------------------------*/
-void delay(uint16_t ms);
+
 
 
 #ifdef __cplusplus

@@ -1,6 +1,6 @@
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __HARDWARE_STM_SPI_H_
-#define __HARDWARE_STM_SPI_H_
+#ifndef __HARDWARE_LPS_SPI_H_
+#define __HARDWARE_LPS_SPI_H_
 
 #ifdef __cplusplus
 extern "C"
@@ -8,7 +8,7 @@ extern "C"
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f4xx_mort2.h"
+#include "main.h"
 
 /* Macros for Everyone--------------------------------------------------------*/
 
@@ -38,26 +38,13 @@ extern "C"
 #define PORT_G 6
 #define PORT_H 7
 
-//typedef
 
-typedef enum{
-    SPI_PARENT,
-    SPI_CHILD
-}Spi_Hierarchy_t;
 
 /*Function definitions---------------------------------------------------------*/
-uint32_t getSPIBaseAddr(uint8_t spi_id);
-void configureSPIPeripheral(Spi_Hierarchy_t spi_type, uint8_t spi_id);
-void writeTX(uint8_t spi_id, uint16_t value);
-uint16_t readRX(uint8_t spi_id);
-uint16_t readSpiStatusRegister(uint8_t spi_id);
-void resetSpiRXNE(uint8_t spi_id);
-void enableSpiTXEInterrupts(uint8_t spi_id);
-void disableSpiTXEInterrupts(uint8_t spi_id);
 
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /*__SPI_H */
+#endif /*__LPS_SPI_H */

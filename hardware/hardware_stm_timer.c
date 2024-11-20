@@ -10,6 +10,7 @@
 
 #include "hardware_stm_timer.h"
 #include "stm32f4xx_rcc_mort.h"
+#include "applications/sub_clock.h"
 #include <cstdint>
 
 
@@ -35,6 +36,12 @@
 #define CCR4_OFFSET 0x40
 #define CCER_OFFSET 0x20
 #define CNT_OFFSET 0x24
+#define DIER_OFFSET 0x0C
+
+// Flags / Settings
+#define TIM_UIEN        ((uint16_t)(0b1))      //update interrupt enable
+#define TIM_UIF         ((uint16_t)(0b1))      //overflow interrupt flag
+
 
 
 /* Function definitions----------------------------------------------------------*/
@@ -132,7 +139,7 @@ void initPWMonChannel(int timer_number, int channel_number, float duty_cycle)
                     OCxPE = 0x400;
                     break;
                 }
-        default : fprintf(stderr, "Invalid Channel Number");
+        default : fprintf(stderr, "Invalid Channel Number\n");
     }
 
     reg_pointer = (uint32_t *)ccmr_register; // point to CCMR2
@@ -163,6 +170,22 @@ void initPWMonChannel(int timer_number, int channel_number, float duty_cycle)
     *reg_pointer = *reg_pointer | CCXE_EN;
 }
 
+// enabling an interrupt based on the timer counting up to ARR
+void initTimerIntOverflow(int timer_number)
+{
+    uint16_t *reg_pointer;
+    
+    // calc register location
+    uint32_t timer_base_address = mapTimerNumberToBaseAddress(timer_number);
+    uint16_t * dma_interrupt_enable_register = (uint16_t *)(long)(timer_base_address + DIER_OFFSET);
+    
+    // enable the nested vector interrupt
+    enableNVIC_StdTimer(timer_number);
+    // enable the update interrupt
+    reg_pointer = dma_interrupt_enable_register;
+    *reg_pointer = *reg_pointer | TIM_UIEN; // setting single bit, don't need to clear
+}
+
 /* *******************************************************************************
                     TIMER UPDATE FUNCTIONS
    ******************************************************************************* */
@@ -184,7 +207,7 @@ void setDutyCycle(int timer_number, int channel_number, float duty_cycle)
         case 2 : {ccr_register = ccr2_register; break;}
         case 3 : {ccr_register = ccr3_register; break;}
         case 4 : {ccr_register = ccr4_register; break;}
-        default : fprintf(stderr, "Received Invalid Channel Number at Set Duty cycle");
+        default : fprintf(stderr, "Received Invalid Channel Number at Set Duty cycle\n");
     }
 
     // Obtain ARR value
@@ -221,7 +244,7 @@ uint32_t mapTimerNumberToBaseAddress(int timer_number)
         case 12 : {timer_base_address = TIM12_BASE_ADDRESS; break;}
         case 13 : {timer_base_address = TIM13_BASE_ADDRESS; break;}
         case 14 : {timer_base_address = TIM14_BASE_ADDRESS; break;}
-        default : fprintf(stderr, "Received Invalid Timer Number at Timer Base Address");
+        default : fprintf(stderr, "Received Invalid Timer Number at Timer Base Address\n");
     }
 
     return timer_base_address;
@@ -236,6 +259,44 @@ void enableAPB1RCCclock(int timer_number)
         case 12 : {RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM12, ENABLE); break;}
         case 13 : {RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM13, ENABLE); break;}
         case 14 : {RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM14, ENABLE); break;}
-        default : fprintf(stderr, "Received Invalid Timer Number at APB1 clock enable");
+        default : fprintf(stderr, "Received Invalid Timer Number at APB1 clock enable\n");
     }
+}
+
+/* *******************************************************************************
+                    TIMER INTERRUPT HANDLING
+   ******************************************************************************* */
+
+// service & clear the timer2 interrupt request
+void TIM2_IRQHandler(void){
+
+}
+
+// service & clear the timer3 interrupt request
+// Currently arranged for the timer3 overflow to be a running clock
+void TIM3_IRQHandler(void){
+    
+    uint16_t *reg_pointer_sr;
+    uint16_t *reg_pointer_dier;
+    
+    // address mapping
+    uint32_t timer_base_address = mapTimerNumberToBaseAddress(3);
+    uint16_t * status_register = (uint16_t *)(long)(timer_base_address + SR_OFFSET);
+    uint16_t * dma_interrupt_enable_register = (uint16_t *)(long)(timer_base_address + DIER_OFFSET);
+
+    reg_pointer_sr = (uint16_t *)status_register;
+    reg_pointer_dier = (uint16_t *)dma_interrupt_enable_register;
+    
+    // verify that an overflow triggered the interrupt & that interrupts are enabled
+    if(((*reg_pointer_sr & TIM_UIF) > 0) && ((*reg_pointer_dier & TIM_UIEN) > 0)) {
+        // clear the interrupt
+        *reg_pointer_sr = ~TIM_UIF;
+        // iterate the wrap counter
+        wrapTimer();
+    }
+}
+
+// service & clear the timer4 interrupt request
+void TIM4_IRQHandler(void){
+
 }

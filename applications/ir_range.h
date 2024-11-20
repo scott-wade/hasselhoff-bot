@@ -5,6 +5,6 @@
 
 // #define ANALOG_TO_DISTANCE 1.0
 
-void initSensor(bool analog);
+void initSensor(uint8_t analog);
 // double getDistanceAnalog(void);
 uint8_t getSensorTripped(void);
