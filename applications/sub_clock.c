@@ -43,7 +43,7 @@ void initSubClock(void)
 void wrapTimer(void)
 {
     timeWrapCount++;
-    printf("debug time wrap")
+    printf("debug time wrap");
 }
 
 // calculate & return the number of ms surpassed

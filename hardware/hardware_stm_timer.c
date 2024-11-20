@@ -39,8 +39,8 @@
 #define DIER_OFFSET 0x0C
 
 // Flags / Settings
-#define TIM_UIEN        ((uint16_t)(0b1));      //update interrupt enable
-#define TIM_UIF         ((uint16_t)(0b1));      //overflow interrupt flag
+#define TIM_UIEN        ((uint16_t)(0b1))      //update interrupt enable
+#define TIM_UIF         ((uint16_t)(0b1))      //overflow interrupt flag
 
 
 /* Function definitions----------------------------------------------------------*/
