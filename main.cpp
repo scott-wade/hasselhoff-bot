@@ -9,6 +9,7 @@
 #include "state_machine_SPI.h"
 #include "inputs_remote.h"
 #include "hardware_stm_adc.h"
+#include "applications/sub_clock.h"
 
 
 int main(void){
