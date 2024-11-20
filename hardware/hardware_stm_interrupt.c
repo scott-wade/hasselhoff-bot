@@ -9,6 +9,7 @@
   */
 
 #include "hardware_stm_timer.h"
+#include "hardware_stm_interrupt.h"
 #include "stm32f4xx_rcc_mort.h"
 #include <cstdint>
 
@@ -68,7 +69,7 @@ void enableNVIC_StdTimer(int timer_number)
     uint32_t * reg_pointer;
     
     // tim2 - tim4 in positions 28 - 30 of NVIC
-    reg_pointer = (uint32 *)NVIC_INTERRUPT_SET_ENABLE_REGISTER_0_31;
+    reg_pointer = (uint32_t *)NVIC_INTERRUPT_SET_ENABLE_REGISTER_0_31;
     switch(timer_number) {
       case 2: *reg_pointer = TIM2_INTERRUPT_BIT; break;
       case 3: *reg_pointer = TIM3_INTERRUPT_BIT; break;
