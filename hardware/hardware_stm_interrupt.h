@@ -29,6 +29,7 @@
 // Interrupt initialization
 void enableSPI1Interrupt(void);
 void enableSPI4Interrupt(void);
+void enableNVIC_StdTimer(int timer_number);
 
 
 #ifdef __cplusplus
