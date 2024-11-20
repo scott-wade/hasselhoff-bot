@@ -12,16 +12,16 @@
 #include <cstdlib>
 #include "debug_mort.h"
 #include "hardware_stm_gpio.h"
-// #include "mbed.h"
-#include <cstdio>
-#include <cstdlib>
+#include <stdlib.h>
+#include <stdio.h>
+
 
 /* MACROS for everyone--------------------------------------------------------*/
 
-#define bool uint8_t
+#define SUB
 
 /*Function definitions---------------------------------------------------------*/
-void delay(uint16_t ms);
+
 
 
 #ifdef __cplusplus
