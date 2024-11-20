@@ -2,6 +2,7 @@
     "files.associations": {
         "hardware_lps_spi.h": "c",
         "stm32f4xx_rcc_mort.h": "c",
-        "sub_clock.h": "c"
+        "sub_clock.h": "c",
+        "hardware_stm_timer.h": "c"
     }
 }
