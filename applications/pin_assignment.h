@@ -22,5 +22,6 @@
   #define PROPULSION_CCW_PROP_CH 4
 
   /* Infrared Sensor Pin Assignments */
-  #define IR_RANGE_PORT_NUM 6
+  #define IR_RANGE_PORT_NUM 5
   #define IR_RANGE_PIN_NUM 0
+
