@@ -13,11 +13,13 @@
 #include "../hardware/hardware_stm_spi.h"
 #include "../state_machine/state_machine_SPI.h"
 #include "../debug_mort.h"
+#include "../state_machine/spi_queue.h"
+#include <cstdint>
 
 
 void testReadRegOpMode(void){
     /* Try to read the current RegOpMode settings register from the sx1278 */ 
-    configureSPIParent(1);
+    configureSPIPeripheral(SPI_PARENT,1);
     
 
     uint8_t wnr = 0; // read
@@ -50,7 +52,7 @@ void testReadRegOpMode(void){
 
 void testReadWriteRegOpMode(void){
     /* Try to write to the RegOpMode settings register from the sx1278 */ 
-    configureSPIParent(1);
+    configureSPIPeripheral(SPI_PARENT,1);
     // configure gpio port for CS
 
     uint8_t wnr = 1; // write
@@ -100,7 +102,7 @@ void testSPIStateMachine(void){
     /* should print rx = 4*/ 
 
     // initialize SPI state machine
-    init_state_machine_spi();
+    init_state_machine_spi(1);
 
     // init debugging packet 
     uint8_t wnr = 0; // read
@@ -111,13 +113,13 @@ void testSPIStateMachine(void){
     printf("packet: %u\n", packet);
 
     // var to read from spi to
-    uint16_t spi_rx = 0;
+    uint32_t spi_rx = 0;
 
     // run state machine
     int delaything = 0;
 
     while(1){
-        event_handler_spi();
+        event_handler_spi(NUCLEO_PARENT);
         delaything = delaything + 1;
         if(delaything == 100000){
             requestSpiTransmit(1, packet, &spi_rx);
@@ -129,3 +131,75 @@ void testSPIStateMachine(void){
         }
     }
 }
+
+
+void testSPIQueue(void){
+    Queue* testQueue = createQueue(sizeof(transmitEvent));
+
+    // create a test event
+    uint32_t returnvalue = 0;
+    transmitEvent testEvent;
+    testEvent.txQueue = createQueue(sizeof(uint8_t));
+    testEvent.child_id = 47;
+    testEvent.read_var_addr = &returnvalue;
+
+    // add that event to the queue
+    enqueue(testQueue, &testEvent);
+
+    if(!isEmpty(testQueue)){
+        printf("testQueue is not Empty (PASS)\n");
+    }else{
+        printf("testQueue is Empty (BAD)\n");
+    }
+
+    // try to retrieve the event from the queue
+
+    transmitEvent returnedEvent = *(transmitEvent*)dequeue(testQueue);
+    printf("Want 47, got child id %u\n", returnedEvent.child_id); // should get 47
+
+}
+
+void testNucleoTransmitting(void){
+    // send periodic DEBUG packets (header=0xde) with 0xad as the data value
+    init_state_machine_spi(NUCLEO_PARENT);
+    
+
+    uint32_t iter = 0;
+    uint32_t read_var = 0;
+    uint32_t read_var_prev = read_var;
+    uint16_t packet = (uint16_t)(0xdead);
+    for (int i = 0; i < 100000000; i++){
+        if(iter >= 10000000){
+            requestSpiTransmit(1, packet, &read_var);
+            printf("Requesting Transmission with packet %u\n", packet);
+        }
+        event_handler_spi(NUCLEO_PARENT);
+        if(!isEmpty(SPI_COMMS_RECIEVED_QUEUE)){
+            read_var = *(uint16_t*)dequeue(SPI_COMMS_RECIEVED_QUEUE);
+            printf("read var changed from %u to %u \n", read_var_prev, read_var);
+            read_var_prev = read_var;
+        }
+        iter ++;
+    }
+
+}
+
+void testNucleoReceiving(void){
+
+    init_state_machine_spi(NUCLEO_CHILD);
+
+    while(1){
+        // service spi state machine
+        event_handler_spi(NUCLEO_CHILD);
+
+        if (!isEmpty(SPI_COMMS_RECIEVED_QUEUE)){// approximation for a recieved msg event handler
+            // dequeue the recieved data
+            uint8_t data = *(uint8_t*)dequeue(SPI_COMMS_RECIEVED_QUEUE);
+            // print it out
+            printf("Recieved data: %u \n", data);
+        }
+    }
+
+}
+
+

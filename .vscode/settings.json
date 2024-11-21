@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "hardware_lps_spi.h": "c",
+        "stm32f4xx_rcc_mort.h": "c",
+        "sub_clock.h": "c"
+    }
+}

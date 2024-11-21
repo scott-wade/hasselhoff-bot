@@ -8,16 +8,34 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include <cstdint>
+#include "queue.h"
 #include "main.h"
+#include "spi_queue.h"
+
+/* True global variables */
+extern Queue* SPI_COMMS_RECIEVED_QUEUE;
+extern Queue* SPI_SENSOR_RECIEVED_QUEUE;
 
 /* MACROS for everyone--------------------------------------------------------*/
 
 
+/* Data structures for SPI state machine */
+typedef struct{
+    uint8_t child_id; //SPI ID
+    Queue* txQueue;
+    uint32_t* read_var_addr;
+} transmitEvent;
+
+typedef enum{
+    NUCLEO_PARENT,
+    NUCLEO_CHILD,
+    SENSOR_PARENT
+} Spi_State_Machine_t;
 
 /*Function definitions---------------------------------------------------------*/
-void init_state_machine_spi(void);
-void event_handler_spi(void);
-void requestSpiTransmit(uint8_t child_id, uint16_t packet, uint16_t* read_var_addr);
+void init_state_machine_spi(Spi_State_Machine_t);
+void event_handler_spi(Spi_State_Machine_t spi_type);
+void requestSpiTransmit(uint8_t child_id, uint16_t packet, uint32_t* read_var_addr);
 
 
 

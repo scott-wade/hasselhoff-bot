@@ -9,6 +9,7 @@
   */
 
 #include "hardware_stm_timer.h"
+#include "hardware_stm_interrupt.h"
 #include "stm32f4xx_rcc_mort.h"
 #include <cstdint>
 
@@ -29,7 +30,9 @@
 #define NVIC_INTERRUPT_CLEAR_PENDING_REGISTER_0_31 (NVIC_BASE_ADDRESS + 0x180)
 #define NVIC_INTERRUPT_CLEAR_PENDING_REGISTER_32_63 (NVIC_INTERRUPT_CLEAR_PENDING_REGISTER_0_31 + 0x4)
 #define NVIC_INTERRUPT_CLEAR_PENDING_REGISTER_64_95 (NVIC_INTERRUPT_CLEAR_PENDING_REGISTER_0_31 + 0x8)
+#define TIM2_INTERRUPT_BIT (0x10000000)
 #define TIM3_INTERRUPT_BIT (0x20000000)
+#define TIM4_INTERRUPT_BIT (0x40000000)
 #define EXTI9_5_INTERRUPT_BIT (0x800000)
 #define SPI1_INTERRUPT_BIT (0x08)
 #define SPI4_INTERRUPT_BIT (0x100000)
@@ -61,3 +64,16 @@ void enableSPI4Interrupt(void){
     *reg_pointer_32 = SPI4_INTERRUPT_BIT;
 }
 
+void enableNVIC_StdTimer(int timer_number)
+{
+    uint32_t * reg_pointer;
+    
+    // tim2 - tim4 in positions 28 - 30 of NVIC
+    reg_pointer = (uint32_t *)NVIC_INTERRUPT_SET_ENABLE_REGISTER_0_31;
+    switch(timer_number) {
+      case 2: *reg_pointer = TIM2_INTERRUPT_BIT; break;
+      case 3: *reg_pointer = TIM3_INTERRUPT_BIT; break;
+      case 4: *reg_pointer = TIM4_INTERRUPT_BIT; break;
+      default: fprintf(stderr, "Tried to init NVIC with unsupported Timer ID"); break;
+    }
+}

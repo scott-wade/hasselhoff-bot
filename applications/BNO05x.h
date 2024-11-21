@@ -1,5 +1,6 @@
 #pragma once
 #include "sh2.h"
+#include "stm32f4xx.h"
 
 #define IMU_CS
 #define IMU_INT
@@ -50,4 +51,4 @@ void hardware_reset();
 
 void sendPacket();
 void receivePacket();
-void processPacket(uint8_t);
+void processPacket(uint8_t data);

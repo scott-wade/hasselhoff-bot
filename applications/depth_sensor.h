@@ -1,16 +1,17 @@
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __HARDWARE_STM_INTERRUPT_H_
-#define __HARDWARE_STM_INTERRUPT_H_
+#ifndef __depth_sensor_H_
+#define __depth_sensor_H_
 
 #ifdef __cplusplus
- extern "C" {
+extern "C"
+{
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f4xx_mort2.h"
-
+#include "main.h"
 
 /* Macros for Everyone--------------------------------------------------------*/
+
 #define PIN_0   0
 #define PIN_1   1
 #define PIN_2   2
@@ -22,18 +23,28 @@
 #define PIN_8   8
 #define PIN_9   9
 #define PIN_10  10
+#define PIN_11  11
+#define PIN_12  12
+#define PIN_13  13
+#define PIN_14  14
+#define PIN_15  15
+
+#define PORT_A 0
+#define PORT_B 1
+#define PORT_C 2
+#define PORT_D 3
+#define PORT_E 4
+#define PORT_F 5
+#define PORT_G 6
+#define PORT_H 7
 
 
 
 /*Function definitions---------------------------------------------------------*/
-// Interrupt initialization
-void enableSPI1Interrupt(void);
-void enableSPI4Interrupt(void);
-void enableNVIC_StdTimer(int timer_number);
 
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /*__INTERRUPT_H */
+#endif /*__depth_sensor_H */

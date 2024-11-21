@@ -1,5 +1,4 @@
-#include "led_remote.h"
-#define WHICH_NUCLEO 0 //change for compilation, 0 for remote, 1 for submarine, 2 for debug
+#define WHICH_NUCLEO 0 //change for compilation, 0 for remote, 1 for submarine, 2 for debug remote, 3 for debug sub3, 94 for NZ debugging
 
 #include <cstdint>
 #include "main.h"
@@ -11,6 +10,8 @@
 #include "state_machine_SPI.h"
 #include "inputs_remote.h"
 #include "hardware_stm_adc.h"
+#include "applications/sub_clock.h"
+#include "led_remote.h"
 
 
 int main(void){
@@ -64,7 +65,6 @@ int main(void){
             }
 
             i = (i+1)%5;
-
         }
 
     }else if(WHICH_NUCLEO == 1) {
@@ -79,12 +79,34 @@ int main(void){
         }
 
     }else if(WHICH_NUCLEO == 2){
-        /* DEBUGGING CODE */
+        /* DEBUGGING CODE PARENT */
         //testB0Set();
         //testB0Clear();
         //testReadWriteRegOpMode();
-        testSPIStateMachine();
+        //testSPIStateMachine();
+        testNucleoTransmitting();
 
+    }else if(WHICH_NUCLEO == 3){
+        /* DEBUGGING CODE CHILD */
+        //testB0Set();
+        //testB0Clear();
+        //testReadWriteRegOpMode();
+        //testSPIStateMachine();
+        testNucleoReceiving();
+
+    }else if (WHICH_NUCLEO == 94){
+        /* initialization */
+        // initialize the sub clock
+        initSubClock();
+        // initialize my gpio for debugging
+        // initalize a queue and timeout array (utility and debugging)
+        
+        /* loop */
+        while(1){
+            // service event queue
+            // check on the timeouts
+        }
     }
+
 
 }

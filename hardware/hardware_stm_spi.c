@@ -37,7 +37,7 @@
 #define SPI_STATUS_REGISTER_RESET_MASK ~((uint32_t)0b11111101) // reset value for bit 1 is 1
 #define SPI_DATA_REGISTER_RESET_MASK ~((uint32_t)0xffff)
 
-void configureSPIParent(uint8_t spi_id){
+void configureSPIPeripheral(Spi_Hierarchy_t spi_type, uint8_t spi_id){
     /*  configure SPI as parent 
         using a base clock speed of 45MHz
     */
@@ -67,14 +67,18 @@ void configureSPIParent(uint8_t spi_id){
             initGPIOasMode(PORT_A, PIN_7, MODE_AF, OD_PUPD, PUPD_FLOAT, 0, 5);
             // SCLK pin B3 -> moder 2 for alt, push-pull, neither PUPD, alt func = 5
             initGPIOasMode(PORT_B, PIN_3, MODE_AF, OD_PUPD, PUPD_FLOAT, 0, 5);
-            // CS pin(s) A15 -> moder 1 for out, push pull, PU, ODR high
+            // CS pin(s) A15 -> moder 1 for out, push pull, PU, ODR low
             initGPIOasMode(PORT_A, PIN_15, MODE_OUT, OD_PUPD, PUPD_UP, 1, 0);
         break;
         case 4:
-            //PICO/MISO pin  ->  moder 2 for alt, open drain, neither PUPD, alt func = 5
-            //POCI/MOSI pin  -> moder 2 for alt, push-pull, neither PUPD, alt func = 5
-            // SCLK pin  -> moder 2 for alt, push-pull, neither PUPD, alt func = 5
-            // CS pin  -> moder 1 for out, push pull, PU, ODR high
+            //PICO/MISO pin PE5 ->  moder 2 for alt, open drain, neither PUPD, alt func = 5
+            initGPIOasMode(PORT_E, PIN_5, MODE_AF, OD_OPEN_DRAIN, PUPD_FLOAT, 0, 5);
+            //POCI/MOSI pin PE6 -> moder 2 for alt, push-pull, neither PUPD, alt func = 5
+            initGPIOasMode(PORT_E, PIN_6, MODE_AF, OD_PUPD, PUPD_FLOAT, 0, 5);
+            // SCLK pin PE2 -> moder 2 for alt, push-pull, neither PUPD, alt func = 5
+            initGPIOasMode(PORT_E, PIN_2, MODE_AF, OD_PUPD, PUPD_FLOAT, 0, 5);
+            // CS pin PE4 -> moder 1 for out, push pull, PU, ODR high
+            initGPIOasMode(PORT_E, PIN_4, MODE_OUT, OD_PUPD, PUPD_UP, 1, 0);
         break;
         default:
             fprintf(stderr, "Tried to init with invalid SPI ID");
@@ -99,10 +103,15 @@ void configureSPIParent(uint8_t spi_id){
     // is at idle state).
     //  not implementing CRC for now
     // f) Configure SSM and SSI (Note: 2).
-    uint16_t software_cs_bits = (uint16_t)(0b11 << 8); // manage cs with software
+    uint16_t software_cs_bits;
+    if(spi_type==SPI_PARENT) software_cs_bits = (uint16_t)(0b11 << 8); // manage cs with software
+    if(spi_type==SPI_CHILD) software_cs_bits = (uint16_t)(0b10 << 8); 
     // g) Configure the MSTR bit (in multimaster NSS configuration, avoid conflict state on
     // NSS if parent is configured to prevent MODF error).
-    uint16_t parent_bit = (uint16_t)(0b100);
+    uint16_t parent_bit;
+    if(spi_type==SPI_PARENT) {parent_bit = (uint16_t)(0b100);}
+    if(spi_type==SPI_CHILD) {parent_bit = (uint16_t)(0b000);}
+    
     // h) Set the DFF bit to configure the data frame format (8 or 16 bits).
     uint16_t dff_bit = (uint16_t)(0b1 << 11); // 16 bits
 
@@ -127,7 +136,7 @@ void configureSPIParent(uint8_t spi_id){
     printf("SPI_CR2 reads %u\n", *control_register2_addr);
      
 
-    // Enable the interrupts
+    // Enable the interrupts in NVIC
     switch (spi_id){
         case 1: 
             enableSPI1Interrupt();
@@ -149,6 +158,7 @@ void writeTX(uint8_t spi_id, uint16_t value)
     uint32_t* data_register_address = (uint32_t*)(long)
                 (base_address + SPI_DATA_REGISTER_OFFSET);
     *data_register_address = value;
+    printf("Wrote to DR\n");
 }
 
 uint16_t readRX(uint8_t spi_id)
