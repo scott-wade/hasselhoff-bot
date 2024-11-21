@@ -8,7 +8,7 @@
   ******************************************************************************
   */
 
- #include "applications/sub_clock.h"
+ #include "sub_clock.h"
  #include "hardware/hardware_stm_timer.h"
 
  /*******************************
@@ -50,4 +50,16 @@ double getSubMS(void)
     double msPassed;
     msPassed = 500 * timeWrapCount + 0.1 * getTIMCNT(CLOCK_TIMER);
     return msPassed;
+}
+
+void sub_sleep(float duration)
+{
+    float elapsed_duration = 0.0;
+    float sleep_cycle_start_time = getSubMS();
+
+    while (elapsed_duration <= 1000*duration){
+        elapsed_duration += (getSubMS() - sleep_cycle_start_time);
+    }
+
+    return;
 }

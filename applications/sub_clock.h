@@ -18,6 +18,7 @@ extern "C" {
 void initSubClock(void);
 void wrapTimer(void);
 double getSubMS(void);
+void sub_sleep(float duration);
 
 #ifdef __cplusplus
 }
