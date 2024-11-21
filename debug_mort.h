@@ -11,6 +11,7 @@
 /*Function definitions---------------------------------------------------------*/
 void debugprint(uint16_t number);
 void debugprintHelloWorld( void );
+void delay (int n);
 
 #ifdef __cplusplus
 }

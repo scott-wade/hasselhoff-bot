@@ -10,3 +10,10 @@ void debugprintHelloWorld( void )
 {
     printf("I'm aliiiiiivveeee!!!\n");
 } 
+
+
+void delay (int n) {
+    for (int i=0; i<(n*1000000); i++){
+
+    }
+}
