@@ -42,7 +42,7 @@ extern sub_t subState;
 void init_sub(void);
 void init_timer(void);
 void init_gpio(void);
-void event_handler_sub(simple_queue_t* simpleQ);
+void event_handler_sub();
 
 
 

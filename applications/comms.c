@@ -48,7 +48,7 @@ void recv_comms(simple_queue_t* simpleQ)
         land_cmd_cb(payload);
         break;
     case ACK:
-        ack_cb(simpleQ, payload);
+        ack_cb(payload);
         break;
     case IR_DETECTED:
         ir_detected_cb(payload);
@@ -82,7 +82,7 @@ void recv_comms_debug(simple_queue_t* simpleQ)
         land_cmd_cb(payload);
         break;
     case ACK:
-        ack_cb(simpleQ, payload);
+        ack_cb(payload);
         break;
     case IR_DETECTED:
         ir_detected_cb(payload);
@@ -119,11 +119,11 @@ void land_cmd_cb(comms_payload_t* payload)
     // Run the landing sequence
     // May require a controller to regulate descent etc
 }
-void ack_cb(simple_queue_t* simpleQ, comms_payload_t* payload)
+void ack_cb(comms_payload_t* payload)
 {
     printf("ACKNOWLEDGED\n");
     sub_events_t event = INITIALISED;
-    insert_to_simple_queue(simpleQ, event);
+    insert_to_simple_queue(event);
     return;
 }
 

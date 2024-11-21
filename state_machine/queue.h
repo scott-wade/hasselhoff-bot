@@ -36,7 +36,7 @@ void push(queue_t *queue, queue_element_t *element);
 void remove_from_queue(queue_t *queue, queue_element_t *element);
 void clear(queue_t *queue);
 
-void init_simple_queue(simple_queue_t* simpleQ, device_enum device);
-void insert_to_simple_queue(simple_queue_t* simpleQ, uint8_t event);
+void init_simple_queue(device_enum device);
+void insert_to_simple_queue(uint8_t event);
 // void init_simple_queue(remote_events_t event);
 void insert_queue(void);

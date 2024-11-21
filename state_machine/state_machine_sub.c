@@ -11,6 +11,7 @@
 
 #include "state_machine_sub.h"
 #include "comms.h"
+#include "globals.h"
 
 void init_sub(void){
     /* Initialize sub state machine */ 
@@ -20,25 +21,25 @@ void init_sub(void){
 }
 
 
-void event_handler_sub(simple_queue_t* simpleQ){
+void event_handler_sub(){
     /* Checks and handles events for sub */
-    if (simpleQ->size > 0)
+    if (simpleQ.size > 0)
     {
-        printf("Queue has %d events\n", simpleQ->size);
+        printf("Queue has %d events\n", simpleQ.size);
     } else {
         printf("No events queued\n");
         return;
     }
 
     
-    sub_events_t current_event = simpleQ->events[simpleQ->process_indx];
+    sub_events_t current_event = simpleQ.events[simpleQ.process_indx];
 
-    printf("Processing event %d\n", simpleQ->process_indx);
-    simpleQ->process_indx++;
-    simpleQ->size--;
-    if (simpleQ->process_indx == MAX_ELEMENTS)
+    printf("Processing event %d\n", simpleQ.process_indx);
+    simpleQ.process_indx++;
+    simpleQ.size--;
+    if (simpleQ.process_indx == MAX_ELEMENTS)
     {
-        simpleQ->process_indx = 0;
+        simpleQ.process_indx = 0;
     }
 
     printf("Event is: %d\n", current_event);
@@ -51,7 +52,7 @@ void event_handler_sub(simple_queue_t* simpleQ){
             break;
         case PACKET_RECEIVED:
             printf("PACKET RECVD\n");
-            recv_comms_debug(simpleQ);
+            recv_comms_debug();
             break;
         case BEAM_DETECTED:
             printf("BEAM_DETECT\n");

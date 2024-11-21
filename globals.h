@@ -8,6 +8,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include <cstdint>
+#include "queue.h"
 
 /* globals for everyone--------------------------------------------------------*/
 
@@ -15,6 +16,9 @@
 extern uint16_t* SPI_READ_ADDR; // address to send current RX to
 extern uint32_t SPI_OUTGOING_PACKET; // packet to send in current transaction
 extern uint8_t SPI_TRANSMIT_FLAG;
+
+// State machine global
+extern simple_queue_t simpleQ;
 
 
 
