@@ -12,12 +12,12 @@ void init_simple_queue(device_enum device)
     simpleQ.process_indx = 0;
 }
 
-void insert_to_simple_queue(uint8_t event)
+void insert_to_simple_queue(sub_events_t event)
 {
 
     simpleQ.events[simpleQ.insert_indx] = event;
     printf("Event %d added to index %d\n", 
-            event, simpleQ.insert_indx);
+            event.type, simpleQ.insert_indx);
     simpleQ.insert_indx++;
     if (simpleQ.insert_indx == MAX_ELEMENTS)
     {

@@ -22,8 +22,7 @@ typedef enum {
 
 typedef struct {
     uint8_t type;
-    double throttle_val; // Only non-zero in DRIVE_MSG
-    double heading_val; // Only non-zero in DRIVE_MSG
+    uint8_t payload;
 } comms_payload_t;
 
 
@@ -33,7 +32,7 @@ void send_comms(comms_type_t type, comms_payload_t* payload);
 void recv_comms();
 void recv_comms_debug();
 
-void set_debug_packet(comms_payload_t* packet);
+void set_debug_packet(uint16_t* packet);
 uint8_t* get_debug_packet();
 
 // Callbacks

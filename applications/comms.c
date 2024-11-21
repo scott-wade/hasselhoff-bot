@@ -64,7 +64,7 @@ void recv_comms(simple_queue_t* simpleQ)
     }
 }
 
-void set_debug_packet(comms_payload_t* packet)
+void set_debug_packet(uint16_t* packet)
 {
     debug_packet = (uint8_t*) packet;
 }
@@ -122,7 +122,7 @@ void land_cmd_cb(comms_payload_t* payload)
 void ack_cb(comms_payload_t* payload)
 {
     printf("ACKNOWLEDGED\n");
-    sub_events_t event = INITIALISED;
+    sub_events_t event = { .type= INITIALISED, .value = NULL};
     insert_to_simple_queue(event);
     return;
 }

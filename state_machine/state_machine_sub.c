@@ -42,9 +42,9 @@ void event_handler_sub(){
         simpleQ.process_indx = 0;
     }
 
-    printf("Event is: %d\n", current_event);
+    printf("Event is: %d\n", current_event.type);
 
-    switch (current_event) {
+    switch (current_event.type) {
         case INITIALISED:
             printf("INITIALISED EVENT\n");
             subState.initialised = 1;

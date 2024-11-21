@@ -13,34 +13,35 @@ void test_comms(void)
     init_simple_queue(SUB_DEVICE);
     // // State machine test sequence
     sub_events_t event;
-    comms_payload_t packet;
+    uint16_t packet;
     // 1. INITIALISED
-    event = INITIALISED;
+    event.type = INITIALISED;
     insert_to_simple_queue(event);
     // 2. PACKET_RECEIVED
-    packet.type = ACK;
-    // debug_packet = (uint8_t*) &packet;
-    set_debug_packet(&packet);
-    event = PACKET_RECEIVED;
+    packet = ACK << 8 | 0;
+    event.type = PACKET_RECEIVED;
+    event.value = packet;
     insert_to_simple_queue(event);
     // 3. BEAM_DETECTED
-    event = BEAM_DETECTED;
+    event.type  = BEAM_DETECTED;
     insert_to_simple_queue(event);
     // 4. BEAM_LOST
-    event = BEAM_LOST;
+    event.type = BEAM_LOST;
     insert_to_simple_queue(event);
     // 5. PACKET_RECEIVED
-    packet.type = LAND_CMD;
-    set_debug_packet(&packet);
-    event = PACKET_RECEIVED;
+    packet = LAND_CMD << 8 | 0;
+    // set_debug_packet(&packet);
+    event.type = PACKET_RECEIVED;
+    event.value = packet;
     insert_to_simple_queue(event);
     // 6. BEAM_DETECTED
-    event = BEAM_DETECTED;
+    event.type = BEAM_DETECTED;
     insert_to_simple_queue(event);
     // 7. PACKET_RECEIVED
-    packet.type = LAND_CMD;
-    set_debug_packet(&packet);
-    event = PACKET_RECEIVED; 
+    packet = LAND_CMD << 8 | 0;
+    // set_debug_packet(&packet);
+    event.type = PACKET_RECEIVED; 
+    event.value = packet;
     insert_to_simple_queue(event);
     
     printf("Running event handler...\n");

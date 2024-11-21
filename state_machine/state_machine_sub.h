@@ -8,16 +8,19 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "../main.h"
-#include "queue.h"
 
 /* MACROS for everyone--------------------------------------------------------*/
 
-typedef enum {
-    INITIALISED, // Transition to IDLE
-    PACKET_RECEIVED, // Behaviour is state dependent
-    BEAM_DETECTED, // No transition, send beam detected message
-    BEAM_LOST,  // No transition, send beam lost message
-    LANDED      // Transition to WELOCME, send landed message
+typedef enum  { INITIALISED, // Transition to IDLE
+PACKET_RECEIVED, // Behaviour is state dependent
+BEAM_DETECTED, // No transition, send beam detected message
+BEAM_LOST,  // No transition, send beam lost message
+LANDED      // Transition to WELOCME, send landed message
+} event_type_t;
+
+typedef struct {
+    uint8_t type;
+    uint16_t value;
 } sub_events_t;
 
 typedef enum {
@@ -25,6 +28,7 @@ typedef enum {
     IDLE,
     WELCOME,
     DRIVE,
+    BEAM_DRIVE,
     LANDING
 } sub_states_t;
 

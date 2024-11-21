@@ -20,6 +20,7 @@ extern "C"
 
     // State machine global
     extern simple_queue_t simpleQ;
+    extern uint16_t*  rx_packet;
 
 #ifdef __cplusplus
 }
