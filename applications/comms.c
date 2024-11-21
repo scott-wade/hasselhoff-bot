@@ -24,7 +24,7 @@ void send_comms(comms_type_t type, comms_payload_t* payload)
         }
         p = byte1 << 8 | byte2;
         writeTX(1, p);
-        // delay(1);
+
     }
 }
 
@@ -35,7 +35,7 @@ void recv_comms(simple_queue_t* simpleQ)
     for (int i = 0; i < sizeof(comms_payload_t); i++)
     {
         data[i] = readRX(1);
-        // delay(1);
+
     }
     // Call the appropriate callback
     comms_payload_t* payload = (comms_payload_t*) data;

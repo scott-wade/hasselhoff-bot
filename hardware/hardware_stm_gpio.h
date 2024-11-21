@@ -34,11 +34,19 @@
 #define MODE_IN         0
 #define MODE_OUT        1
 #define MODE_AF2        2
+#define MODE_AF        2
 #define OD_PUPD         0
 #define OD_OPEN_DRAIN   0
 #define PUPD_FLOAT      0
 #define PUPD_UP         1
 #define PUPD_DOWN       2
+#define PORT_A          0
+#define PORT_B          1
+#define PORT_C          2
+#define PORT_D          3
+#define PORT_E          4
+#define PORT_F          5
+#define PORT_G          6
 
 
 
@@ -51,10 +59,11 @@ void SETorCLEARGPIOoutput(int port_number, int pin_number, int set);
 void SETorCLEARGPIOpins(int port_numbers[], int pin_numbers[], int set_flags[], int num_pins);
 int readGPIOinput(int port_number, int pin_number);
 int readGPIOoutput(int port_number, int pin_number);
+void initGPIOasAnalog(int port_number, int pin_number);
 
 // UTILITIES
 uint32_t mapPortNumbertoBaseAddress(int port_number);
-void enableAHB1RCCclock(int port_number);
+void enableAHB1GPIOclock(int port_number);
 
 
 #ifdef __cplusplus
