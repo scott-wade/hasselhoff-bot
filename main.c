@@ -9,9 +9,9 @@
 #define SUB
 
 int main(void){
-    // test_comms();
-    test_ir();
-    return 1;
+    test_comms();
+    // test_ir();
+    while(1) {}
 }
 
 
@@ -21,7 +21,7 @@ void delay(uint16_t ms)
     {
         for(int i = 0; i < ms; i++)
         {
-            
+
         }
     }
 }

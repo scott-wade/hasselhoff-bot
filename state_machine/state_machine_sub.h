@@ -8,6 +8,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "../main.h"
+#include "queue.h"
 
 /* MACROS for everyone--------------------------------------------------------*/
 
@@ -35,13 +36,13 @@ typedef struct {
 
 
 /* Global Variables */
-static sub_t subState;
+extern sub_t subState;
 
 /*Function definitions---------------------------------------------------------*/
 void init_sub(void);
 void init_timer(void);
 void init_gpio(void);
-void event_handler_sub(void);
+void event_handler_sub(simple_queue_t* simpleQ);
 
 
 
