@@ -11,9 +11,9 @@
 extern int led_display_values[4];
 
 /* Function definitions */
-int set_digit_value(uint8_t val);
+int set_digit_value(int val);
 int select_digit(uint8_t selected_digit);
-int set_seg_led(uint8_t digit, uint8_t val);
+int set_seg_led(uint8_t digit, int val);
 int init_status_leds(void);
 int set_blue_led(void);
 int clear_blue_led(void);

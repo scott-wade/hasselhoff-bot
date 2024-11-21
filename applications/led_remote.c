@@ -127,10 +127,13 @@ int init_seg_display( void )
  * Set the digit value
  * @param val: is int between 0-9
  */
-int set_digit_value(uint8_t val) {
+int set_digit_value(int val) {
     // Initialize led segments based on the desired value
     led_segs_t led_segs = {.dp=false, .a=false, .b=false, .c=false, .d=false, .e=false, .f=false, .g=false};
     switch (val) {
+        case -1:
+            // Is off
+            break;
         case 0:
             led_segs.a = true;
             led_segs.b = true;
@@ -201,7 +204,7 @@ int set_digit_value(uint8_t val) {
             led_segs.g = true;
             break;
         default:
-            printf("[ERROR] led_remote.c: %d must be between 0-9\n", val);
+            printf("[ERROR] led_remote.c: %d must be between -1 - 9\n", val);
             break;
     }
 
@@ -244,9 +247,9 @@ int select_digit(uint8_t selected_digit) {
 /* 
  * Sets a single digit to a value on the 7 segment LED display
  * @param digit: is int between 0-3 to select which of the 4 digits to output to
- * @param val: is int between 0-9 to set the digit value to display
+ * @param val: is int between 0-9 to set the digit value to display, -1 is off
  */
-int set_seg_led(uint8_t digit, uint8_t val) {
+int set_seg_led(uint8_t digit, int val) {
     select_digit(digit);
     set_digit_value(val);
 

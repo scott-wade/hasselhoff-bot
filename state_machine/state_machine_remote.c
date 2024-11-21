@@ -13,6 +13,10 @@
 #include "led_remote.h"
 #include "inputs_remote.h"
 #include "sub_clock.h"
+#include "timer_queue_remote.h"
+
+/* Constants */
+#define DISPLAY_CYCLE_PERIOD_MS     1
 
 /* Global Variables ---------------------------------------------------------*/
 // Initialize queue
@@ -87,13 +91,15 @@ event_t pop_queue(void){
 // List of all tasks
 void tasks(event_t event){
   switch (event) {
-        // case BUTTON_PRESSED:
-        //     printf("BUTTON_PRESSED\n");
-        //     // Reset data structures
-        //     reset_led_vals();
-        //      // Next event
-        //     sched_event(RED_ON);
-        //     break;
+        case INIT:
+            init_remote();
+            sched_event(CYCLE_LED_DISPLAY); // Cycle the display
+            break;
+        case CYCLE_LED_DISPLAY:
+            cycle_led_display();
+            // Add event back on queue
+            add_timer(DISPLAY_CYCLE_PERIOD_MS, CYCLE_LED_DISPLAY);
+            break;
         default:
             // Fallback if a case that is not defined
             printf("[ERROR] NOT A VALID EVENT RECEIVED: %d!\n", event);

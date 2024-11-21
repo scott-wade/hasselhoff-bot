@@ -21,12 +21,12 @@ int delete_timer(timer_node_t* prev_node, timer_node_t* curr_node) {
 }
 
 // Add new timer to list
-void add_timer(double duration, event_t trigger_event) {
+void add_timer(double duration_ms, event_t trigger_event) {
     // Allocate memory for timer item
     timer_node_t* new_node = malloc(sizeof(timer_node_t));
     new_node->creation_time = getSubMS(); // Get current time
     new_node->next = NULL; // New node at tail so next is NULL
-    new_node->duration = duration; // Set duration value
+    new_node->duration_ms = duration_ms; // Set duration_ms value
     new_node->trigger_event = trigger_event; // Set event for timer node
 
     // Add new node to end of list
@@ -44,7 +44,7 @@ void add_timer(double duration, event_t trigger_event) {
     }
 }
 
-// Iterate through timers list and check for durations
+// Iterate through timers list and check for duration_mss
 void timer_handler_remote(void) {
     double curr_time;
     timer_node_t* prev_node;
@@ -55,8 +55,8 @@ void timer_handler_remote(void) {
         curr_time = getSubMS();
 
         // Take floating abs val of current time - creation time
-        if (fabs(curr_time - node->creation_time) > node->duration){
-            // If difference > duration, then timer has timed out!
+        if (fabs(curr_time - node->creation_time) > node->duration_ms){
+            // If difference > duration_ms, then timer has timed out!
             // Schedule the trigger event
             sched_event(node->trigger_event);   
             // Delete the timer

@@ -12,7 +12,9 @@
 /* Types ---------------------------------------------------------*/
 // List of all events in state machine
 typedef enum {
-    READY
+    READY,
+    INIT,
+    CYCLE_LED_DISPLAY
 } event_t;
 
 // Queue node

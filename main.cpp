@@ -19,32 +19,21 @@ int main(void){
 
     if (WHICH_NUCLEO == 0){
         /* remote state machine */
-
-        /* initialization */
-        init_remote();
-        
-        // int display_vals[4] = {1, 2, 3, 4};
-        // set_led_display(display_vals);
-        
+        sched_event(INIT); // Start with initialization event
         /* loop */
         while(1){
-            startADCConversion(ADC_1);
-            startADCConversion(ADC_2);
-
-            printf("TARGET DEPTH: %u\n", get_target_depth());
-            printf("JOYSTICK: [%u, %u]\n", get_joystick_x(), get_joystick_y());
-
-            // cycle_led_display();
-            delay(10);
+            // startADCConversion(ADC_1);
+            // startADCConversion(ADC_2);
+            // printf("TARGET DEPTH: %u\n", get_target_depth());
+            // printf("JOYSTICK: [%u, %u]\n", get_joystick_x(), get_joystick_y());
+            // delay(10);
 
             // Check for any expired timers and update queue
             timer_handler_remote();
             // Check for tasks in queue and then execute them
             event_handler_remote();
-            
         }
-
-    }else if(WHICH_NUCLEO == 1) {
+    } else if(WHICH_NUCLEO == 1) {
         /* submarine state machine */
 
         /* initialization */
