@@ -26,8 +26,15 @@ typedef struct {
     double heading_val; // Only non-zero in DRIVE_MSG
 } comms_payload_t;
 
-void send_comms(comms_type_t type, comms_payload_t* payload);
 
+static uint8_t* debug_packet;
+
+void send_comms(comms_type_t type, comms_payload_t* payload);
+void recv_comms();
+void recv_comms_debug();
+
+void set_debug_packet(comms_payload_t* packet);
+uint8_t* get_debug_packet();
 
 // Callbacks
 void drive_cmd_cb(comms_payload_t* payload);
