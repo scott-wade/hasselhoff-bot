@@ -1,6 +1,6 @@
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __HARDWARE_LPS_SPI_H_
-#define __HARDWARE_LPS_SPI_H_
+#ifndef __depth_sensor_H_
+#define __depth_sensor_H_
 
 #ifdef __cplusplus
 extern "C"
@@ -41,11 +41,10 @@ extern "C"
 
 
 /*Function definitions---------------------------------------------------------*/
-double calcPressure(void);
 
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /*__LPS_SPI_H */
+#endif /*__depth_sensor_H */
