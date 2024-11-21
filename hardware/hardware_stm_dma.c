@@ -7,15 +7,17 @@
 /*
  * Initialize DMA for use with ADC
  * @param dma_number: select either DMA1 or DMA2
- * @param dma_channel: the dma channel that corresponds to the ADC, eg. DMA 2 stream 0 channel 2 for ADC3
+ * @param dma_channel: 0-7 the dma channel that corresponds to the ADC (see table 29 in datasheet)
+ * @param dma_channel: 0-7 the dma stream that corresponds to the ADC (see table 29 in datasheet)
  * @param adc_number: 1-3, which ADC this DMA is configured for
  * @param num_transfers: the number of transfers that DMA will do
  * @param dest_addr: destination address to store the value into
  */
-void initDMAForAdc( int dma_number, int dma_channel, int adc_number, int num_transfers, uint16_t* dest_addr ) {
+void initDMAForAdc( int dma_number, int dma_channel, int dma_stream, int adc_number, int num_transfers, uint16_t* dest_addr ) {
     uint32_t* reg_pointer;
     uint32_t dma_base_address = mapDmaNumbertoBaseAddress(dma_number);
     uint32_t adc_base_address = mapAdcNumbertoBaseAddress(adc_number);
+    uint32_t stream_offset = dma_stream * 0x18; // stream is offset by 0x18 hex
 
     // 1. Enable the AHB1 clock:
     enableAHB1DMAclock(dma_number);
@@ -25,26 +27,26 @@ void initDMAForAdc( int dma_number, int dma_channel, int adc_number, int num_tra
     //      to memory transfers, enable the DMA circular buﬀer to go back
     //      to the first memory address after the last transfer has been completed. 
     //      This configuration gets written to the S0CR register in DMA
-    reg_pointer = (uint32_t *)(long)(dma_base_address + DMA_S0CR_REGISTER_OFFSET);
+    reg_pointer = (uint32_t *)(long)(dma_base_address + DMA_S0CR_REGISTER_OFFSET + stream_offset);
     uint32_t DMA_SxCR_CHANNEL_NUM_SELECT = ((uint32_t)dma_channel) << 25;
     *reg_pointer = DMA_SxCR_CHANNEL_NUM_SELECT + DMA_SxCR_MSIZE_HALF_WORD +
                    DMA_SxCR_PSIZE_HALF_WORD + DMA_SxCR_MINC_INCREMENT + 
                    DMA_SxCR_DIR_PERTOMEM + DMA_SxCR_CIRC_ENABLE;
     // 3. Configure the S0NDTR to perform # transfers
-    reg_pointer = (uint32_t *)(long)(dma_base_address + DMA_S0NDTR_REGISTER_OFFSET);
+    reg_pointer = (uint32_t *)(long)(dma_base_address + DMA_S0NDTR_REGISTER_OFFSET + stream_offset);
     *reg_pointer = num_transfers;
     // 4. Write the address of the ADC Data Register in the DMA S0PAR Register to
     //      tell it to transfer from that address.
-    reg_pointer = (uint32_t *)(long)(dma_base_address + DMA_S0PAR_REGISTER_OFFSET);
+    reg_pointer = (uint32_t *)(long)(dma_base_address + DMA_S0PAR_REGISTER_OFFSET + stream_offset);
     uint32_t ADC_DR_REGISTER = adc_base_address + ADC_DR_REGISTER_OFFSET;
     *reg_pointer = ADC_DR_REGISTER;
     // 5. Write the address of a buﬀer where you can store the values transfered in memory 
     //      to the S0M0AR register so the DMA stream 0 knows to transfer data to that buﬀer.
-    reg_pointer = (uint32_t *)(long)(dma_base_address + DMA_S0M0AR_REGISTER_OFFSET);
+    reg_pointer = (uint32_t *)(long)(dma_base_address + DMA_S0M0AR_REGISTER_OFFSET + stream_offset);
     *reg_pointer = (uint32_t)dest_addr;
     // ---------------------
     // 6. Enable the DMA
-    reg_pointer = (uint32_t *)(long)(dma_base_address + DMA_S0CR_REGISTER_OFFSET);
+    reg_pointer = (uint32_t *)(long)(dma_base_address + DMA_S0CR_REGISTER_OFFSET + stream_offset);
     *reg_pointer = *reg_pointer | DMA_SxCR_STREAM_ENABLE;
 }
 

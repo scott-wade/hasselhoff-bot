@@ -31,6 +31,7 @@
 #define ADC_CONT                    (uint32_t)(0x01<<1) // Bit 1 CONT: Continuous conversion
 #define ADC_ADON                    (uint32_t)(0x01<<0) // Bit 0 ADON: A/D Converter ON / OFF
 #define ADC_SCAN                    (uint32_t)(0x01<<8) // Bit 8 SCAN: Scan mode
+#define ADC_NO_SCAN                 0
 #define ADC_PRESCALER_4             (uint32_t)(0x01<<16) // At Bits 17:16, 01: PCLK2 divided by 4
 #define ADC_1_CONVERSIONS           (uint32_t)(0b0000<<20) // 0000: 1 conversion at Bits 23:20 L[3:0]: Regular channel sequence length
 #define ADC_2_CONVERSIONS           (uint32_t)(0b0001<<20) // 0001: 2 conversions at Bits 23:20 L[3:0]: Regular channel sequence length   
@@ -58,7 +59,9 @@
 void enableAHB2ADCclock(int adc_num);
 uint32_t mapAdcNumbertoBaseAddress(int adc_num);
 void initADCpinWithDMA(int port_number, int pin_number, int adc_number, uint32_t adc_channel,
-                       int dma_number, int dma_channel, uint16_t* dest_addr);
+                       int dma_number, int dma_channel, int dma_stream, uint16_t* dest_addr);
+void initADCpinsWithDMA(int* port_numbers, int* pin_numbers, int adc_number, uint32_t* adc_channels,
+                       int dma_number, int dma_channel, int dma_stream, uint16_t* dest_addr, int num_pins); 
 uint32_t get_adc_val(int adc_num);
 void startADCConversion(int adc_num);
 

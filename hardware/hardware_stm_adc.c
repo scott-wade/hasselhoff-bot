@@ -10,9 +10,10 @@
 /*
  * Initialize ADC with DMA
  * @param adc_num: 1-3 number for ADC 1, 2, 3
- * @param adc_channel: 0-15, selected the channel on the ADC to use
+ * @param adc_channel: list of channels of 0-15, selected the channel on the ADC to use
+ * @param num_channels: number of channels
  */
-void initADCwithDMA(int adc_num, uint32_t adc_channel) {
+void initADCwithDMA(int adc_num, uint32_t* adc_channels, int num_channels) {
     // Set addresses
     uint32_t adc_base_address = mapAdcNumbertoBaseAddress(adc_num);
     uint32_t * sr_register = (uint32_t *)(long)(adc_base_address + ADC_SR_REGISTER_OFFSET);
@@ -38,21 +39,49 @@ void initADCwithDMA(int adc_num, uint32_t adc_channel) {
     // 3. Configure the ADC to be 12 bit resolution, and end of conversion interrupt 
     //      disabled by writing to the CR1 register in ADC
     reg_pointer = (uint32_t*) cr1_register;
-    *reg_pointer = 0;
+    if (num_channels > 1) {
+        // If more than 1 channel, need to do scan
+        *reg_pointer = ADC_SCAN; 
+    } else {
+        *reg_pointer = ADC_NO_SCAN;
+    }
     // 4. Configure the ADC to have the external trigger disabled, right data alignment, 
     //      ADC_DDS, DMA, EOC set at the end of each regular conversion and single conversion 
     //      enabled by setting EOCS to the CR2 register in ADC
     reg_pointer = (uint32_t*) cr2_register;
-    *reg_pointer = ADC_EOCS + ADC_DDS + ADC_DMA;
+    if (num_channels > 1) {
+        // If more than 1 channel, need ADC_CONT
+        *reg_pointer = ADC_EOCS + ADC_DDS + ADC_DMA + ADC_CONT;
+    } else {
+        *reg_pointer = ADC_EOCS + ADC_DDS + ADC_DMA;
+    }
     // 5. Select to have 1 conversion by writing a 0 to the L bits in SQR1 register in ADC
     reg_pointer = (uint32_t*) sqr1_register;
-    *reg_pointer = ADC_1_CONVERSIONS;
+    // Bits 23:20 L[3:0]: Regular channel sequence length
+    // These bits are written by software to define the total number of conversions in the regular
+    // channel conversion sequence.
+    *reg_pointer = (uint32_t)((num_channels - 1) << 20); // ADC num of conversions in binary format
     // 6. Configure the sequence of conversions by writing channel number to SQ1 in the SQR3 register of ADC
     reg_pointer = (uint32_t*) sqr3_register;
-    *reg_pointer = (adc_channel << ADC_SQ1);
+    uint32_t sqr3_val = 0, ADC_SQx = 0;
+    for (int i=0; i<num_channels; i++) {
+        ADC_SQx = 5*i;
+        sqr3_val += (uint32_t)(adc_channels[i] << ADC_SQx);
+    }
+    *reg_pointer = sqr3_val;
+
+    // // 6. Configure the sequence of conversions by writing channel number to SQ1 in the SQR3 register of ADC
+    // reg_pointer = (uint32_t*) sqr3_register;
+    // *reg_pointer = (adc_channels[0] << ADC_SQ1);
+
+
     // 7. Choose 480 cycles of sampling for channel number in ADC by writing all ones to the SMP7 bits in the ADC SMPR2 register.
     reg_pointer = (uint32_t*)smpr2_register;
-    *reg_pointer = (uint32_t)(0b111<<(adc_channel*3));
+    uint32_t smpr2_val = 0;
+    for (int i=0; i<num_channels; i++) {
+        smpr2_val += (uint32_t)(0b111<<(adc_channels[i]*3));
+    }
+    *reg_pointer = smpr2_val;
     // 8. Turn the ADC on by setting the ADON bit in the CR2 register in ADC
     reg_pointer = (uint32_t*) cr2_register;
     *reg_pointer = *reg_pointer | ADC_ADON;
@@ -64,16 +93,46 @@ void initADCwithDMA(int adc_num, uint32_t adc_channel) {
  * @param port_number: pin's port number
  * @param pin_number: pin number
  * @param adc_number: number of the ADC to use
+ * @param adc_channel: list of the ADC channels for each of the pins
  * @param dma_number: select either DMA1 or DMA2 (1-2)
- * @param dma_channel: the dma channel (0-7) that corresponds to the ADC, eg. DMA 2 stream 0 channel 2 for ADC3
+ * @param dma_channel: the dma channel (0-7) that corresponds to the ADC (see table 29 in datasheet)
+ * @param dma_channel: the dma stream (0-7) that corresponds to the ADC (see table 29 in datasheet)
  * @param dest_addr: destination address to store the value into
  */
 void initADCpinWithDMA(int port_number, int pin_number, int adc_number, uint32_t adc_channel,
-                       int dma_number, int dma_channel, uint16_t* dest_addr) {
-    int num_transfers = 1; // Only 1 transfer in this case
+                       int dma_number, int dma_channel, int dma_stream, uint16_t* dest_addr) {
+    int num_channels = 1; // Only 1 transfer in this case
+    uint32_t adc_channels[] = {adc_channel};  // Create an array with one element (adc_channel)
     initGPIOasAnalog(port_number, pin_number); // Init analog pin
-    initADCwithDMA(adc_number, adc_channel); // Init ADC
-    initDMAForAdc(dma_number, dma_channel, adc_number, num_transfers, dest_addr); // Init DMA
+    initADCwithDMA(adc_number, adc_channels, num_channels ); // Init ADC
+    initDMAForAdc(dma_number, dma_channel, dma_stream, adc_number, num_channels, dest_addr); // Init DMA
+}
+
+
+/*
+ * Initialize a pin with ADC and DMA
+ * @param port_numbers: list of pins' port number
+ * @param pin_number: list of pin numbers
+ * @param adc_number: number of the ADC to use
+ * @param adc_number: list of the ADC channels for each of the pins
+ * @param dma_number: select either DMA1 or DMA2 (1-2)
+ * @param dma_channel: the dma channel (0-7) that corresponds to the ADC (see table 29 in datasheet)
+ * @param dma_channel: the dma stream (0-7) that corresponds to the ADC (see table 29 in datasheet)
+ * @param dest_addr: destination address to store the value into
+ * @param num_pins: number of pins
+ */
+void initADCpinsWithDMA(int* port_numbers, int* pin_numbers, int adc_number, uint32_t* adc_channels,
+                       int dma_number, int dma_channel, int dma_stream, uint16_t* dest_addr, int num_pins) 
+{
+    int port_number, pin_number;
+    // Iterate and initialize all the pinds
+    for (int i=0; i<num_pins; i++) {
+        port_number = port_numbers[i];
+        pin_number = pin_numbers[i];
+        initGPIOasAnalog(port_number, pin_number); // Init analog pin
+    }
+    initADCwithDMA(adc_number, adc_channels, num_pins); // Init ADC
+    initDMAForAdc(dma_number, dma_channel, dma_stream, adc_number, num_pins /* num_transfers */, dest_addr); // Init DMA
 }
 
 
