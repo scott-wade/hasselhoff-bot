@@ -41,6 +41,7 @@ extern "C"
 
 
 /*Function definitions---------------------------------------------------------*/
+double calcPressure(void);
 
 
 #ifdef __cplusplus
