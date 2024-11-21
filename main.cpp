@@ -1,4 +1,4 @@
-#define WHICH_NUCLEO 0 //change for compilation, 0 for remote, 1 for submarine, 2 for debug remote, 3 for debug sub3, 94 for NZ debugging
+#define WHICH_NUCLEO 100 //change for compilation, 0 for remote, 1 for submarine, 2 for debug remote, 3 for debug sub3, 94 for NZ debugging
 
 #include <cstdint>
 #include "main.h"
@@ -7,6 +7,7 @@
 #include "state_machine/state_machine_remote.h"
 #include "tests/test_spi.h"
 #include "tests/test_gpio.h"
+#include "tests/test_comms.h"
 #include "state_machine_SPI.h"
 #include "inputs_remote.h"
 #include "hardware_stm_adc.h"
@@ -106,7 +107,23 @@ int main(void){
             // service event queue
             // check on the timeouts
         }
+    } else if (WHICH_NUCLEO == 100)
+    {
+        test_comms();
+        while(1){}
+
     }
 
 
+}
+
+void delay(uint16_t ms)
+{
+    for(int i = 0; i < ms; i++)
+    {
+        for(int j = 0; j < ms; j++)
+        {
+
+        }
+    }
 }
