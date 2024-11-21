@@ -5,9 +5,12 @@
  extern "C" {
 #endif
 
+void initMotorHardware();
 void initMotorGPIOs();
 void initMotorTimers();
-void enableMotorTimer();
+void runPropulsionSelfTest(); 
+void propulsionControl(float x_input, float y_input);
+void ballastControl(float target_depth);
 
 #ifdef __cplusplus
 }
