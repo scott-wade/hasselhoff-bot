@@ -15,7 +15,7 @@
 typedef struct TimerNode {
     double creation_time;
     double duration_ms;
-    event_t trigger_event;
+    remote_event_t trigger_event;
     struct TimerNode* next; // Next node
 } timer_node_t; // TimerNode type
 
@@ -23,7 +23,7 @@ typedef struct TimerNode {
 
 /*Function definitions---------------------------------------------------------*/
 void timer_handler_remote(void);
-void add_timer(double duration_ms, event_t trigger_event);
+void add_timer(double duration_ms, remote_event_t trigger_event);
 
 
 #ifdef __cplusplus

@@ -77,13 +77,27 @@ typedef struct {
  * However does not start the cycling of the leds!
  * @param values: 4 int values to be displayed, one for each digit
  */
-void set_led_display(int values[4]) {
+int set_led_disp_vals(int values[4]) {
     int len = 4;
     for (int i=0; i<len; i++) {
         led_display_values[i] = values[i];
     }
 }
-
+/*
+ * Seta single internal value for the segument display
+ * However does not start the cycling of the leds!
+ * @param digit: which digit to set
+ * @param value: the single value to set
+ */
+int set_led_disp_val(int digit, int value) {
+    if (digit < 0 || digit > 3) {
+        fprintf(stderr, "%d is out of bounds for digit to set_led_disp_val()\n", digit);
+        return -1;
+    }
+    // Set the value
+    led_display_values[digit] = value;
+    return 0;
+}
 
 /*
  * For the 4-digit led segment display, only 1 digit can be displayed at a time

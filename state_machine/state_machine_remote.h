@@ -14,12 +14,15 @@
 typedef enum {
     READY,
     INIT,
-    CYCLE_LED_DISPLAY
-} event_t;
+    CYCLE_LED_DISPLAY,
+    READ_TARGET_DEPTH,
+    WELCOME_REMOTE,
+    START_ADC,
+} remote_event_t;
 
 // Queue node
 struct QueueNode {
-    event_t event;
+    remote_event_t event;
     struct QueueNode* next; // Next node
     struct QueueNode* prev; // Previous node
 };
@@ -39,7 +42,7 @@ struct queue_remote_t {
 /*Function definitions---------------------------------------------------------*/
 void init_remote(void);
 void event_handler_remote(void);
-void sched_event(event_t event);
+void sched_event(remote_event_t event);
 
 #ifdef __cplusplus
 }

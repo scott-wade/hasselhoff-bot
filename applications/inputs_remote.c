@@ -1,5 +1,7 @@
 #include "inputs_remote.h"
+#include "led_remote.h"
 #include "stm32f4xx_mort2.h"
+#include <cstdint>
 #include <stdlib.h>
 #include <stdio.h> 
 #include "hardware_stm_adc.h"
@@ -8,7 +10,8 @@
 
 
 #define MAX_POT_VAL     3900 // Empirically measured max potentiometer value
-
+#define TAR_DEP_DIG_0   2 // Index of first digit of target depth
+#define TAR_DEP_DIG_1   3 // Index of second digit of target depth
 
 // Variables to store DMA value outputs
 uint16_t target_depth;
@@ -43,6 +46,25 @@ uint16_t get_target_depth(void) {
     return analog2discrete(target_depth, 
                            0, MAX_POT_VAL, // Input range
                            1, 17); // Desired range
+}
+
+void read_target_depth (void) {
+    static uint16_t prev_val = 0;
+    uint16_t curr_val = get_target_depth();
+    printf("HERE: curr_val=%d\n", curr_val);
+
+    if (prev_val != curr_val) {
+        printf("HERE: CHANGED\n");
+        // If value changed, set the led display value
+        int first_dig, second_dig;
+        first_dig = curr_val / 10; // Integer division
+        second_dig = curr_val % 10; // Remainder
+
+        // Set the values on the led display
+        set_led_disp_val(TAR_DEP_DIG_0, first_dig);
+        set_led_disp_val(TAR_DEP_DIG_1, second_dig);
+    }
+    prev_val = curr_val; // Set current to old
 }
 
 /*

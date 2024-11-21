@@ -8,7 +8,6 @@
 #include "main.h"
 
 
-extern int led_display_values[4];
 
 /* Function definitions */
 int set_digit_value(int val);
@@ -29,7 +28,8 @@ int set_rgb_red_led(void);
 int clear_rgb_red_led(void);
 int init_seg_display( void );
 void cycle_led_display( void );
-void set_led_display(int values[4]);
+int set_led_disp_vals(int values[4]);
+int set_led_disp_val(int digit, int value);
 
 #ifdef __cplusplus
 }

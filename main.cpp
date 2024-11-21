@@ -22,12 +22,6 @@ int main(void){
         sched_event(INIT); // Start with initialization event
         /* loop */
         while(1){
-            // startADCConversion(ADC_1);
-            // startADCConversion(ADC_2);
-            // printf("TARGET DEPTH: %u\n", get_target_depth());
-            // printf("JOYSTICK: [%u, %u]\n", get_joystick_x(), get_joystick_y());
-            // delay(10);
-
             // Check for any expired timers and update queue
             timer_handler_remote();
             // Check for tasks in queue and then execute them

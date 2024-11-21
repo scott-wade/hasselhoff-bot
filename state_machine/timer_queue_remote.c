@@ -21,7 +21,7 @@ int delete_timer(timer_node_t* prev_node, timer_node_t* curr_node) {
 }
 
 // Add new timer to list
-void add_timer(double duration_ms, event_t trigger_event) {
+void add_timer(double duration_ms, remote_event_t trigger_event) {
     // Allocate memory for timer item
     timer_node_t* new_node = malloc(sizeof(timer_node_t));
     new_node->creation_time = getSubMS(); // Get current time
