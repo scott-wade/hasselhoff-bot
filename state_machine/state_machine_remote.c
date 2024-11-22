@@ -45,9 +45,14 @@ void init_remote(void){
 
 /* Queue ------------------------------------------------------------------*/
 // Push new event to end of queue
-void sched_event(remote_event_t event) {
+int sched_event(remote_event_t event) {
     // Allocate memory for queue node
     queue_node_t* new_node = malloc(sizeof(queue_node_t));
+    if (new_node == NULL) {
+        fprintf(stderr, "[Error] Failed to allocate memory for new event\n");
+        return -1; // error
+    }
+    // Set new node attributes
     new_node->event = event; // Set event
     new_node->next = NULL; // At end of queue
     new_node->prev = queue.tail; // Point to last tail node
@@ -65,12 +70,14 @@ void sched_event(remote_event_t event) {
     }
     // Increment queue's size
     queue.size++;
+
+    return 0; // success
 }
 // Pop event from start of queue
 remote_event_t pop_queue(void){
     if (queue.head == NULL){
         // Nothing in queue, pop should not have been popped!
-        return READY;
+        return EMPTY;
     }
     // Get the event from the first node
     queue_node_t* head_node = queue.head;
@@ -94,7 +101,7 @@ remote_event_t pop_queue(void){
 void welcome_state (void)
 {
     // Light up LED status lights
-    int led_i = 0;
+    static int led_i = 0;
     switch(led_i) {
         case 0:
             clear_rgb_green_led();
@@ -130,11 +137,11 @@ void tasks(remote_event_t event){
         case INIT:
             init_remote();
 
-            // Schedule periodic tasks to the queue
-            sched_event(CYCLE_LED_DISPLAY);
-            sched_event(READ_TARGET_DEPTH);
             // Schedule single-use timed events
             add_timer(START_ADC_DELAY_MS, START_ADC);
+            // Schedule periodic tasks to the queue
+            sched_event(CYCLE_LED_DISPLAY);
+            add_timer(START_ADC_DELAY_MS + 10, READ_TARGET_DEPTH); // Start after ADC
             break;
         case CYCLE_LED_DISPLAY:
             cycle_led_display();
@@ -145,9 +152,7 @@ void tasks(remote_event_t event){
             welcome_state();
             break;
         case READ_TARGET_DEPTH:
-            printf("HERE: BEFORE\n");
             read_target_depth();
-            printf("HERE: AFTER\n");
             // Add event back on queue as a periodic task
             add_timer(READ_DEPTH_PERIOD_MS, READ_TARGET_DEPTH);
             break;
@@ -166,7 +171,7 @@ void event_handler_remote(void){
     /* Checks and handles events for remote */
     // Pop the first event on the queue
     remote_event_t event;
-    while ((event = pop_queue()) != READY) {
+    while ((event = pop_queue()) != EMPTY) {
         // READY if queue is empty, else keep popping
         tasks(event);
     }

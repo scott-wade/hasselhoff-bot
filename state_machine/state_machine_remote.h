@@ -12,6 +12,7 @@
 /* Types ---------------------------------------------------------*/
 // List of all events in state machine
 typedef enum {
+    EMPTY,
     READY,
     INIT,
     CYCLE_LED_DISPLAY,
@@ -42,7 +43,7 @@ struct queue_remote_t {
 /*Function definitions---------------------------------------------------------*/
 void init_remote(void);
 void event_handler_remote(void);
-void sched_event(remote_event_t event);
+int sched_event(remote_event_t event);
 
 #ifdef __cplusplus
 }

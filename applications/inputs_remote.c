@@ -51,10 +51,8 @@ uint16_t get_target_depth(void) {
 void read_target_depth (void) {
     static uint16_t prev_val = 0;
     uint16_t curr_val = get_target_depth();
-    printf("HERE: curr_val=%d\n", curr_val);
 
     if (prev_val != curr_val) {
-        printf("HERE: CHANGED\n");
         // If value changed, set the led display value
         int first_dig, second_dig;
         first_dig = curr_val / 10; // Integer division

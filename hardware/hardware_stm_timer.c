@@ -49,27 +49,24 @@ void initTimer (int timer_number, uint16_t psc, uint16_t arr)
 {
     // Timer addresses
     uint32_t timer_base_address = mapTimerNumberToBaseAddress(timer_number);
-    uint32_t * status_register = (uint32_t *)(long)(timer_base_address + SR_OFFSET);
-    uint32_t * psc_register = (uint32_t *)(long)(timer_base_address + PSC_OFFSET);
-    uint32_t * arr_register = (uint32_t *)(long)(timer_base_address + ARR_OFFSET);
+    uint16_t * status_register = (uint16_t *)(long)(timer_base_address + SR_OFFSET);
+    uint16_t * psc_register = (uint16_t *)(long)(timer_base_address + PSC_OFFSET);
+    uint16_t * arr_register = (uint16_t *)(long)(timer_base_address + ARR_OFFSET);
     
-    uint32_t * reg_pointer;
 
     // Enable APB1 clock
     enableAPB1RCCclock(timer_number);
 
     // Clear UIF flag in the SR
-    reg_pointer = (uint32_t *)status_register;
-    uint32_t current_status = *reg_pointer;
-    *reg_pointer = ~current_status; //clear UIF flag without logical operations
+    // uint32_t current_status = *reg_pointer;
+    // *reg_pointer = ~current_status; //clear UIF flag without logical operations
+    *status_register = 0;
 
     // Set prescaler value
-    reg_pointer = (uint32_t *)psc_register;
-    *reg_pointer = psc;
+    *psc_register = psc;
 
     // Set auto-reload register value
-    reg_pointer = (uint32_t *)arr_register;
-    *reg_pointer = arr;
+    *arr_register = arr;
 }
 
 void enableTimer(int timer_number)

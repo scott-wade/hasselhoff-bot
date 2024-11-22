@@ -120,14 +120,14 @@ void cycle_led_display( void ) {
 int init_seg_display( void ) 
 {   
     // Initalize the 4 Digit Pins
-    int digit_pin_init_val = 0; // Digit pins are off at HIGH
+    int digit_pin_init_val = 1; // Digit pins are off at HIGH
     initGPIOasMode(LED_SEG_DIG_0_PORT, LED_SEG_DIG_0_PIN, MODE_OUT, OD_PUPD, PUPD_FLOAT, digit_pin_init_val, 0);   
     initGPIOasMode(LED_SEG_DIG_1_PORT, LED_SEG_DIG_1_PIN, MODE_OUT, OD_PUPD, PUPD_FLOAT, digit_pin_init_val, 0);    
     initGPIOasMode(LED_SEG_DIG_2_PORT, LED_SEG_DIG_2_PIN, MODE_OUT, OD_PUPD, PUPD_FLOAT, digit_pin_init_val, 0);    
     initGPIOasMode(LED_SEG_DIG_3_PORT, LED_SEG_DIG_3_PIN, MODE_OUT, OD_PUPD, PUPD_FLOAT, digit_pin_init_val, 0);    
 
     // Initialize the A-G pins
-    int seg_pin_init_val = 1; // A-G pins are off at LOW
+    int seg_pin_init_val = 0; // A-G pins are off at LOW
     initGPIOasMode(LED_SEG_A_PORT, LED_SEG_A_PIN, MODE_OUT, OD_PUPD, PUPD_FLOAT, seg_pin_init_val, 0);
     initGPIOasMode(LED_SEG_B_PORT, LED_SEG_B_PIN, MODE_OUT, OD_PUPD, PUPD_FLOAT, seg_pin_init_val, 0);
     initGPIOasMode(LED_SEG_C_PORT, LED_SEG_C_PIN, MODE_OUT, OD_PUPD, PUPD_FLOAT, seg_pin_init_val, 0);

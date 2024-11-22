@@ -19,11 +19,12 @@ typedef struct TimerNode {
     struct TimerNode* next; // Next node
 } timer_node_t; // TimerNode type
 
+
 /* MACROS for everyone--------------------------------------------------------*/
 
 /*Function definitions---------------------------------------------------------*/
 void timer_handler_remote(void);
-void add_timer(double duration_ms, remote_event_t trigger_event);
+int add_timer(double duration_ms, remote_event_t trigger_event);
 
 
 #ifdef __cplusplus
