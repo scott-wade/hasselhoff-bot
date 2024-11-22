@@ -31,6 +31,7 @@ void cycle_led_display( void );
 int set_led_disp_vals(int values[4]);
 int set_led_disp_val(int digit, int value);
 void welcome_remote (void);
+int countdown_timer (void);
 
 
 #ifdef __cplusplus

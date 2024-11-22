@@ -19,11 +19,12 @@
 /* Constants */
 
 /* Period of periodically occuring tasks */
-#define DISPLAY_CYCLE_PERIOD_MS     1
-#define READ_DEPTH_PERIOD_MS        100
-#define START_ADC_DELAY_MS          100
-#define WELCOME_PERIOD_MS           500
-#define READ_JOYSTICKS_PERIOD_MS    100
+#define DISPLAY_CYCLE_PERIOD_MS         1
+#define READ_DEPTH_PERIOD_MS            100
+#define START_ADC_DELAY_MS              100
+#define WELCOME_PERIOD_MS               500
+#define READ_JOYSTICKS_PERIOD_MS        100
+#define COUNTDOWN_TIMER_PERIOD_MS       1000 // 1 sec
 
 /* Global Variables ---------------------------------------------------------*/
 // Initialize queue
@@ -115,6 +116,7 @@ void tasks(remote_event_t event){
             sched_event(CYCLE_LED_DISPLAY);
             add_timer(START_ADC_DELAY_MS + 10, READ_TARGET_DEPTH); // Start after ADC
             sched_event(READ_JOYSTICKS);
+            sched_event(COUNTDOWN_TIMER);
             break;
         case WELCOME_REMOTE:
             welcome_remote();
@@ -146,6 +148,8 @@ void tasks(remote_event_t event){
             add_timer(READ_DEPTH_PERIOD_MS, READ_TARGET_DEPTH); // Add event back on queue as a periodic task
             break;
         case COUNTDOWN_TIMER:
+            countdown_timer();
+            add_timer(COUNTDOWN_TIMER_PERIOD_MS, COUNTDOWN_TIMER); // Add event back on queue as a periodic task
             break;
         case READ_JOYSTICKS:
             read_joysticks();

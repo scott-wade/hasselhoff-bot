@@ -54,6 +54,9 @@
 #define RGB_RED_PORT    4 // E
 #define RGB_RED_PIN     4
 
+#define CNT_DOWN_DIG_0  0 // Disp digit for countdown timer
+#define CNT_DOWN_DIG_1  1 // Disp digit for countdown timer
+
 // Variables
 int led_display_values[4];
 
@@ -398,5 +401,37 @@ void welcome_remote (void)
     int disp_vals[4] = {disp_i, disp_i, disp_i, disp_i};
     set_led_disp_vals(disp_vals);
     disp_i = (disp_i+1)%10;
+}
+
+// Display timer that counts down in time
+int countdown_timer (void) {
+    static int count = 99; // Starting count
+
+    int first_dig, second_dig;
+    /* 
+     * 0-99 shows the number
+     * Negative numbers will blink LEDs at 00 to indicate game over!
+     */
+    if (count >= 0) {
+        // If value changed, set the led display value
+        first_dig = count / 10; // Integer division
+        second_dig = count % 10; // Remainder
+    } else {
+        // Negative numbers is game over and leds will flash on and off
+        if (count%2 == 0) {
+            // Even negatives will turn it off
+            first_dig = -1; // off
+            second_dig = -1; // off
+        } else {
+            first_dig = 0; // zero
+            second_dig = 0; // zero
+        }
+    }
+    // Set the values on the led display
+    set_led_disp_val(CNT_DOWN_DIG_0, first_dig);
+    set_led_disp_val(CNT_DOWN_DIG_1, second_dig);
+
+    // Decrement counter
+    count--; 
 
 }
