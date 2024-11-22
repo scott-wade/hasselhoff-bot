@@ -25,7 +25,7 @@ typedef struct TimerNode {
 /*Function definitions---------------------------------------------------------*/
 void timer_handler_remote(void);
 int add_timer(double duration_ms, remote_event_t trigger_event);
-
+int delete_timer_by_id(remote_event_t event_to_delete);
 
 #ifdef __cplusplus
 }

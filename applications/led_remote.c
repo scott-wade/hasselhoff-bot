@@ -358,3 +358,45 @@ int init_status_leds(void) {
 
     return 0; // success
 }
+
+/*
+ * Welcome state for the remote
+ * Toggle the LEDs
+ */
+void welcome_remote (void)
+{
+    // Light up LED status lights
+    static int led_i = 0;
+    switch(led_i) {
+        case 0:
+            clear_rgb_green_led();
+            clear_rgb_red_led();
+            set_white_led();
+            break;
+        case 1:
+            clear_white_led();
+            set_blue_led();
+            break;
+        case 2:
+            clear_blue_led();
+            set_yellow_led();
+            break;
+        case 3:
+            clear_yellow_led();
+            set_green_led();
+            break;
+        case 4:
+            clear_green_led();
+            set_rgb_green_led();
+            set_rgb_red_led();
+            break;
+    }
+    led_i = (led_i+1)%5;
+
+    // Change led display numbers
+    static int disp_i = 0;
+    int disp_vals[4] = {disp_i, disp_i, disp_i, disp_i};
+    set_led_disp_vals(disp_vals);
+    disp_i = (disp_i+1)%10;
+
+}

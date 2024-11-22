@@ -20,6 +20,7 @@
 #define DISPLAY_CYCLE_PERIOD_MS     1
 #define READ_DEPTH_PERIOD_MS        100
 #define START_ADC_DELAY_MS          100
+#define WELCOME_PERIOD_MS           500
 
 /* Global Variables ---------------------------------------------------------*/
 // Initialize queue
@@ -33,12 +34,14 @@ struct queue_remote_t queue = {
 
 void init_remote(void){
     /* Initialize remote state machine */ 
+    // Init resources /////////////////////////
     initSubClock();
-
     init_status_leds();
     init_target_depth_knob();
     init_joysticks();
     init_seg_display();
+    // Init status LEDs /////////////////////////
+    set_rgb_green_led(); // Power LED
 }
 
 
@@ -77,7 +80,7 @@ int sched_event(remote_event_t event) {
 remote_event_t pop_queue(void){
     if (queue.head == NULL){
         // Nothing in queue, pop should not have been popped!
-        return EMPTY;
+        return EMPTY_REMOTE;
     }
     // Get the event from the first node
     queue_node_t* head_node = queue.head;
@@ -97,69 +100,50 @@ remote_event_t pop_queue(void){
 }
 /* End Queue ------------------------------------------------------------------*/
 
-/* State Functions ------------------------------------------------------------------*/
-void welcome_state (void)
-{
-    // Light up LED status lights
-    static int led_i = 0;
-    switch(led_i) {
-        case 0:
-            clear_rgb_green_led();
-            clear_rgb_red_led();
-            set_white_led();
-            break;
-        case 1:
-            clear_white_led();
-            set_blue_led();
-            break;
-        case 2:
-            clear_blue_led();
-            set_yellow_led();
-            break;
-        case 3:
-            clear_yellow_led();
-            set_green_led();
-            break;
-        case 4:
-            clear_green_led();
-            set_rgb_green_led();
-            set_rgb_red_led();
-            break;
-    }
-    led_i = (led_i+1)%5;
-}
-/* End State Functions ------------------------------------------------------------------*/
-
 /* Event Scheduler ------------------------------------------------------------------*/
 // List of all tasks
 void tasks(remote_event_t event){
   switch (event) {
-        case INIT:
+        case INIT_REMOTE:
             init_remote();
-
-            // Schedule single-use timed events
+            // Schedule one-time tasks
             add_timer(START_ADC_DELAY_MS, START_ADC);
             // Schedule periodic tasks to the queue
             sched_event(CYCLE_LED_DISPLAY);
             add_timer(START_ADC_DELAY_MS + 10, READ_TARGET_DEPTH); // Start after ADC
-            break;
-        case CYCLE_LED_DISPLAY:
-            cycle_led_display();
-            // Add event back on queue as a periodic task
-            add_timer(DISPLAY_CYCLE_PERIOD_MS, CYCLE_LED_DISPLAY);
+
+            sched_event(WELCOME_REMOTE);
             break;
         case WELCOME_REMOTE:
-            welcome_state();
+            welcome_remote();
+            add_timer(WELCOME_PERIOD_MS, WELCOME_REMOTE); // Add event back on queue as a periodic task
             break;
-        case READ_TARGET_DEPTH:
-            read_target_depth();
-            // Add event back on queue as a periodic task
-            add_timer(READ_DEPTH_PERIOD_MS, READ_TARGET_DEPTH);
+        case DRIVE_REMOTE:
+            set_white_led(); // Set driving status LED
+            sched_event(DRIVING_REMOTE); // Go to driving next
+            break;
+        case DRIVING_REMOTE:
+            break;
+        case LAND_REMOTE:
+            set_green_led(); // Set landing status LED
+            sched_event(LANDING_REMOTE);
+            break;
+        case LANDING_REMOTE:
+            break;
+        case CYCLE_LED_DISPLAY:
+            cycle_led_display(); // Cycle thru the 4 digits
+            add_timer(DISPLAY_CYCLE_PERIOD_MS, CYCLE_LED_DISPLAY); // Add event back on queue as a periodic task
             break;
         case START_ADC:
             // Start ADC after a few clock cycle when ADC has started
             startADCConversion(ADC_1);
             startADCConversion(ADC_2);
+            break;
+        case READ_TARGET_DEPTH:
+            read_target_depth();
+            add_timer(READ_DEPTH_PERIOD_MS, READ_TARGET_DEPTH); // Add event back on queue as a periodic task
+            break;
+        case COUNTDOWN_TIMER:
             break;
         default:
             // Fallback if a case that is not defined
@@ -171,7 +155,7 @@ void event_handler_remote(void){
     /* Checks and handles events for remote */
     // Pop the first event on the queue
     remote_event_t event;
-    while ((event = pop_queue()) != EMPTY) {
+    while ((event = pop_queue()) != EMPTY_REMOTE) {
         // READY if queue is empty, else keep popping
         tasks(event);
     }

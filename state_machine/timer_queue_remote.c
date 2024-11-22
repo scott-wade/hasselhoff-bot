@@ -1,12 +1,13 @@
 #include "timer_queue_remote.h"
 #include <math.h>
+#include "state_machine_remote.h"
 #include "sub_clock.h"
 
 /* List of timers to service */
 timer_node_t* timers_list = NULL;
 
 // Delete the timer from list
-int delete_timer(timer_node_t* prev_node, timer_node_t* curr_node) {
+int delete_timer_by_node(timer_node_t* prev_node, timer_node_t* curr_node) {
     if (prev_node == NULL){
         // No previous node, then set head to null
         timers_list = curr_node->next; // Empty list
@@ -18,6 +19,23 @@ int delete_timer(timer_node_t* prev_node, timer_node_t* curr_node) {
     // Free curr node memory
     free(curr_node);
     return 0; // Success
+}
+// Delete the timer from list by its event id
+int delete_timer_by_id(remote_event_t event_to_delete) {
+    timer_node_t* prev_node = NULL;
+    // Start at list head and iterate through all active timers
+    timer_node_t* node = timers_list;
+    while (node != NULL) {
+        // Find the node with event to delete
+        if (node->trigger_event == event_to_delete){
+            // Delete the timer node
+            delete_timer_by_node(prev_node, node);
+            return 0; // success, deleted node
+        }
+        prev_node = node; // Curr node becomes previous
+        node = node->next; // Go to next node
+    }
+    return 1; // did not find node with id
 }
 
 // Add new timer to list
@@ -59,7 +77,7 @@ void timer_handler_remote(void) {
             timer_node_t* to_delete = node;
             node = node->next;
             // Delete the timer node
-            delete_timer(prev_node, to_delete);
+            delete_timer_by_node(prev_node, to_delete);
             continue; // next iteration
         }
 

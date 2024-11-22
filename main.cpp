@@ -19,7 +19,7 @@ int main(void){
 
     if (WHICH_NUCLEO == 0){
         /* remote state machine */
-        sched_event(INIT); // Start with initialization event
+        sched_event(INIT_REMOTE); // Start with initialization event
         /* loop */
         while(1){
             // Check for any expired timers and update queue
