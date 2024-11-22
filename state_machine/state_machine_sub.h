@@ -15,7 +15,7 @@ typedef enum  { INITIALISED, // Transition to IDLE
 PACKET_RECEIVED, // Behaviour is state dependent
 BEAM_DETECTED, // No transition, send beam detected message
 BEAM_LOST,  // No transition, send beam lost message
-LANDED      // Transition to WELOCME, send landed message
+LANDED      // Transition to WELCOME, send landed message
 } event_type_t;
 
 typedef struct {
