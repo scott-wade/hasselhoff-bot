@@ -9,9 +9,10 @@
 #include "hardware_stm_dma.h"
 
 
-#define MAX_POT_VAL     3900 // Empirically measured max potentiometer value
-#define TAR_DEP_DIG_0   2 // Index of first digit of target depth
-#define TAR_DEP_DIG_1   3 // Index of second digit of target depth
+#define MAX_POT_VAL         3900 // Empirically measured max potentiometer value
+#define TAR_DEP_DIG_0       2 // Index of first digit of target depth
+#define TAR_DEP_DIG_1       3 // Index of second digit of target depth
+#define JOYSTICK_TOLERANCE  10 // Max variation of joystick when at rest
 
 // Variables to store DMA value outputs
 uint16_t target_depth;
@@ -99,6 +100,43 @@ int init_joysticks(void) {
     return 0; // success
 }
 
+/*
+ * Returns joystick x value
+ */
+uint16_t get_joystick_x (void) {
+    return joystick[0];
+}
+/*
+ * Returns joystick y value
+ */
+uint16_t get_joystick_y (void) {
+    return joystick[1];
+}
+
+/*
+ * Task to keep reading the joystick values
+ */
+void read_joysticks (void) {
+    static uint16_t prev_joy_x = 0;
+    static uint16_t prev_joy_y = 0;
+    // Read joystick values
+    uint16_t joy_x = get_joystick_x();
+    uint16_t joy_y = get_joystick_y();
+
+    // Check if values changed!
+    int diff_x = abs(joy_x - prev_joy_x);
+    if (diff_x > JOYSTICK_TOLERANCE) {
+        // printf("JOY X CHANGED: %d vs. %d = %d\n", joy_x, prev_joy_x,diff_x );
+    }
+    int diff_y = abs(prev_joy_y - joy_y);
+    if (diff_y > JOYSTICK_TOLERANCE) {
+        // printf("JOY Y CHANGED: %d vs. %d = %d\n", joy_y, prev_joy_y, diff_y);
+    }
+    // Set previous values
+    prev_joy_x = joy_x;
+    prev_joy_y = joy_y;
+}
+
 
 /* *******************************************************************************
                     INPUTS UTILITY FUNCTIONS
@@ -126,15 +164,3 @@ int analog2discrete(int val, int input_min, int input_max, int output_min, int o
 }
 
 
-/*
- * Returns joystick x value
- */
-uint16_t get_joystick_x(void) {
-    return joystick[0];
-}
-/*
- * Returns joystick y value
- */
-uint16_t get_joystick_y(void) {
-    return joystick[1];
-}

@@ -12,6 +12,7 @@
 /* Types ---------------------------------------------------------*/
 // List of all events in state machine
 typedef enum {
+    // Main events
     EMPTY_REMOTE,
     IDLE_REMOTE,
     INIT_REMOTE,
@@ -21,10 +22,12 @@ typedef enum {
     LAND_REMOTE,
     LANDING_REMOTE,
 
+    // Other events
+    START_ADC,
     CYCLE_LED_DISPLAY,
     READ_TARGET_DEPTH,
-    START_ADC,
-    COUNTDOWN_TIMER
+    COUNTDOWN_TIMER,
+    READ_JOYSTICKS
 } remote_event_t;
 
 // Queue node

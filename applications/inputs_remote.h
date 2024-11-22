@@ -16,6 +16,7 @@ int init_joysticks(void);
 uint16_t get_joystick_x(void);
 uint16_t get_joystick_y(void);
 void read_target_depth (void);
+void read_joysticks (void);
 
 
 #ifdef __cplusplus

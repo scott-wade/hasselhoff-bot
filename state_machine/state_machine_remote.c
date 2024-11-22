@@ -17,10 +17,13 @@
 #include "hardware_stm_adc.h"
 
 /* Constants */
+
+/* Period of periodically occuring tasks */
 #define DISPLAY_CYCLE_PERIOD_MS     1
 #define READ_DEPTH_PERIOD_MS        100
 #define START_ADC_DELAY_MS          100
 #define WELCOME_PERIOD_MS           500
+#define READ_JOYSTICKS_PERIOD_MS    100
 
 /* Global Variables ---------------------------------------------------------*/
 // Initialize queue
@@ -111,8 +114,7 @@ void tasks(remote_event_t event){
             // Schedule periodic tasks to the queue
             sched_event(CYCLE_LED_DISPLAY);
             add_timer(START_ADC_DELAY_MS + 10, READ_TARGET_DEPTH); // Start after ADC
-
-            sched_event(WELCOME_REMOTE);
+            sched_event(READ_JOYSTICKS);
             break;
         case WELCOME_REMOTE:
             welcome_remote();
@@ -144,6 +146,10 @@ void tasks(remote_event_t event){
             add_timer(READ_DEPTH_PERIOD_MS, READ_TARGET_DEPTH); // Add event back on queue as a periodic task
             break;
         case COUNTDOWN_TIMER:
+            break;
+        case READ_JOYSTICKS:
+            read_joysticks();
+            add_timer(READ_JOYSTICKS_PERIOD_MS, READ_JOYSTICKS); // Add event back on queue as a periodic task
             break;
         default:
             // Fallback if a case that is not defined
