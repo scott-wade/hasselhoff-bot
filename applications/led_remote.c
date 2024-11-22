@@ -54,6 +54,9 @@
 #define RGB_RED_PORT    4 // E
 #define RGB_RED_PIN     4
 
+#define CNT_DOWN_DIG_0  0 // Disp digit for countdown timer
+#define CNT_DOWN_DIG_1  1 // Disp digit for countdown timer
+
 // Variables
 int led_display_values[4];
 
@@ -77,13 +80,27 @@ typedef struct {
  * However does not start the cycling of the leds!
  * @param values: 4 int values to be displayed, one for each digit
  */
-void set_led_display(int values[4]) {
+int set_led_disp_vals(int values[4]) {
     int len = 4;
     for (int i=0; i<len; i++) {
         led_display_values[i] = values[i];
     }
 }
-
+/*
+ * Seta single internal value for the segument display
+ * However does not start the cycling of the leds!
+ * @param digit: which digit to set
+ * @param value: the single value to set
+ */
+int set_led_disp_val(int digit, int value) {
+    if (digit < 0 || digit > 3) {
+        fprintf(stderr, "%d is out of bounds for digit to set_led_disp_val()\n", digit);
+        return -1;
+    }
+    // Set the value
+    led_display_values[digit] = value;
+    return 0;
+}
 
 /*
  * For the 4-digit led segment display, only 1 digit can be displayed at a time
@@ -106,14 +123,14 @@ void cycle_led_display( void ) {
 int init_seg_display( void ) 
 {   
     // Initalize the 4 Digit Pins
-    int digit_pin_init_val = 0; // Digit pins are off at HIGH
+    int digit_pin_init_val = 1; // Digit pins are off at HIGH
     initGPIOasMode(LED_SEG_DIG_0_PORT, LED_SEG_DIG_0_PIN, MODE_OUT, OD_PUPD, PUPD_FLOAT, digit_pin_init_val, 0);   
     initGPIOasMode(LED_SEG_DIG_1_PORT, LED_SEG_DIG_1_PIN, MODE_OUT, OD_PUPD, PUPD_FLOAT, digit_pin_init_val, 0);    
     initGPIOasMode(LED_SEG_DIG_2_PORT, LED_SEG_DIG_2_PIN, MODE_OUT, OD_PUPD, PUPD_FLOAT, digit_pin_init_val, 0);    
     initGPIOasMode(LED_SEG_DIG_3_PORT, LED_SEG_DIG_3_PIN, MODE_OUT, OD_PUPD, PUPD_FLOAT, digit_pin_init_val, 0);    
 
     // Initialize the A-G pins
-    int seg_pin_init_val = 1; // A-G pins are off at LOW
+    int seg_pin_init_val = 0; // A-G pins are off at LOW
     initGPIOasMode(LED_SEG_A_PORT, LED_SEG_A_PIN, MODE_OUT, OD_PUPD, PUPD_FLOAT, seg_pin_init_val, 0);
     initGPIOasMode(LED_SEG_B_PORT, LED_SEG_B_PIN, MODE_OUT, OD_PUPD, PUPD_FLOAT, seg_pin_init_val, 0);
     initGPIOasMode(LED_SEG_C_PORT, LED_SEG_C_PIN, MODE_OUT, OD_PUPD, PUPD_FLOAT, seg_pin_init_val, 0);
@@ -127,10 +144,13 @@ int init_seg_display( void )
  * Set the digit value
  * @param val: is int between 0-9
  */
-int set_digit_value(uint8_t val) {
+int set_digit_value(int val) {
     // Initialize led segments based on the desired value
     led_segs_t led_segs = {.dp=false, .a=false, .b=false, .c=false, .d=false, .e=false, .f=false, .g=false};
     switch (val) {
+        case -1:
+            // Is off
+            break;
         case 0:
             led_segs.a = true;
             led_segs.b = true;
@@ -201,7 +221,7 @@ int set_digit_value(uint8_t val) {
             led_segs.g = true;
             break;
         default:
-            printf("[ERROR] led_remote.c: %d must be between 0-9\n", val);
+            printf("[ERROR] led_remote.c: %d must be between -1 - 9\n", val);
             break;
     }
 
@@ -244,9 +264,9 @@ int select_digit(uint8_t selected_digit) {
 /* 
  * Sets a single digit to a value on the 7 segment LED display
  * @param digit: is int between 0-3 to select which of the 4 digits to output to
- * @param val: is int between 0-9 to set the digit value to display
+ * @param val: is int between 0-9 to set the digit value to display, -1 is off
  */
-int set_seg_led(uint8_t digit, uint8_t val) {
+int set_seg_led(uint8_t digit, int val) {
     select_digit(digit);
     set_digit_value(val);
 
@@ -340,4 +360,78 @@ int init_status_leds(void) {
 
 
     return 0; // success
+}
+
+/*
+ * Welcome state for the remote
+ * Toggle the LEDs
+ */
+void welcome_remote (void)
+{
+    // Light up LED status lights
+    static int led_i = 0;
+    switch(led_i) {
+        case 0:
+            clear_rgb_green_led();
+            clear_rgb_red_led();
+            set_white_led();
+            break;
+        case 1:
+            clear_white_led();
+            set_blue_led();
+            break;
+        case 2:
+            clear_blue_led();
+            set_yellow_led();
+            break;
+        case 3:
+            clear_yellow_led();
+            set_green_led();
+            break;
+        case 4:
+            clear_green_led();
+            set_rgb_green_led();
+            set_rgb_red_led();
+            break;
+    }
+    led_i = (led_i+1)%5;
+
+    // Change led display numbers
+    static int disp_i = 0;
+    int disp_vals[4] = {disp_i, disp_i, disp_i, disp_i};
+    set_led_disp_vals(disp_vals);
+    disp_i = (disp_i+1)%10;
+}
+
+// Display timer that counts down in time
+int countdown_timer (void) {
+    static int count = 99; // Starting count
+
+    int first_dig, second_dig;
+    /* 
+     * 0-99 shows the number
+     * Negative numbers will blink LEDs at 00 to indicate game over!
+     */
+    if (count >= 0) {
+        // If value changed, set the led display value
+        first_dig = count / 10; // Integer division
+        second_dig = count % 10; // Remainder
+    } else {
+        // Negative numbers is game over and leds will flash on and off
+        if (count%2 == 0) {
+            // Even negatives will turn it off
+            first_dig = -1; // off
+            second_dig = -1; // off
+        } else {
+            first_dig = 0; // zero
+            second_dig = 0; // zero
+        }
+    }
+    // Set the values on the led display
+    set_led_disp_val(CNT_DOWN_DIG_0, first_dig);
+    set_led_disp_val(CNT_DOWN_DIG_1, second_dig);
+
+    // Decrement counter
+    count--; 
+
 }

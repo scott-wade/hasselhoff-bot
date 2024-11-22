@@ -15,7 +15,8 @@ int analog2discrete(int val, int input_min, int input_max, int output_min, int o
 int init_joysticks(void);
 uint16_t get_joystick_x(void);
 uint16_t get_joystick_y(void);
-
+void read_target_depth (void);
+void read_joysticks (void);
 
 
 #ifdef __cplusplus

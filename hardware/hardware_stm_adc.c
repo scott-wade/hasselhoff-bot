@@ -53,7 +53,8 @@ void initADCwithDMA(int adc_num, uint32_t* adc_channels, int num_channels) {
         // If more than 1 channel, need ADC_CONT
         *reg_pointer = ADC_EOCS + ADC_DDS + ADC_DMA + ADC_CONT;
     } else {
-        *reg_pointer = ADC_EOCS + ADC_DDS + ADC_DMA;
+        // *reg_pointer = ADC_EOCS + ADC_DDS + ADC_DMA;
+        *reg_pointer = ADC_EOCS + ADC_DDS + ADC_DMA + ADC_CONT; // Set ADC_CONT to continuously convert
     }
     // 5. Select to have 1 conversion by writing a 0 to the L bits in SQR1 register in ADC
     reg_pointer = (uint32_t*) sqr1_register;
