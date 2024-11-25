@@ -37,6 +37,13 @@
 #define SPI_STATUS_REGISTER_RESET_MASK ~((uint32_t)0b11111101) // reset value for bit 1 is 1
 #define SPI_DATA_REGISTER_RESET_MASK ~((uint32_t)0xffff)
 
+// CS pins for PARENT_SENSOR spi 
+const uint8_t CS_PINS[6] = {
+    PORT_G, PIN_2, // CS[0] is pin G2
+    PORT_G, PIN_3, // CS[1] is pin G3
+    PORT_F, PIN_2 // CS[2] is pin F2
+}; // support 3 devices for now
+
 void configureSPIPeripheral(Spi_Hierarchy_t spi_type, uint8_t spi_id){
     /*  configure SPI as parent 
         using a base clock speed of 45MHz
@@ -79,6 +86,10 @@ void configureSPIPeripheral(Spi_Hierarchy_t spi_type, uint8_t spi_id){
             initGPIOasMode(PORT_E, PIN_2, MODE_AF, OD_PUPD, PUPD_FLOAT, 0, 5);
             // CS pin PE4 -> moder 1 for out, push pull, PU, ODR high
             initGPIOasMode(PORT_E, PIN_4, MODE_OUT, OD_PUPD, PUPD_UP, 1, 0);
+            // CS pins for sensors, as defined in CS_PINS in hardware_stm_spi.h
+            for(int i = 0; i < 3; i++){
+                initGPIOasMode(CS_PINS[i/2], CS_PINS[i/2+1], MODE_OUT, OD_PUPD, PUPD_UP, 1, 0);
+            }
         break;
         default:
             fprintf(stderr, "Tried to init with invalid SPI ID");

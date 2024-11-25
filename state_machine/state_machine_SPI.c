@@ -13,6 +13,7 @@
 #include "state_machine_sub.h"
 #include "../hardware/hardware_stm_spi.h"
 #include "../hardware/hardware_stm_gpio.h"
+#include "../hardware/hardware_stm_timer.h"
 #include <cstdint>
 #include "../globals.h"
 #include "../applications/comms.h"
@@ -20,6 +21,7 @@
 
 // macros
 #define ACK_PACKET (uint8_t)(2)
+#define CLOCK_TIMER 5
 
 // global variables for state machine
 Queue* SPI_COMMS_EVENT_QUEUE;
@@ -34,6 +36,11 @@ uint8_t SPI_SENSOR_STATE = 0; // 0 for IDLE, i for CSi
 
 
 void init_state_machine_spi(Spi_State_Machine_t spi_type){
+    // // initialize timer5 in upcounting mode w/ ticks at 1 MHz (ie 1 us res)
+    // // arr calibrated for timer to wrap every 20ms
+    // initTimer(CLOCK_TIMER, 89, 20000);
+    // // enable the timer
+    // enableTimer(CLOCK_TIMER);
     switch(spi_type){
         case NUCLEO_PARENT: // initialize a parent on SPI1
             configureSPIPeripheral(SPI_PARENT, 1);
@@ -65,10 +72,6 @@ void event_handler_spi(Spi_State_Machine_t spi_type){
     /* Checks and handles events for spi */
     // state machine local vars
     static uint32_t* read_var_addr = NULL;
-
-    uint8_t cs_pins[6]; // support 3 devices for now
-    cs_pins[0] = 0; // CS1 is pin A15
-    cs_pins[1] = 15; // CS1 is pin A15
     
     uint8_t spi_id;
     if(spi_type == SENSOR_PARENT) spi_id = 4;
@@ -98,7 +101,7 @@ void event_handler_spi(Spi_State_Machine_t spi_type){
     // TODO
 
 
-    // If new transmit event
+    // Get the most recent transmit event from the queue
     transmitEvent currentEvent;
     uint8_t state;
     switch(spi_type){
@@ -128,7 +131,7 @@ void event_handler_spi(Spi_State_Machine_t spi_type){
 
         // clear CSi pin if addressing sensors
         if (spi_type == SENSOR_PARENT) 
-            SETorCLEARGPIOoutput(cs_pins[state/2], cs_pins[state/2+1], 0);
+            SETorCLEARGPIOoutput(CS_PINS[state/2], CS_PINS[state/2+1], 0);
 
         // write to TX buffer
         uint16_t currpacket = *(uint16_t*)dequeue(currentEvent.txQueue);
@@ -141,7 +144,7 @@ void event_handler_spi(Spi_State_Machine_t spi_type){
 }
 
 
-void requestSpiTransmit(uint8_t child_id, uint16_t packet, uint32_t* read_var_addr){
+void requestSpiTransmit(Spi_State_Machine_t spi_type, uint8_t child_id, uint16_t packet, uint32_t* read_var_addr){
     /* Applications will call this function to start a single SPI transaction */
     //printf("requesting spi transmission\n");
 
@@ -151,7 +154,13 @@ void requestSpiTransmit(uint8_t child_id, uint16_t packet, uint32_t* read_var_ad
     testEvent.child_id = child_id;
     testEvent.read_var_addr = read_var_addr;
     
-    enqueue(SPI_COMMS_EVENT_QUEUE, &testEvent);
+    switch(spi_type){// enqueue to the proper state machine's transmit queue
+        case NUCLEO_PARENT: {enqueue(SPI_COMMS_EVENT_QUEUE, &testEvent);} break;
+        case NUCLEO_CHILD: {enqueue(SPI_COMMS_EVENT_QUEUE, &testEvent);} break;
+        case SENSOR_PARENT: {enqueue(SPI_SENSOR_EVENT_QUEUE, &testEvent);} break;
+        default: printf(stderr, "Unsupported/incorrect SPI Machine type"); break;
+    }
+    
 }
 
 
@@ -201,9 +210,11 @@ void spiInterruptHandler(uint8_t spi_id){
             uint8_t recievedData = (uint8_t)readRX(spi_id);
             enqueue(receivedQueue, &recievedData);
             if (isEmpty(transmitQueue)){// If transmitQueue.empty:
-                // setGPIO(CSi pin) if necessary
+                // deactivate (set high) all cs pins
                 if(spi_id == 4){
-                    SETorCLEARGPIOoutput(PORT_E, PIN_4, 1);
+                    for(int i = 0; i < 3; i++){
+                        SETorCLEARGPIOoutput(CS_PINS[i/2], CS_PINS[i/2+1], 1);
+                    }
                 }
                 // Transition to IDLE
                 *stateptr = 0;
@@ -218,7 +229,7 @@ void spiInterruptHandler(uint8_t spi_id){
     if ((current_status_register & TXE_MASK) > 0){
         printf("Handling TXE interrupt\n");
         if (*stateptr == 0){ // if state == IDLE
-            // disableSpiTXEInterrupts(SPI id)
+            // disable Spi TXE Interrupts(SPI id)
             disableSpiTXEInterrupts(spi_id);
         }else if (*stateptr > 0){// if state == TXi
             // TODO Start Timeout timer
