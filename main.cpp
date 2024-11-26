@@ -1,3 +1,4 @@
+#include "motor_controller.h"
 #define WHICH_NUCLEO 100 //change for compilation, 0 for remote, 1 for submarine, 2 for debug remote, 3 for debug sub3, 94 for NZ debugging
 
 #include <cstdint>
@@ -13,6 +14,7 @@
 #include "hardware_stm_adc.h"
 #include "applications/sub_clock.h"
 #include "led_remote.h"
+#include "ir_range.h"
 #include "timer_queue_remote.h"
 
 
@@ -32,10 +34,15 @@ int main(void){
         /* submarine state machine */
 
         /* initialization */
-        init_sub();
+        init_sub(); // State machine
+        // Initialise hardware
+        initMotorHardware();
+        initIRSensor(0); // Initialise IR sensor in digital mode
+        // initPressureSensor();
 
         /* loop */
         while(1){
+            timer_handler_remote(); // Identical functionality but different events in the queue
             event_handler_sub();
         }
 

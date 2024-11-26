@@ -3,7 +3,7 @@
 
 void test_ir()
 {
-    initSensor(0);
+    initIRSensor(0);
     while(1)
     {
         uint8_t tripped = getSensorTripped();

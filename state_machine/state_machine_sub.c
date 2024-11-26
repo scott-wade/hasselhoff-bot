@@ -23,13 +23,13 @@ void init_sub(void){
 
 void event_handler_sub(){
     /* Checks and handles events for sub */
-    if (simpleQ.size > 0)
-    {
-        printf("Queue has %d events\n", simpleQ.size);
-    } else {
-        printf("No events queued\n");
-        return;
-    }
+    // if (simpleQ.size > 0)
+    // {
+    //     printf("Queue has %d events\n", simpleQ.size);
+    // } else {
+    //     printf("No events queued\n");
+    //     return;
+    // }
 
     
     sub_events_t current_event = simpleQ.events[simpleQ.process_indx];
@@ -63,8 +63,26 @@ void event_handler_sub(){
             subState.beam_detected = 0;
             break;
         case LANDED:
+            // Transition to welcome state
+            // Return to surface trajectory
             break;
+        
         default:
+            // When no events fired, behaviour is state dependent
+            switch(subState.state)
+            {
+                case INITIALISING:
+                case IDLE:
+                case LANDING:
+                case DRIVE:
+                    // Do nothing
+                    break;
+
+                case WELCOME:
+                    // Increment welcome trajectory
+                    break;
+                
+            }
             break;
     }
     printf("--------------------\n");

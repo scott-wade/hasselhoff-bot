@@ -141,3 +141,47 @@
         setDutyCycle(MOTOR_TIMER, BALLAST_CCW_PROP_CH, thrust);
      }
   }
+
+  /*
+    Landing sequence via PID ballastControl
+    return
+        -1 failed to reach target depth
+        1 reached target depth
+  */
+  uint8_t landingSequence(float target_depth, uint16_t max_ticks)
+  {
+    //  float current_depth;
+    //  uint8_t ticks = 0;
+    //  float i = 0;
+    //  //current_depth = readDepthSensor();
+
+    //  while (fabs(current_depth - target_depth) > LANDING_EPS) { // Raise Depth
+    //     // If target depth is larger we want to go up which corresponds to positive offsets on duty cycles
+    //     float err = current_depth - target_depth; 
+    //     i = i + err;
+    //     // Preventing windup
+    //     if (i > LANDING_MAX_I) {
+    //         i = LANDING_MAX_I
+    //     } else if (i < -LANDING_MAX_I) {
+    //         i = -LANDING_MAX_I;
+    //     }
+    //     float output = LANDING_KP * err 
+
+    //     float idle_duty_cycle = IDLE_DUTY_CYCLE + FWD_DEADZONE; 
+    //     float thrust = idle_duty_cycle + 0.5*(1-idle_duty_cycle + output);
+
+    //     setDutyCycle(MOTOR_TIMER, BALLAST_CW_PROP_CH, thrust);
+    //     setDutyCycle(MOTOR_TIMER, BALLAST_CCW_PROP_CH, thrust);
+    //     sub_sleep(0.1);
+    //     ticks = ticks + 1;
+    //     if (ticks > max_ticks)
+    //     {
+    //         return -1;
+    //     }
+    //  }
+    //  return 1;
+  }
+
+  void welcomeTrajectory(void)
+  {
+  }

@@ -28,7 +28,7 @@ typedef enum {
     IDLE,
     WELCOME,
     DRIVE,
-    BEAM_DRIVE,
+    // BEAM_DRIVE,
     LANDING
 } sub_states_t;
 
