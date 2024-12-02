@@ -118,6 +118,7 @@ void land_message_in_drive(void)
     event.type = DRIVE_MSG_DS_RECEIVED;
     event.value = value;
     //TODO: Add queue
+    insert_to_simple_queue(event);
 
 }
 void land_message_in_land(void)
@@ -147,6 +148,7 @@ void landing_finished_in_land(void)
     event.type = DRIVE_MSG_DS_RECEIVED;
     event.value = value;
     //TODO: Add queue
+    insert_to_simple_queue(event);
 }
 
 // IR Status Request
