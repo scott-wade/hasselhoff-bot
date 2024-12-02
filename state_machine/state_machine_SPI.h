@@ -32,6 +32,8 @@ typedef enum{
     SENSOR_PARENT
 } Spi_State_Machine_t;
 
+#define REMOTE_SPI_CHILD_ID 0
+
 /*Function definitions---------------------------------------------------------*/
 void init_state_machine_spi(Spi_State_Machine_t);
 void event_handler_spi(Spi_State_Machine_t spi_type);

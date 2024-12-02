@@ -16,6 +16,7 @@ typedef enum {
     LAND_CMD, // remote to sub
     ACK, // sub to remote and remote to sub
     IR_DETECTED, // sub to remote
+    IR_RESPONSE, // sub to remote
     IR_LOST, // sub to remote
     LANDED_MSG, // sub to remote
 } comms_type_t;
