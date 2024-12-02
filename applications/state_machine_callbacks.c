@@ -16,13 +16,11 @@ void welcome_callback(void)
     // IR Receiver on
 }
 
-void throttle_callback(uint16_t value)
+void throttle_callback(uint8_t value)
 {
-    // Queue prop controls
-    sub_events_t event;
-    event.type = DRIVE_MSG_FB_RECEIVED;
-    event.value = value;
-    //TODO: Add queue
+    // Queue prop commands
+    uint8_t fb = value;
+    propulsionControl(value, subState.lr_command_stash, subState.ds_command_stash);
 }
 
 void sensor_poll_callback(void)
@@ -34,15 +32,15 @@ void sensor_poll_callback(void)
 
 
 // Drive message throttle callbacks
-void throttle_message_in_idle(uint16_t value)
+void throttle_message_in_idle(uint8_t value)
 {
     idle_callback();
 }
-void throttle_message_in_welcome(uint16_t value)
+void throttle_message_in_welcome(uint8_t value)
 {
     welcome_callback();
 }
-void throttle_message_in_drive(uint16_t value)
+void throttle_message_in_drive(uint8_t value)
 {
     // Queue corresponding prop controls
     sub_events_t event;
@@ -50,51 +48,54 @@ void throttle_message_in_drive(uint16_t value)
     event.value = value;
     //TODO: Add queue
 }
-void throttle_message_in_land(uint16_t value)
+void throttle_message_in_land(uint8_t value)
 {
     return; // Ignore
 }
 
 // Drive message steering callbacks
-void steering_message_in_idle(uint16_t value)
+void steering_message_in_idle(uint8_t value)
 {
     idle_callback();
 }
-void steering_message_in_welcome(uint16_t value)
+void steering_message_in_welcome(uint8_t value)
 {
     welcome_callback();
 }
-void steering_message_in_drive(uint16_t value)
+void steering_message_in_drive(uint8_t value)
 {
     // Queue corresponding prop controls
-    sub_events_t event;
-    event.type = DRIVE_MSG_LR_RECEIVED;
-    event.value = value;
+    // sub_events_t event;
+    // event.type = DRIVE_MSG_LR_RECEIVED;
+    // event.value = value;
     //TODO: Add queue
+    subState.lr_command_stash = value;
+
 }
-void steering_message_in_land(uint16_t value)
+void steering_message_in_land(uint8_t value)
 {
     return; // Ignore
 }
 
 // Drive message dive/surface callback
-void dive_message_in_idle(uint16_t value)
+void dive_message_in_idle(uint8_t value)
 {
     idle_callback();
 }
-void dive_message_in_welcome(uint16_t value)
+void dive_message_in_welcome(uint8_t value)
 {
     welcome_callback();
 }
-void dive_message_in_drive(uint16_t value)
+void dive_message_in_drive(uint8_t value)
 {
     // Queue corresponding prop controls
-    sub_events_t event;
-    event.type = DRIVE_MSG_DS_RECEIVED;
-    event.value = value;
+    // sub_events_t event;
+    // event.type = DRIVE_MSG_DS_RECEIVED;
+    // event.value = value;
     //TODO: Add queue
+    subState.ds_command_stash = value;
 }
-void dive_message_in_land(uint16_t value)
+void dive_message_in_land(uint8_t value)
 {
     return;
 }
@@ -164,7 +165,7 @@ void IR_request_message_in_drive(void)
          .type = IR_RESPONSE, 
          .payload = subState.beam_detected
          };
-    requestSpiTransmit(REMOTE_SPI_CHILD_ID, (uint16_t) packet, NULL);
+    requestSpiTransmit(REMOTE_SPI_CHILD_ID, (uint8_t) packet, NULL);
 }
 void IR_request_message_in_land(void)
 {

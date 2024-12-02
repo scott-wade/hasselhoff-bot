@@ -3,28 +3,29 @@
 #define STATE_MACHINE_CALLBACK_H
 
 #include "globals.h"
+#include "motor_controller.h"
 
 #ifdef __cplusplus
  extern "C" {
 #endif
 
 // Drive message throttle callbacks
-void throttle_message_in_idle(uint16_t value);
-void throttle_message_in_welcome(uint16_t value);
-void throttle_message_in_drive(uint16_t value);
-void throttle_message_in_land(uint16_t value);
+void throttle_message_in_idle(uint8_t value);
+void throttle_message_in_welcome(uint8_t value);
+void throttle_message_in_drive(uint8_t value);
+void throttle_message_in_land(uint8_t value);
 
 // Drive message steering callbacks
-void steering_message_in_idle(uint16_t value);
-void steering_message_in_welcome(uint16_t value);
-void steering_message_in_drive(uint16_t value);
-void steering_message_in_land(uint16_t value);
+void steering_message_in_idle(uint8_t value);
+void steering_message_in_welcome(uint8_t value);
+void steering_message_in_drive(uint8_t value);
+void steering_message_in_land(uint8_t value);
 
 // Drive message dive/surface callback
-void dive_message_in_idle(uint16_t value);
-void dive_message_in_welcome(uint16_t value);
-void dive_message_in_drive(uint16_t value);
-void dive_message_in_land(uint16_t value);
+void dive_message_in_idle(uint8_t value);
+void dive_message_in_welcome(uint8_t value);
+void dive_message_in_drive(uint8_t value);
+void dive_message_in_land(uint8_t value);
 
 // Land message received
 void land_message_in_idle(void);
