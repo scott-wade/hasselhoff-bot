@@ -1,5 +1,6 @@
 #include "inputs_remote.h"
 #include "led_remote.h"
+#include "state_machine_sub.h"
 #include "stm32f4xx_mort2.h"
 #include <cstdint>
 #include <stdlib.h>
@@ -7,12 +8,14 @@
 #include "hardware_stm_adc.h"
 #include "hardware_stm_gpio.h"
 #include "hardware_stm_dma.h"
+#include "state_machine_remote.h"
+#include "state_machine_SPI.h"
 
 
-#define MAX_POT_VAL         3900 // Empirically measured max potentiometer value
-#define TAR_DEP_DIG_0       2 // Index of first digit of target depth
-#define TAR_DEP_DIG_1       3 // Index of second digit of target depth
-#define JOYSTICK_TOLERANCE  10 // Max variation of joystick when at rest
+#define MAX_POT_VAL             3900 // Empirically measured max potentiometer value
+#define TAR_DEP_DIG_0           2 // Index of first digit of target depth
+#define TAR_DEP_DIG_1           3 // Index of second digit of target depth
+#define JOYSTICK_TRIGGER_TOL    250 // Amount to trigger joystick action from welcome
 
 // Variables to store DMA value outputs
 uint16_t target_depth;
@@ -50,9 +53,23 @@ uint16_t get_target_depth(void) {
 }
 
 void read_target_depth (void) {
-    static uint16_t prev_val = 0;
-    uint16_t curr_val = get_target_depth();
+    static uint8_t prev_val = 0;
+    uint8_t curr_val = get_target_depth();
 
+    // Welcome transition
+    if (remote_state == WELCOME_REMOTE){
+        // If in welcome state and user has turned node, go to drive
+        if ((prev_val != 0) && 
+            (prev_val != curr_val)) {
+            // Go Welcome -> Drive
+            sched_event(DRIVE_REMOTE); 
+        }
+    } else if (remote_state == DRIVE_REMOTE) {
+        // When driving, continuously send joystick values
+        requestSpiTransmit_remote(DRIVE_MSG_DS_RECEIVED, curr_val, NULL); // drive/surface (up/down)
+    }
+
+    // Update LED display with depth value
     if (prev_val != curr_val) {
         // If value changed, set the led display value
         int first_dig = curr_val / 10; // Integer division
@@ -62,6 +79,7 @@ void read_target_depth (void) {
         set_led_disp_val(TAR_DEP_DIG_0, first_dig);
         set_led_disp_val(TAR_DEP_DIG_1, second_dig);
     }
+
     prev_val = curr_val; // Set current to old
 }
 
@@ -122,15 +140,26 @@ void read_joysticks (void) {
     uint16_t joy_x = get_joystick_x();
     uint16_t joy_y = get_joystick_y();
 
-    // Check if values changed!
     int diff_x = abs(joy_x - prev_joy_x);
-    if (diff_x > JOYSTICK_TOLERANCE) {
-        // printf("JOY X CHANGED: %d vs. %d = %d\n", joy_x, prev_joy_x,diff_x );
-    }
     int diff_y = abs(prev_joy_y - joy_y);
-    if (diff_y > JOYSTICK_TOLERANCE) {
-        // printf("JOY Y CHANGED: %d vs. %d = %d\n", joy_y, prev_joy_y, diff_y);
+
+    // If in welcome state and joysticks are triggered, then go to drive state
+    if (remote_state == WELCOME_REMOTE){
+        if (prev_joy_x != 0 && 
+          ((diff_x > JOYSTICK_TRIGGER_TOL) || 
+           (diff_y > JOYSTICK_TRIGGER_TOL))) {
+            // Go Welcome -> Drive
+            sched_event(DRIVE_REMOTE); 
+        }
+    } else if (remote_state == DRIVE_REMOTE) {
+        // When driving, continuously send joystick values
+        requestSpiTransmit_remote(DRIVE_MSG_LR_RECEIVED, joy_x, NULL); // left/right
+        requestSpiTransmit_remote(DRIVE_MSG_FB_RECEIVED, joy_y, NULL); // forward/back
     }
+
+    // printf("JOY X CHANGED: %d vs. %d = %d\n", joy_x, prev_joy_x,diff_x );
+    // printf("JOY Y CHANGED: %d vs. %d = %d\n", joy_y, prev_joy_y, diff_y);
+    
     // Set previous values
     prev_joy_x = joy_x;
     prev_joy_y = joy_y;

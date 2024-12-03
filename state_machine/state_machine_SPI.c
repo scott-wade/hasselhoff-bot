@@ -258,3 +258,43 @@ void SPI4_IRQHandler(void){
     // call spiInterruptHandler(4);
     spiInterruptHandler(4);
 }
+
+
+int spi_msg_to_header (event_type_t msg_type) {
+    // Convert the message types to the bits
+    switch(msg_type) {
+        case RESET_MSG_RECEIVED: // reset message
+            return 1;
+        case DRIVE_MSG_FB_RECEIVED: // forward/backwards drive command
+            return 2;
+        case DRIVE_MSG_LR_RECEIVED: // left/right drive command
+            return 3;
+        case DRIVE_MSG_DS_RECEIVED: // dive/surface drive command
+            return 4;
+        case LAND_MSG_RECEIVED: // land msg
+            return 5;
+        case IR_REQUEST_RECEIVED:  // IR status request msg
+            return 6;
+        default:
+            return -1;
+    }
+}
+
+
+/** Wrapper function for remote to call requestSpiTransmit()
+ * @param msg_type: type of the message
+ * @param packet: data to sent
+ * @param read_var_addr: address to store the return value (only for messages that have a response)
+ */
+void requestSpiTransmit_remote(event_type_t msg_type, uint8_t data, uint8_t* read_var_addr) {
+    // void requestSpiTransmit(Spi_State_Machine_t spi_type, uint8_t child_id, 
+    //                         uint16_t packet, uint32_t* read_var_addr);
+
+    uint8_t header = spi_msg_to_header(msg_type);
+
+    // Packet is first 8 bits is message type and last 8 bits is the data
+    uint16_t packet = (header << 8) | data;
+
+    requestSpiTransmit(NUCLEO_PARENT, 0 /* child_id */, packet, read_var_addr);
+}
+

@@ -28,6 +28,8 @@ int main(void){
             timer_handler_remote();
             // Check for tasks in queue and then execute them
             event_handler_remote();
+            // SPI event handler
+            event_handler_spi(NUCLEO_PARENT); // Remote = parent
         }
     } else if(WHICH_NUCLEO == 1) {
         /* submarine state machine */

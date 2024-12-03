@@ -12,9 +12,11 @@
 #include "state_machine_remote.h"
 #include "led_remote.h"
 #include "inputs_remote.h"
+#include "state_machine_sub.h"
 #include "sub_clock.h"
 #include "timer_queue_remote.h"
 #include "hardware_stm_adc.h"
+#include "state_machine_SPI.h"
 
 /* Constants */
 
@@ -25,6 +27,8 @@
 #define WELCOME_PERIOD_MS               500
 #define READ_JOYSTICKS_PERIOD_MS        100
 #define COUNTDOWN_TIMER_PERIOD_MS       1000 // 1 sec
+#define READ_SUB_STATUS_DELAY_MS        10
+#define POLL_SUB_STATUS_PERIOD_MS       100
 
 /* Global Variables ---------------------------------------------------------*/
 // Initialize queue
@@ -33,6 +37,8 @@ struct queue_remote_t queue = {
     .tail = NULL,
     .size = 0
 };
+remote_event_t remote_state = INIT_REMOTE; // Global variable of remote's current state
+uint8_t sub_status = 0; // Sub's status
 /* End Global Variables ---------------------------------------------------------*/
 
 
@@ -44,6 +50,7 @@ void init_remote(void){
     init_target_depth_knob();
     init_joysticks();
     init_seg_display();
+    init_state_machine_spi(NUCLEO_PARENT); // parent = remote
     // Init status LEDs /////////////////////////
     set_rgb_green_led(); // Power LED
 }
@@ -116,23 +123,26 @@ void tasks(remote_event_t event){
             sched_event(CYCLE_LED_DISPLAY);
             add_timer(START_ADC_DELAY_MS + 10, READ_TARGET_DEPTH); // Start after ADC
             sched_event(READ_JOYSTICKS);
-            sched_event(COUNTDOWN_TIMER);
+            sched_event(POLL_SUB_STATUS);
+            // NEXT: Init -> Welcome
+            remote_state = WELCOME_REMOTE;
+            sched_event(WELCOME_REMOTE);
             break;
         case WELCOME_REMOTE:
             welcome_remote();
-            add_timer(WELCOME_PERIOD_MS, WELCOME_REMOTE); // Add event back on queue as a periodic task
+            if (remote_state == WELCOME_REMOTE)
+                add_timer(WELCOME_PERIOD_MS, WELCOME_REMOTE); // Add event back on queue as a periodic task
             break;
         case DRIVE_REMOTE:
             set_white_led(); // Set driving status LED
-            sched_event(DRIVING_REMOTE); // Go to driving next
-            break;
-        case DRIVING_REMOTE:
+            sched_event(COUNTDOWN_TIMER); // Start countdown timer
+            // NEXT: welcome -> driving
+            remote_state = DRIVE_REMOTE;
             break;
         case LAND_REMOTE:
+            clear_white_led(); // Turn off drive status LED
             set_green_led(); // Set landing status LED
-            sched_event(LANDING_REMOTE);
-            break;
-        case LANDING_REMOTE:
+            remote_state = LAND_REMOTE;
             break;
         case CYCLE_LED_DISPLAY:
             cycle_led_display(); // Cycle thru the 4 digits
@@ -149,11 +159,20 @@ void tasks(remote_event_t event){
             break;
         case COUNTDOWN_TIMER:
             countdown_timer();
-            add_timer(COUNTDOWN_TIMER_PERIOD_MS, COUNTDOWN_TIMER); // Add event back on queue as a periodic task
+            if (remote_state == DRIVE_REMOTE)
+                add_timer(COUNTDOWN_TIMER_PERIOD_MS, COUNTDOWN_TIMER); // Add event back on queue as a periodic task
             break;
         case READ_JOYSTICKS:
             read_joysticks();
             add_timer(READ_JOYSTICKS_PERIOD_MS, READ_JOYSTICKS); // Add event back on queue as a periodic task
+            break;
+        case POLL_SUB_STATUS:
+            requestSpiTransmit_remote(IR_REQUEST_RECEIVED, 0, &sub_status);
+            add_timer(READ_SUB_STATUS_DELAY_MS, READ_SUB_STATUS); // Read status after some delay
+            break;
+        case READ_SUB_STATUS:
+            read_sub_status();
+            add_timer(POLL_SUB_STATUS_PERIOD_MS, POLL_SUB_STATUS); // Poll sub status again
             break;
         default:
             // Fallback if a case that is not defined
