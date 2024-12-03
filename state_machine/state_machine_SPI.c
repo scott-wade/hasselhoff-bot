@@ -286,7 +286,7 @@ int spi_msg_to_header (event_type_t msg_type) {
  * @param packet: data to sent
  * @param read_var_addr: address to store the return value (only for messages that have a response)
  */
-void requestSpiTransmit_remote(event_type_t msg_type, uint8_t data, uint8_t* read_var_addr) {
+void requestSpiTransmit_remote(event_type_t msg_type, uint8_t data, uint32_t* read_var_addr) {
     // void requestSpiTransmit(Spi_State_Machine_t spi_type, uint8_t child_id, 
     //                         uint16_t packet, uint32_t* read_var_addr);
 

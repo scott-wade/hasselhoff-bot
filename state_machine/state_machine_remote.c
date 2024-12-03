@@ -38,7 +38,7 @@ struct queue_remote_t queue = {
     .size = 0
 };
 remote_event_t remote_state = INIT_REMOTE; // Global variable of remote's current state
-uint8_t sub_status = 0; // Sub's status
+uint32_t sub_status = 0; // Sub's status
 /* End Global Variables ---------------------------------------------------------*/
 
 
