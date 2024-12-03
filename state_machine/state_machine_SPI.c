@@ -16,7 +16,6 @@
 #include "../hardware/hardware_stm_timer.h"
 #include <cstdint>
 #include "../globals.h"
-#include "../applications/comms.h"
 #include "state_machine_SPI.h"
 
 // macros

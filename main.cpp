@@ -8,7 +8,6 @@
 #include "state_machine/state_machine_remote.h"
 #include "tests/test_spi.h"
 #include "tests/test_gpio.h"
-#include "tests/test_comms.h"
 #include "state_machine_SPI.h"
 #include "inputs_remote.h"
 #include "hardware_stm_adc.h"
@@ -74,11 +73,6 @@ int main(void){
             // service event queue
             // check on the timeouts
         }
-    } else if (WHICH_NUCLEO == 100)
-    {
-        test_comms();
-        while(1){}
-
     }
 
 

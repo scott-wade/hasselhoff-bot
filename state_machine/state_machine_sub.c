@@ -10,12 +10,16 @@
 
 
 #include "state_machine_sub.h"
-#include "comms.h"
 #include "globals.h"
+#include "stdio.h"
+
+
+// define global subState
+sub_t subState = { .state = IDLE, .initialised = 0, .beam_detected = 0};
 
 void init_sub(void){
     /* Initialize sub state machine */ 
-    subState.state = INITIALISING;
+    subState.state = IDLE;
     subState.initialised = 0;
     subState.beam_detected = 0;
 }
@@ -23,15 +27,7 @@ void init_sub(void){
 
 void event_handler_sub(){
     /* Checks and handles events for sub */
-    // if (simpleQ.size > 0)
-    // {
-    //     printf("Queue has %d events\n", simpleQ.size);
-    // } else {
-    //     printf("No events queued\n");
-    //     return;
-    // }
-
-    
+   
     sub_events_t current_event = simpleQ.events[simpleQ.process_indx];
 
     printf("Processing event %d\n", simpleQ.process_indx);
@@ -45,44 +41,84 @@ void event_handler_sub(){
     printf("Event is: %d\n", current_event.type);
 
     switch (current_event.type) {
-        case INITIALISED:
-            printf("INITIALISED EVENT\n");
-            subState.initialised = 1;
-            subState.state = IDLE;
-            break;
-        case PACKET_RECEIVED:
-            printf("PACKET RECVD\n");
-            recv_comms_debug();
-            break;
-        case BEAM_DETECTED:
-            printf("BEAM_DETECT\n");
-            subState.beam_detected = 1;
-            break;
-        case BEAM_LOST:
-            printf("BEAM_LOST\n");
-            subState.beam_detected = 0;
-            break;
-        case LANDED:
-            // Transition to welcome state
-            // Return to surface trajectory
-            break;
-        
-        default:
-            // When no events fired, behaviour is state dependent
+        case DRIVE_MSG_FB_RECEIVED:
             switch(subState.state)
-            {
-                case INITIALISING:
-                case IDLE:
-                case LANDING:
-                case DRIVE:
-                    // Do nothing
-                    break;
-
-                case WELCOME:
-                    // Increment welcome trajectory
-                    break;
-                
-            }
+                {
+                    case IDLE: break; // first packet received
+                    case WELCOME: break;
+                    case DRIVE:
+                        break;
+                    case LANDING:
+                        break;
+                    default: break;
+                }
+            break;
+        case DRIVE_MSG_LR_RECEIVED:
+            switch(subState.state)
+                {
+                    case IDLE: break; // first packet received
+                    case WELCOME: break;
+                    case DRIVE:
+                        break;
+                    case LANDING:
+                        break;
+                    default: break;
+                }
+            break;
+        case DRIVE_MSG_DS_RECEIVED:
+            switch(subState.state)
+                {
+                    case IDLE: break; // first packet received
+                    case WELCOME: break;
+                    case DRIVE:
+                        break;
+                    case LANDING:
+                        break;
+                    default: break;
+                }
+            break;
+        case LAND_MSG_RECEIVED:
+            switch(subState.state)
+                {
+                    case IDLE: break; // first packet received
+                    case WELCOME: break;
+                    case DRIVE:
+                        break;
+                    case LANDING:
+                        break;
+                    default: break;
+                }
+            break;
+        case RESET_MSG_RECEIVED:
+            switch(subState.state)
+                {
+                    case IDLE: break; // first packet received
+                    case WELCOME: break;
+                    case DRIVE:
+                        break;
+                    case LANDING:
+                        break;
+                    default: break;
+                }
+            break;
+        case IR_REQUEST_RECEIVED:
+            switch(subState.state)
+                {
+                    case IDLE: break; // first packet received
+                    case LANDING: break;
+                    case DRIVE:
+                        break;
+                    case WELCOME:
+                        break;
+                    default: break;
+                }
+            break;
+        case SENSOR_POLLING_TIMEOUT:
+            // queue sensor spi stuff regardless of state
+            break;
+        default:
+            // When undefined event fired, throw an error
+            printf(stderr, "Undefined Sub Event");
             break;
     }
     printf("--------------------\n");
