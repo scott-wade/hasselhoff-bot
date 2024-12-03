@@ -122,7 +122,7 @@ void testSPIStateMachine(void){
         event_handler_spi(NUCLEO_PARENT);
         delaything = delaything + 1;
         if(delaything == 100000){
-            requestSpiTransmit(1, packet, &spi_rx);
+            requestSpiTransmit(NUCLEO_PARENT, 1, packet, &spi_rx);
             delaything=0;
         }
         if(spi_rx>0){
@@ -159,9 +159,10 @@ void testSPIQueue(void){
 
 }
 
-void testNucleoTransmitting(void){
+void testNucleoTransmitting(Spi_State_Machine_t spi_type){
     // send periodic DEBUG packets (header=0xde) with 0xad as the data value
-    init_state_machine_spi(NUCLEO_PARENT);
+
+    init_state_machine_spi(spi_type);
     
 
     uint32_t iter = 0;
@@ -170,10 +171,10 @@ void testNucleoTransmitting(void){
     uint16_t packet = (uint16_t)(0xdead);
     for (int i = 0; i < 100000000; i++){
         if(iter >= 10000000){
-            requestSpiTransmit(1, packet, &read_var);
+            requestSpiTransmit(spi_type, 1, packet, &read_var);
             printf("Requesting Transmission with packet %u\n", packet);
         }
-        event_handler_spi(NUCLEO_PARENT);
+        event_handler_spi(spi_type);
         if(!isEmpty(SPI_COMMS_RECIEVED_QUEUE)){
             read_var = *(uint16_t*)dequeue(SPI_COMMS_RECIEVED_QUEUE);
             printf("read var changed from %u to %u \n", read_var_prev, read_var);
@@ -184,13 +185,13 @@ void testNucleoTransmitting(void){
 
 }
 
-void testNucleoReceiving(void){
+void testNucleoReceiving(Spi_State_Machine_t spi_type){
 
-    init_state_machine_spi(NUCLEO_CHILD);
+    init_state_machine_spi(spi_type);
 
     while(1){
         // service spi state machine
-        event_handler_spi(NUCLEO_CHILD);
+        event_handler_spi(spi_type);
 
         if (!isEmpty(SPI_COMMS_RECIEVED_QUEUE)){// approximation for a recieved msg event handler
             // dequeue the recieved data

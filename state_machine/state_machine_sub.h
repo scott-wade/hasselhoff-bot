@@ -11,19 +11,26 @@
 
 /* MACROS for everyone--------------------------------------------------------*/
 
-typedef enum {
-    INITIALISED, // Transition to IDLE
-    PACKET_RECEIVED, // Behaviour is state dependent
-    BEAM_DETECTED, // No transition, send beam detected message
-    BEAM_LOST,  // No transition, send beam lost message
-    LANDED      // Transition to WELOCME, send landed message
+typedef enum  {
+    DRIVE_MSG_FB_RECEIVED,     // forward/backwards drive command
+    DRIVE_MSG_LR_RECEIVED,      // left/right drive command
+    DRIVE_MSG_DS_RECEIVED,      // dive/surface drive command
+    LAND_MSG_RECEIVED,          // land msg
+    RESET_MSG_RECEIVED,        // reset message
+    IR_REQUEST_RECEIVED,       // IR status request msg
+    SENSOR_POLLING_TIMEOUT     // Timeout for polling sensors
+} event_type_t;
+
+typedef struct {
+    uint8_t type;
+    uint16_t value;
 } sub_events_t;
 
 typedef enum {
-    INITIALISING,
     IDLE,
     WELCOME,
     DRIVE,
+    // BEAM_DRIVE,
     LANDING
 } sub_states_t;
 
@@ -35,13 +42,13 @@ typedef struct {
 
 
 /* Global Variables */
-static sub_t subState;
+extern sub_t subState;
 
 /*Function definitions---------------------------------------------------------*/
 void init_sub(void);
 void init_timer(void);
 void init_gpio(void);
-void event_handler_sub(void);
+void event_handler_sub();
 
 
 

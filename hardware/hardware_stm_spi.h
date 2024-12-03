@@ -45,6 +45,9 @@ typedef enum{
     SPI_CHILD
 }Spi_Hierarchy_t;
 
+// CS pins
+extern const uint8_t CS_PINS[6];
+
 /*Function definitions---------------------------------------------------------*/
 uint32_t getSPIBaseAddr(uint8_t spi_id);
 void configureSPIPeripheral(Spi_Hierarchy_t spi_type, uint8_t spi_id);
