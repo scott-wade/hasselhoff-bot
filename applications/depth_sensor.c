@@ -31,6 +31,9 @@ static uint32_t xlowPressureReg;
 // initialization of pressure sensor
 void initPressureSensor(void)
 {
+    // setup the GPIO pins of the nucleo for SPI ?
+    // ^probably better managed by the SPI initialization
+
     // use hardware level functions to generate messages for intializing
     requestSpiTransmit(DEPTH_SENSOR_ID, initLPS27HardwareMsg1(), &readingBuffer);
     requestSpiTransmit(DEPTH_SENSOR_ID, initLPS27HardwareMsg2(), &readingBuffer);
