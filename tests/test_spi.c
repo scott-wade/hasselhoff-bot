@@ -175,11 +175,11 @@ void testNucleoTransmitting(Spi_State_Machine_t spi_type){
             printf("Requesting Transmission with packet %u\n", packet);
         }
         event_handler_spi(spi_type);
-        if(!isEmpty(SPI_COMMS_RECIEVED_QUEUE)){
-            read_var = *(uint16_t*)dequeue(SPI_COMMS_RECIEVED_QUEUE);
-            printf("read var changed from %u to %u \n", read_var_prev, read_var);
+        if (read_var_prev != read_var){
+            printf("Received new read value: %u", read_var);
             read_var_prev = read_var;
         }
+        
         iter ++;
     }
 
@@ -193,12 +193,7 @@ void testNucleoReceiving(Spi_State_Machine_t spi_type){
         // service spi state machine
         event_handler_spi(spi_type);
 
-        if (!isEmpty(SPI_COMMS_RECIEVED_QUEUE)){// approximation for a recieved msg event handler
-            // dequeue the recieved data
-            uint8_t data = *(uint8_t*)dequeue(SPI_COMMS_RECIEVED_QUEUE);
-            // print it out
-            printf("Recieved data: %u \n", data);
-        }
+
     }
 
 }

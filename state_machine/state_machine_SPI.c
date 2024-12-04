@@ -10,6 +10,7 @@
 
 
 #include "spi_queue.h"
+#include "queue.h"
 #include "state_machine_sub.h"
 #include "../hardware/hardware_stm_spi.h"
 #include "../hardware/hardware_stm_gpio.h"
@@ -19,7 +20,7 @@
 #include "state_machine_SPI.h"
 
 // macros
-#define ACK_PACKET (uint8_t)(2)
+#define ACK_PACKET (uint8_t)(0b10101010)
 #define CLOCK_TIMER 5
 
 // global variables for state machine
@@ -191,22 +192,25 @@ void spiInterruptHandler(uint8_t spi_id){
     if ((current_status_register & RXNE_MASK) > 0){
 
         if (*stateptr == 99){// if state == IDLE
-            //readRX() and set according event flags
+            //readRX() and enqueue according event to the submarine queue
             uint16_t recievedData = readRX(spi_id);
             uint8_t first8bits = *((uint8_t*)&(recievedData)+1);
             uint8_t last8bits = *((uint8_t*)&(recievedData)+0);
-            enqueue(receivedQueue, &first8bits);
-            enqueue(receivedQueue, &last8bits);
-
-            //TODO implement the event flag setting according to Sidney's state machine
+            // construct the sub state machine event
+            sub_events_t receivedEvent;
+            receivedEvent.type = (sub_event_type_t)first8bits;
+            receivedEvent.data = (sub_event_type_t)last8bits;
+            // insert the event to the sub state machine event queue
+            insert_to_simple_queue(receivedEvent);
 
             //writeTX(acknowledgement packet)"
             writeTX(spi_id, ACK_PACKET);
 
         }else{// if state not IDLE
-            // RecieveQueue.append(readRX())
+            // write received data to the read_var_addr of the current transmission event
             uint8_t recievedData = (uint8_t)readRX(spi_id);
             *(CURRENT_COMMS_TRANSMIT_EVENT.read_var_addr) = recievedData;
+
             if (isEmpty(transmitQueue)){// If transmitQueue.empty:
                 // deactivate (set high) all cs pins
                 if(spi_id == 4){

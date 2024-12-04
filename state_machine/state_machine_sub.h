@@ -19,11 +19,11 @@ typedef enum  {
     RESET_MSG_RECEIVED,        // reset message
     IR_REQUEST_RECEIVED,       // IR status request msg
     SENSOR_POLLING_TIMEOUT     // Timeout for polling sensors
-} event_type_t;
+} sub_event_type_t;
 
 typedef struct {
     uint8_t type;
-    uint16_t value;
+    uint16_t data;
 } sub_events_t;
 
 typedef enum {
