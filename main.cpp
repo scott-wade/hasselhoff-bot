@@ -1,5 +1,5 @@
-#include "motor_controller.h"
 #define WHICH_NUCLEO 94 //change for compilation, 0 for remote, 1 for submarine, 2 for debug remote, 3 for debug sub3, 94 for NZ debugging
+
 
 #include <cstdint>
 #include "main.h"
@@ -15,10 +15,10 @@
 #include "led_remote.h"
 #include "ir_range.h"
 #include "timer_queue_remote.h"
+#include "motor_controller.h"
 
 
 int main(void){
-
     if (WHICH_NUCLEO == 0){
         /* remote state machine */
         sched_event(INIT_REMOTE); // Start with initialization event
@@ -28,6 +28,8 @@ int main(void){
             timer_handler_remote();
             // Check for tasks in queue and then execute them
             event_handler_remote();
+            // SPI event handler
+            // event_handler_spi(NUCLEO_PARENT); // Remote = parent
         }
     } else if(WHICH_NUCLEO == 1) {
         /* submarine state machine */

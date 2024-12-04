@@ -1,9 +1,13 @@
 #include "led_remote.h"
+#include "state_machine_remote.h"
+#include "state_machine_sub.h"
 #include "stm32f4xx_mort2.h"
+#include <cstdint>
 #include <stdlib.h>
 #include <stdio.h> 
 #include <stdbool.h>
 #include "hardware_stm_gpio.h"
+#include "state_machine_SPI.h"
 
 
 // Constants ////////////////////
@@ -406,6 +410,7 @@ void welcome_remote (void)
 // Display timer that counts down in time
 int countdown_timer (void) {
     static int count = 99; // Starting count
+    int blink_count = 10; // How many times to blink before exiting state
 
     int first_dig, second_dig;
     /* 
@@ -416,6 +421,13 @@ int countdown_timer (void) {
         // If value changed, set the led display value
         first_dig = count / 10; // Integer division
         second_dig = count % 10; // Remainder
+    } else if (count <= -1*blink_count) {
+        // Game over! Exit driving state
+        // Driving -> Welcome
+        sched_event(WELCOME_REMOTE);
+        remote_state = WELCOME_REMOTE;
+        // Notify sub about timeout
+        requestSpiTransmit_remote(RESET_MSG_RECEIVED, 0, NULL); // send reset message
     } else {
         // Negative numbers is game over and leds will flash on and off
         if (count%2 == 0) {
@@ -433,5 +445,35 @@ int countdown_timer (void) {
 
     // Decrement counter
     count--; 
+}
 
+
+/**
+ * Read the sub's status
+ * Update status LEDs
+ * Check for out of sync issues
+ */
+void read_sub_status(void) {
+    // IR status[bit 0], sub state[bit 1-2], power (?)
+
+    // Set status LED is target is detected
+    uint8_t is_target_detected = sub_status & 0b01;
+    if (is_target_detected)
+        set_blue_led();
+    else
+        clear_blue_led();
+
+    // Get sub state
+    uint8_t sub_state = (sub_status >> 1) & 0b11;
+    // Sub state is Idle (00), Welcome (01), Drive (10), Land (11)
+    if (sub_state == 0b01 && remote_state != WELCOME_REMOTE) {
+        // Sub in welcome state
+        printf("[ERROR] OUT OF SYNC: Sub is in welcome state!");
+    } else if (sub_state == 0b10 && remote_state != DRIVE_REMOTE) {
+        // Sub in drive state
+        printf("[ERROR] OUT OF SYNC: Sub is in drive state!");
+    } else if (sub_state == 0b11 && remote_state != LAND_REMOTE) {
+        // Sub in drive state
+        printf("[ERROR] OUT OF SYNC: Sub is in land state!");
+    }
 }

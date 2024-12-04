@@ -18,16 +18,16 @@ typedef enum {
     INIT_REMOTE,
     WELCOME_REMOTE,
     DRIVE_REMOTE,
-    DRIVING_REMOTE,
     LAND_REMOTE,
-    LANDING_REMOTE,
 
     // Other events
     START_ADC,
     CYCLE_LED_DISPLAY,
     READ_TARGET_DEPTH,
     COUNTDOWN_TIMER,
-    READ_JOYSTICKS
+    READ_JOYSTICKS,
+    POLL_SUB_STATUS,
+    READ_SUB_STATUS
 } remote_event_t;
 
 // Queue node
@@ -44,6 +44,11 @@ struct queue_remote_t {
     queue_node_t* tail;
     uint32_t size;
 };
+
+/* Global variables --------------------------------------------------------*/
+
+extern remote_event_t remote_state;
+extern uint32_t sub_status;
 
 /* MACROS for everyone--------------------------------------------------------*/
 

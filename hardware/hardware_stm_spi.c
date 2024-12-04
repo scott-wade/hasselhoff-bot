@@ -169,7 +169,7 @@ void writeTX(uint8_t spi_id, uint16_t value)
     uint32_t* data_register_address = (uint32_t*)(long)
                 (base_address + SPI_DATA_REGISTER_OFFSET);
     *data_register_address = value;
-    printf("Wrote to DR\n");
+    // printf("Wrote to DR\n");
 }
 
 uint16_t readRX(uint8_t spi_id)
