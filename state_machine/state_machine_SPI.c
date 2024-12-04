@@ -26,12 +26,11 @@
 Queue* SPI_COMMS_EVENT_QUEUE;
 Queue* SPI_SENSOR_EVENT_QUEUE;
 transmitEvent CURRENT_COMMS_TRANSMIT_EVENT;
-
 transmitEvent CURRENT_SENSOR_TRANSMIT_EVENT;
 Queue* SPI_COMMS_RECIEVED_QUEUE;
 Queue* SPI_SENSOR_RECIEVED_QUEUE;
-uint8_t SPI_COMMS_STATE = 0; // 0 for IDLE, i for CSi
-uint8_t SPI_SENSOR_STATE = 0; // 0 for IDLE, i for CSi
+uint8_t SPI_COMMS_STATE = 99; // 99 for IDLE, i for CSi
+uint8_t SPI_SENSOR_STATE = 99; // 99 for IDLE, i for CSi
 
 
 void init_state_machine_spi(Spi_State_Machine_t spi_type){
@@ -114,7 +113,7 @@ void event_handler_spi(Spi_State_Machine_t spi_type){
         default: printf(stderr, "Unsupported/incorrect SPI Machine type"); break;
     }
 
-    if((!isEmpty(currentEvent.txQueue)) && (state == 0)){// begin transmission
+    if((!isEmpty(currentEvent.txQueue)) && (state == 99)){// begin transmission
         // state transition
         if (currentEvent.child_id > 3){
             fprintf(stderr, "Requested unsupported SPI child %u\n", currentEvent.child_id);
@@ -191,7 +190,7 @@ void spiInterruptHandler(uint8_t spi_id){
     // check recieve event first
     if ((current_status_register & RXNE_MASK) > 0){
 
-        if (*stateptr == 0){// if state == IDLE
+        if (*stateptr == 99){// if state == IDLE
             //readRX() and set according event flags
             uint16_t recievedData = readRX(spi_id);
             uint8_t first8bits = *((uint8_t*)&(recievedData)+1);
@@ -207,7 +206,7 @@ void spiInterruptHandler(uint8_t spi_id){
         }else{// if state not IDLE
             // RecieveQueue.append(readRX())
             uint8_t recievedData = (uint8_t)readRX(spi_id);
-            enqueue(receivedQueue, &recievedData);
+            *(CURRENT_COMMS_TRANSMIT_EVENT.read_var_addr) = recievedData;
             if (isEmpty(transmitQueue)){// If transmitQueue.empty:
                 // deactivate (set high) all cs pins
                 if(spi_id == 4){
@@ -216,7 +215,7 @@ void spiInterruptHandler(uint8_t spi_id){
                     }
                 }
                 // Transition to IDLE
-                *stateptr = 0;
+                *stateptr = 99;
                 // TODO Stop timeout timer
             }            
         }
@@ -227,10 +226,10 @@ void spiInterruptHandler(uint8_t spi_id){
     // if transmit event
     if ((current_status_register & TXE_MASK) > 0){
         printf("Handling TXE interrupt\n");
-        if (*stateptr == 0){ // if state == IDLE
+        if (*stateptr == 99){ // if state == IDLE
             // disable Spi TXE Interrupts(SPI id)
             disableSpiTXEInterrupts(spi_id);
-        }else if (*stateptr > 0){// if state == TXi
+        }else if (*stateptr < 10){// if state == TXi
             // TODO Start Timeout timer
             if (!isEmpty(transmitQueue)){// If TransmitQueue not empty:
                 uint16_t packet = *(uint16_t*)dequeue(transmitQueue);
