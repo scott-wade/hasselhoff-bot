@@ -4,6 +4,10 @@
 
 #include "globals.h"
 #include "motor_controller.h"
+#include "hardware_stm_spi.h"
+#include "state_machine_SPI.h"
+#include "comms.h"
+#include "applications/ir_range.h"
 
 #ifdef __cplusplus
  extern "C" {

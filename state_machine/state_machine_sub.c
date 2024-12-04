@@ -18,7 +18,6 @@ void init_sub(void){
     subState.state = INITIALISING;
     subState.initialised = 0;
     subState.beam_detected = 0;
-    subState.motor_command_sent = 0;
 }
 
 
