@@ -80,7 +80,7 @@ void event_handler_spi(Spi_State_Machine_t spi_type){
         case NUCLEO_PARENT: // parent on SPI1
             if (!isEmpty(SPI_COMMS_EVENT_QUEUE)){
                 CURRENT_COMMS_TRANSMIT_EVENT = *(transmitEvent*)dequeue(SPI_COMMS_EVENT_QUEUE);
-                printf("Dequeued spi comms event \n");
+                // printf("Dequeued spi comms event \n");
             }
         break;
         case NUCLEO_CHILD: // child on SPI1
@@ -134,7 +134,7 @@ void event_handler_spi(Spi_State_Machine_t spi_type){
 
         // write to TX buffer
         uint16_t currpacket = *(uint16_t*)dequeue(currentEvent.txQueue);
-        printf("writing to tx: %u\n", currpacket);
+        // printf("writing to tx: %u\n", currpacket);
         writeTX(spi_id, currpacket);
         // enable TXE interrupt
         enableSpiTXEInterrupts(spi_id);
@@ -226,7 +226,7 @@ void spiInterruptHandler(uint8_t spi_id){
 
     // if transmit event
     if ((current_status_register & TXE_MASK) > 0){
-        printf("Handling TXE interrupt\n");
+        // printf("Handling TXE interrupt\n");
         if (*stateptr == 0){ // if state == IDLE
             // disable Spi TXE Interrupts(SPI id)
             disableSpiTXEInterrupts(spi_id);
@@ -295,6 +295,6 @@ void requestSpiTransmit_remote(event_type_t msg_type, uint8_t data, uint32_t* re
     // Packet is first 8 bits is message type and last 8 bits is the data
     uint16_t packet = (header << 8) | data;
 
-    requestSpiTransmit(NUCLEO_PARENT, 0 /* child_id */, packet, read_var_addr);
+    // requestSpiTransmit(NUCLEO_PARENT, 0 /* child_id */, packet, read_var_addr);
 }
 

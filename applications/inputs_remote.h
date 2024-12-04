@@ -10,11 +10,11 @@
 
 /* Function definitions */
 int init_target_depth_knob(void);
-uint16_t get_target_depth(void);
+uint16_t get_target_depth(int prev_val);
 int analog2discrete(int val, int input_min, int input_max, int output_min, int output_max);
 int init_joysticks(void);
-uint16_t get_joystick_x(void);
-uint16_t get_joystick_y(void);
+uint16_t get_joystick_x(int prev_val);
+uint16_t get_joystick_y(int prev_val);
 void read_target_depth (void);
 void read_joysticks (void);
 

@@ -50,7 +50,7 @@ void init_remote(void){
     init_target_depth_knob();
     init_joysticks();
     init_seg_display();
-    init_state_machine_spi(NUCLEO_PARENT); // parent = remote
+    // init_state_machine_spi(NUCLEO_PARENT); // parent = remote
     // Init status LEDs /////////////////////////
     set_rgb_green_led(); // Power LED
 }
@@ -60,6 +60,8 @@ void init_remote(void){
 /* Queue ------------------------------------------------------------------*/
 // Push new event to end of queue
 int sched_event(remote_event_t event) {
+    // printf("remote_state = %d\n", remote_state);
+
     // Allocate memory for queue node
     queue_node_t* new_node = malloc(sizeof(queue_node_t));
     if (new_node == NULL) {
@@ -131,7 +133,7 @@ void tasks(remote_event_t event){
         case WELCOME_REMOTE:
             welcome_remote();
             if (remote_state == WELCOME_REMOTE)
-                add_timer(WELCOME_PERIOD_MS, WELCOME_REMOTE); // Add event back on queue as a periodic task
+                add_timer(WELCOME_PERIOD_MS, WELCOME_REMOTE); // Add event back on queue as a periodic task            
             break;
         case DRIVE_REMOTE:
             set_white_led(); // Set driving status LED

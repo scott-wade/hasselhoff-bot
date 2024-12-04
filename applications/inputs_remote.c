@@ -12,14 +12,30 @@
 #include "state_machine_SPI.h"
 
 
-#define MAX_POT_VAL             3900 // Empirically measured max potentiometer value
+#define MAX_POT_VAL             3390 // Empirically measured max potentiometer value
 #define TAR_DEP_DIG_0           2 // Index of first digit of target depth
 #define TAR_DEP_DIG_1           3 // Index of second digit of target depth
-#define JOYSTICK_TRIGGER_TOL    250 // Amount to trigger joystick action from welcome
+#define MAX_JOY_VAL             3000 // Empirically measured max joystick value
+#define JOYSTICK_TRIGGER_TOL    1000 // Amount to trigger joystick action from welcome
 
 // Variables to store DMA value outputs
 uint16_t target_depth;
 uint16_t joystick[2]; // [x,y]
+
+
+/**
+ * Filter new analog value using a combination of both previous and current values
+ * @param prev_val is the previous measured value
+ * @param new_val is the current measured value
+ * @param alpha is 0-1 value that is percent of new value to incorporate
+ */
+int analog_filter(int prev_val, int new_val, float alpha) {
+    if (alpha < 0 || alpha > 1) {
+        fprintf(stderr, "[ERRPR] alpha must be between 0 and 1\n");
+        return new_val;
+    }
+    return (int) (alpha * new_val + (1 - alpha) * prev_val);
+}
 
 /* 
  * Initialize the target depth knob with ADC and DMA
@@ -46,25 +62,23 @@ int init_target_depth_knob(void) {
 /*
  * Returns the target depth that is measured from the potentiometer as a discrete value
  */
-uint16_t get_target_depth(void) {
-    return analog2discrete(target_depth, 
-                           0, MAX_POT_VAL, // Input range
-                           1, 17); // Desired range
+uint16_t get_target_depth(int prev_val) {
+    // Filter the value
+    uint16_t processed_val = analog_filter(prev_val, target_depth, 0.3 /* alpha */);
+    // Map to desired range
+    processed_val = analog2discrete(processed_val, 
+                        0, MAX_POT_VAL, // Input range
+                        1, 17); // Desired range
+    
+    // printf("Target Depth = %d -> %d\n", target_depth, processed_val);
+    return processed_val;
 }
 
 void read_target_depth (void) {
     static uint8_t prev_val = 0;
-    uint8_t curr_val = get_target_depth();
+    uint8_t curr_val = get_target_depth(prev_val);
 
-    // Welcome transition
-    if (remote_state == WELCOME_REMOTE){
-        // If in welcome state and user has turned node, go to drive
-        if ((prev_val != 0) && 
-            (prev_val != curr_val)) {
-            // Go Welcome -> Drive
-            sched_event(DRIVE_REMOTE); 
-        }
-    } else if (remote_state == DRIVE_REMOTE) {
+    if (remote_state == DRIVE_REMOTE) {
         // When driving, continuously send joystick values
         requestSpiTransmit_remote(DRIVE_MSG_DS_RECEIVED, curr_val, NULL); // drive/surface (up/down)
     }
@@ -120,14 +134,16 @@ int init_joysticks(void) {
 /*
  * Returns joystick x value
  */
-uint16_t get_joystick_x (void) {
-    return joystick[0];
+uint16_t get_joystick_x (int prev_val) {
+    uint16_t processed_val = analog_filter(prev_val, joystick[0], 0.3 /* alpha */);
+    return processed_val;
 }
 /*
  * Returns joystick y value
  */
-uint16_t get_joystick_y (void) {
-    return joystick[1];
+uint16_t get_joystick_y (int prev_val) {
+    uint16_t processed_val = analog_filter(prev_val, joystick[1], 0.3 /* alpha */);
+    return processed_val;
 }
 
 /*
@@ -137,17 +153,15 @@ void read_joysticks (void) {
     static uint16_t prev_joy_x = 0;
     static uint16_t prev_joy_y = 0;
     // Read joystick values
-    uint16_t joy_x = get_joystick_x();
-    uint16_t joy_y = get_joystick_y();
+    uint16_t joy_x = get_joystick_x(prev_joy_x);
+    uint16_t joy_y = get_joystick_y(prev_joy_y);
 
-    int diff_x = abs(joy_x - prev_joy_x);
-    int diff_y = abs(prev_joy_y - joy_y);
+    // printf("Joy_x = %d | Joy_y = %d\n", joy_x, joy_y);
 
-    // If in welcome state and joysticks are triggered, then go to drive state
+    // If in welcome state and joysticks are within a range, then go to drive state
     if (remote_state == WELCOME_REMOTE){
-        if (prev_joy_x != 0 && 
-          ((diff_x > JOYSTICK_TRIGGER_TOL) || 
-           (diff_y > JOYSTICK_TRIGGER_TOL))) {
+        if ((joy_x <= 5) || (joy_x >= MAX_JOY_VAL) ||
+            (joy_y <= 5) || (joy_y >= MAX_JOY_VAL)) {
             // Go Welcome -> Drive
             sched_event(DRIVE_REMOTE); 
         }
@@ -157,9 +171,6 @@ void read_joysticks (void) {
         requestSpiTransmit_remote(DRIVE_MSG_FB_RECEIVED, joy_y, NULL); // forward/back
     }
 
-    // printf("JOY X CHANGED: %d vs. %d = %d\n", joy_x, prev_joy_x,diff_x );
-    // printf("JOY Y CHANGED: %d vs. %d = %d\n", joy_y, prev_joy_y, diff_y);
-    
     // Set previous values
     prev_joy_x = joy_x;
     prev_joy_y = joy_y;
