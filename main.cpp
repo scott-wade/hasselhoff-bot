@@ -1,5 +1,5 @@
 #include "motor_controller.h"
-#define WHICH_NUCLEO 100 //change for compilation, 0 for remote, 1 for submarine, 2 for debug remote, 3 for debug sub3, 94 for NZ debugging
+#define WHICH_NUCLEO 94 //change for compilation, 0 for remote, 1 for submarine, 2 for debug remote, 3 for debug sub3, 94 for NZ debugging
 
 #include <cstdint>
 #include "main.h"
@@ -65,7 +65,7 @@ int main(void){
         /* initialization */
         // initialize the sub clock
         initSubClock();
-        // initialize my gpio for debugging
+
         // initalize a queue and timeout array (utility and debugging)
         
         /* loop */

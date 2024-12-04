@@ -29,7 +29,7 @@
   /* 
     Initialize Motor Hardware and Run Propulsion Self test  
   */
-  void initMotorHardware()
+  void initMotorHardware(void)
   {
       initMotorGPIOs();
       initMotorTimers();
@@ -39,7 +39,7 @@
   /* 
     Initialize Motor GPIOs to relay PWM signals 
   */
-  void initMotorGPIOs()
+  void initMotorGPIOs(void)
   {
       /* Initialize Each Prop Pin GPIO into ALT FN 2 */
       initGPIOasMode(BALLAST_CW_PROP_PIN[0], BALLAST_CW_PROP_PIN[1], 2, 0, 0, 0, 2);
@@ -52,7 +52,7 @@
   /* 
     Initialize Motor Timers and PWM on each channel 
   */
-  void initMotorTimers()
+  void initMotorTimers(void)
   {
       // All APB1 clocks run at 90MHz
       // ApisQueen wants the PWM signal period to be 2ms i.e., 500Hz
@@ -78,7 +78,7 @@
     Run Propulsion self test
     Set 75% duty cycle on all motors and sleep for a second 
   */
-  void runPropulsionSelfTest()
+  void runPropulsionSelfTest(void)
   {
       
       setDutyCycle(MOTOR_TIMER, BALLAST_CW_PROP_CH, IDLE_DUTY_CYCLE);

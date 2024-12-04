@@ -41,7 +41,9 @@ extern "C"
 
 
 /*Function definitions---------------------------------------------------------*/
-
+void initPressureSensor(void);
+void validateSensorInitMsg(void);
+void measurePressure(void);
 
 #ifdef __cplusplus
 }

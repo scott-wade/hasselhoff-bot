@@ -5,10 +5,10 @@
  extern "C" {
 #endif
 
-void initMotorHardware();
-void initMotorGPIOs();
-void initMotorTimers();
-void runPropulsionSelfTest(); 
+void initMotorHardware(void);
+void initMotorGPIOs(void);
+void initMotorTimers(void);
+void runPropulsionSelfTest(void); 
 void propulsionControl(float x_input, float y_input);
 void ballastControl(float target_depth);
 

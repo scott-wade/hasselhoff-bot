@@ -14,6 +14,7 @@
 
 /* MACRO definitions----------------------------------------------------------*/
 #define IF_CTRL                 0x0E
+#define WHO_AM_I_REG            0x0F
 #define CTRL_REG1               0x10
 #define CTRL_REG2               0x11
 #define CTRL_REG3               0x12
@@ -37,84 +38,108 @@
 #define SIM                     0b0
 // CTRL REG2 FLAGS
 #define LOW_NOISE_EN            0b1 << 1
+#define ID_FLAG                 0b10110011  // flag that is stored at the "who am I" register
+
+#define DEPTH_TX_BUFFER         (uint8_t)0  // just a buffer of zeroes to fill out transmission messages during read requests
 
 /* Declarations ----------------------------------------------------------*/
-static uint8_t highPressureReg;
-static uint8_t lowPressureReg;
-static uint8_t xlowPressureReg;
+
 
 /* Functions. ----------------------------------------------------------*/
 // function initializes the LPS27 sensor
 // keep FIFO control reg at zero (ie FIFO off)
-// also by default will increment the register address
-void initLPS27Hardware(void){
+// also by default will increment the register address (but let's not worry about the multi byte messages)
+uint16_t initLPS27HardwareMsg1(void){
     uint8_t txMsg;
     uint8_t txHeader;
-
+    uint16_t overallMsg;
     // setup the CTRL_REG1
     txHeader = WRITE | CTRL_REG1;
     txMsg = DATA_RATE | EN_LPFP | LPFP_CFG | BDU | SIM;
     // send a transmission
+    overallMsg = txHeader << 8 | txMsg;
 
+    return overallMsg;
+}
+
+uint16_t initLPS27HardwareMsg2(void){
+    uint8_t txMsg;
+    uint8_t txHeader;
+    uint16_t overallMsg;    
     // setup the CTRL_REG2
     txHeader = WRITE | CTRL_REG2;
     txMsg = LOW_NOISE_EN;
     // send a transmission
-    
-    // sensor also requires ~4.5 ms after power up to initialize
+    overallMsg = txHeader << 8 | txMsg;
 
-    // could do a "who am I" check as a initialization test
+    return overallMsg;
+}
+
+// sensor also requires ~4.5 ms after power up to initialize
+// could do a "who am I" check as a initialization test
+uint16_t whoAmILPS27Msg(void) {
+    uint8_t txMsg;
+    uint8_t txHeader;
+    uint16_t overallMsg; 
+
+    // setup message to the who am I register
+    txHeader = READ | WHO_AM_I_REG;
+    txMsg = DEPTH_TX_BUFFER;    
+    overallMsg = txHeader << 8 | txMsg;
+    return overallMsg;
+}
+
+int verifyWhoAmI(uint8_t checkReading)
+{
+    return checkReading == ID_FLAG;
 }
 
 // function calculate the pressure given the three sensor addresses
-double calcPressure(void)
+double calcPressure(uint32_t* highPressureVal, uint32_t* lowPressureVal, uint32_t* xLowPressureVal)
 {
     // little different from their datasheet, but logically I believe this is what they mean
     // yields pressure in hPa
-    return (highPressureReg << 16 | lowPressureReg << 8 | xlowPressureReg)/4096.;
+    return (*highPressureVal << 16 | *lowPressureVal << 8 | *xLowPressureVal)/4096.;
 }
 
 /* SPI Setup / Transaction Helpers ---------------------------------------*/
 
 // function sets up an SPI transaction to read data from high pressure reg
-void initHighPressureTransaction(void)
+uint16_t initHighPressureTransaction(void)
 {
+    uint16_t overallMsg;
     // build the addressing / header line: R + Pressure out
     uint8_t txHeader = READ | PRESSURE_OUT_H;
-    // call on spi transaction, fill in data with the RXNE interrupt handling
+    uint8_t txMsg = DEPTH_TX_BUFFER;
+    
+    overallMsg = txHeader << 8 | txMsg;
+    return overallMsg;
 }
 
-// store in here in the likely event that the interrupt is serviced elsewhere
-void storeHighPressureReading(uint8_t rxne_reading)
-{
-    highPressureReg = rxne_reading;
-}
 
 // function sets up an SPI transaction to read data from lo pressure reg
-void initLowPressureTransaction(void)
+uint16_t initLowPressureTransaction(void)
 {
+    uint16_t overallMsg;
     // build the addressing / header line: R + pressure low
     uint8_t txHeader = READ | PRESSURE_OUT_L;
-    // call on spi transaction, fill in data with the RXNE interrupt handling
-}
+    uint8_t txMsg = DEPTH_TX_BUFFER;
 
-void storeLowPressureReading(uint8_t rxne_reading)
-{
-    lowPressureReg = rxne_reading;
+    overallMsg = txHeader << 8 | txMsg;
+    return overallMsg;
 }
 
 // function sets up an SPI transaction to read data from lo pressure reg
-void initXtraLowPressureTransaction(void)
+uint16_t initXtraLowPressureTransaction(void)
 {
+    uint16_t overallMsg;
     // build the addressing / header line: R + pressure low
     uint8_t txHeader = READ | PRESSURE_OUT_XL;
+    uint8_t txMsg = DEPTH_TX_BUFFER;
+
+    overallMsg = txHeader << 8 | txMsg;
+    return overallMsg;
     // call on spi transaction, fill in data with the RXNE interrupt handling
 }
-
-void storeXtraLowPressureReading(uint8_t rxne_reading)
-{
-    xlowPressureReg = rxne_reading;
-}
-
 
 

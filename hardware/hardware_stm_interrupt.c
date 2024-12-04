@@ -77,3 +77,45 @@ void enableNVIC_StdTimer(int timer_number)
       default: fprintf(stderr, "Tried to init NVIC with unsupported Timer ID"); break;
     }
 }
+
+void enableEXTI6OnPortC(void)
+{
+    // GPIO config
+    initGPIOasMode(PORT_C, 6, MODE_IN, 0, PUPD_FLOAT, 0, 0); // setup PC6 as input, push pull, floating
+    initGPIOasMode(PORT_B, 0, MODE_OUT, 0, PUPD_DOWN, 1, 0); // setup PB0 (internal LED) as an output, push pull, PD, init high (debug)
+    
+    uint32_t *reg_pointer_32;
+    // to communicate / update SYSCFG address, need to enable APB2
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
+    // set the EXTI Control Register to GPIO of interest
+    // in this case, set EXTI_CR2 EXTI6 bits to GPIO C (ie PC6)
+    reg_pointer_32 = (uint32_t *)SYSCFG_EXTERNAL_INTERRUPT_REGISTER_2;
+    *reg_pointer_32 = *reg_pointer_32 & (~SYSCFG_EXTERNAL_INTERRUPT_6_BITS);
+    *reg_pointer_32 = *reg_pointer_32 | SYSCFG_EXTERNAL_INTERRUPT_6_PORTC;    
+    // (EXTI config registers also on APB2, don't need to enable a separate bus)
+    // Set mask register to un-mask EXTI6 (bit 6)
+    reg_pointer_32 = (uint32_t *)EXTERNAL_INTERRUPT_CONTROLLER_MASK_REGISTER;
+    *reg_pointer_32 = *reg_pointer_32 | EXTERNAL_INTERRUPT_CONTROLLER_MASK_REGISTER_EXTI6; // don't need to clear since this is 1 bit
+    // EXTI6 trigger to falling edge
+    reg_pointer_32 = (uint32_t *)EXTERNAL_INTERRUPT_CONTROLLER_FTSR;
+    *reg_pointer_32 = *reg_pointer_32 | EXTERNAL_INTERRUPT_CONTROLLER_FTSR_EXTI6;
+    // enable EXTI6 in the NVIC (bit 23)
+    reg_pointer_32 = (uint32_t *)NVIC_INTERRUPT_SET_ENABLE_REGISTER_0_31;
+    *reg_pointer_32 = EXTI9_5_INTERRUPT_BIT; // writing a 0 has no effect, so can hard set this
+}    
+
+void EXTI9_5_IRQHandler(void)
+{
+    uint32_t *reg_pointer_32;
+    reg_pointer_32 = (uint32_t *)EXTERNAL_INTERRUPT_CONTROLLER_PENDING_REGISTER;
+
+    // check which interrupt fired
+    // mask for if its EXTI6
+    if((*reg_pointer_32 & EXTERNAL_INTERRUPT_CONTROLLER_PENDING_EXTI6) > 0)
+    {
+        // clear pending interrupt (by writing a 1)
+        *reg_pointer_32 = EXTERNAL_INTERRUPT_CONTROLLER_PENDING_EXTI6;
+        // toggle PB0 as our action
+        ToggleGPIOOutput(PORT_B, 0);
+    }
+}

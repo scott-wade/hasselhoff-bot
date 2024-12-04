@@ -42,7 +42,7 @@
                     GPIO INITIALIZATION
     mapping port number: 0->A, 1->B, ... 7->H
     mode: 0-input, 1-output, 2-AF
-    open_drain: 0-pupd, 1-open drain
+    open_drain: 0-push pull, 1-open drain
     pupd: 0-floating, 1-pull up, 2-pull down
     init_output: [0,1] initial value if in output mode 
     alt_func: number of alternate function mode
@@ -194,6 +194,20 @@ void SETorCLEARGPIOpins(int port_numbers[], int pin_numbers[], int set_flags[], 
     for(int i=0; i<num_pins; i++) {
         SETorCLEARGPIOoutput(port_numbers[i], pin_numbers[i], set_flags[i]); 
     }
+}
+
+void ToggleGPIOOutput(int port_number, int pin_number)
+{    
+    // if the pin is hi, then clear it
+    if(readGPIOoutput(port_number, pin_number))
+    {
+        SETorCLEARGPIOoutput(port_number, pin_number, 0);
+    }
+    // otherwise set it high
+    else
+    {
+        SETorCLEARGPIOoutput(port_number, pin_number, 1);
+    }    
 }
 
 /* *******************************************************************************

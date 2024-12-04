@@ -30,6 +30,7 @@
 void enableSPI1Interrupt(void);
 void enableSPI4Interrupt(void);
 void enableNVIC_StdTimer(int timer_number);
+void enableEXTI6OnPortC(void);
 
 
 #ifdef __cplusplus

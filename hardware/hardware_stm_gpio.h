@@ -57,6 +57,7 @@ void initGPIOasMode(uint8_t port_number, uint8_t pin_number, uint8_t mode, uint8
 // SET, CLEAR and READ functions
 void SETorCLEARGPIOoutput(int port_number, int pin_number, int set);
 void SETorCLEARGPIOpins(int port_numbers[], int pin_numbers[], int set_flags[], int num_pins);
+void ToggleGPIOOutput(int port_number, int pin_number);
 int readGPIOinput(int port_number, int pin_number);
 int readGPIOoutput(int port_number, int pin_number);
 void initGPIOasAnalog(int port_number, int pin_number);
