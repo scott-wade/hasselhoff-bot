@@ -9,7 +9,9 @@
   */
 
 
+#include "packet.h"
 #include "spi_queue.h"
+#include "queue.h"
 #include "state_machine_sub.h"
 #include "../hardware/hardware_stm_spi.h"
 #include "../hardware/hardware_stm_gpio.h"
@@ -19,19 +21,18 @@
 #include "state_machine_SPI.h"
 
 // macros
-#define ACK_PACKET (uint8_t)(2)
+#define ACK_PACKET (uint8_t)(0b10101010)
 #define CLOCK_TIMER 5
 
 // global variables for state machine
 Queue* SPI_COMMS_EVENT_QUEUE;
 Queue* SPI_SENSOR_EVENT_QUEUE;
 transmitEvent CURRENT_COMMS_TRANSMIT_EVENT;
-
 transmitEvent CURRENT_SENSOR_TRANSMIT_EVENT;
 Queue* SPI_COMMS_RECIEVED_QUEUE;
 Queue* SPI_SENSOR_RECIEVED_QUEUE;
-uint8_t SPI_COMMS_STATE = 0; // 0 for IDLE, i for CSi
-uint8_t SPI_SENSOR_STATE = 0; // 0 for IDLE, i for CSi
+uint8_t SPI_COMMS_STATE = 99; // 99 for IDLE, i for CSi
+uint8_t SPI_SENSOR_STATE = 99; // 99 for IDLE, i for CSi
 
 
 void init_state_machine_spi(Spi_State_Machine_t spi_type){
@@ -114,7 +115,7 @@ void event_handler_spi(Spi_State_Machine_t spi_type){
         default: printf(stderr, "Unsupported/incorrect SPI Machine type"); break;
     }
 
-    if((!isEmpty(currentEvent.txQueue)) && (state == 0)){// begin transmission
+    if((!isEmpty(currentEvent.txQueue)) && (state == 99)){// begin transmission
         // state transition
         if (currentEvent.child_id > 3){
             fprintf(stderr, "Requested unsupported SPI child %u\n", currentEvent.child_id);
@@ -143,7 +144,7 @@ void event_handler_spi(Spi_State_Machine_t spi_type){
 }
 
 
-void requestSpiTransmit(Spi_State_Machine_t spi_type, uint8_t child_id, uint16_t packet, uint32_t* read_var_addr){
+void requestSpiTransmit(Spi_State_Machine_t spi_type, uint8_t child_id, uint16_t packet, uint8_t* read_var_addr){
     /* Applications will call this function to start a single SPI transaction */
     //printf("requesting spi transmission\n");
 
@@ -162,6 +163,21 @@ void requestSpiTransmit(Spi_State_Machine_t spi_type, uint8_t child_id, uint16_t
     
 }
 
+sub_event_type_t packetToSubEvent(packet_type_t msg_type){
+    /* Convert packet headers to submarine event types*/
+    sub_event_type_t subReceivedEvent;
+    switch (msg_type){
+        case RESET_MSG: subReceivedEvent = RESET_MSG_RECEIVED; break;
+        case DRIVE_FB_MSG: subReceivedEvent = DRIVE_MSG_FB_RECEIVED; break;
+        case DRIVE_LR_MSG: subReceivedEvent = DRIVE_MSG_LR_RECEIVED; break;
+        case DRIVE_DS_MSG: subReceivedEvent = DRIVE_MSG_DS_RECEIVED; break;
+        case LAND_MSG: subReceivedEvent = LAND_MSG_RECEIVED; break;
+        case STATUS_REQ_MSG: subReceivedEvent = IR_REQUEST_RECEIVED; break;
+        default: printf(stderr, "Invalid packet header"); break;
+    }
+
+    return subReceivedEvent;
+}
 
 void spiInterruptHandler(uint8_t spi_id){
     // handle TXE=1 and RXNE=1 interrupts
@@ -191,23 +207,34 @@ void spiInterruptHandler(uint8_t spi_id){
     // check recieve event first
     if ((current_status_register & RXNE_MASK) > 0){
 
-        if (*stateptr == 0){// if state == IDLE
-            //readRX() and set according event flags
+        if (*stateptr == 99){// if state == IDLE
+            //readRX() and enqueue according event to the submarine queue
             uint16_t recievedData = readRX(spi_id);
             uint8_t first8bits = *((uint8_t*)&(recievedData)+1);
             uint8_t last8bits = *((uint8_t*)&(recievedData)+0);
-            enqueue(receivedQueue, &first8bits);
-            enqueue(receivedQueue, &last8bits);
+            // construct the sub state machine event
+            sub_events_t receivedEvent;
+            receivedEvent.type = packetToSubEvent((packet_type_t)first8bits);
+            receivedEvent.data = last8bits;
 
-            //TODO implement the event flag setting according to Sidney's state machine
+            // insert the event to the sub state machine event queue
+            insert_to_simple_queue(receivedEvent);
 
-            //writeTX(acknowledgement packet)"
-            writeTX(spi_id, ACK_PACKET);
+            // if incoming msg is a status request, write the status
+            if (receivedEvent.type == STATUS_REQ_MSG){
+                writeTX(spi_id, SUBMARINE_CURRENT_STATUS_MSG);
+            }
+            else{
+                // otherwise, write an ack. packet
+                writeTX(spi_id, ACK_PACKET);
+            }
+            
 
-        }else{// if state not IDLE
-            // RecieveQueue.append(readRX())
+        }else{// if currently transmitting
+            // write received data to the read_var_addr of the current transmission event
             uint8_t recievedData = (uint8_t)readRX(spi_id);
-            enqueue(receivedQueue, &recievedData);
+            *(CURRENT_COMMS_TRANSMIT_EVENT.read_var_addr) = recievedData;
+
             if (isEmpty(transmitQueue)){// If transmitQueue.empty:
                 // deactivate (set high) all cs pins
                 if(spi_id == 4){
@@ -216,9 +243,10 @@ void spiInterruptHandler(uint8_t spi_id){
                     }
                 }
                 // Transition to IDLE
-                *stateptr = 0;
+                *stateptr = 99;
                 // TODO Stop timeout timer
-            }            
+            }
+            printf("Processed confirmation with recieved data: %u", recievedData);
         }
         
     }
@@ -226,11 +254,11 @@ void spiInterruptHandler(uint8_t spi_id){
 
     // if transmit event
     if ((current_status_register & TXE_MASK) > 0){
-        // printf("Handling TXE interrupt\n");
-        if (*stateptr == 0){ // if state == IDLE
+        printf("Handling TXE interrupt\n");
+        if (*stateptr == 99){ // if state == IDLE
             // disable Spi TXE Interrupts(SPI id)
             disableSpiTXEInterrupts(spi_id);
-        }else if (*stateptr > 0){// if state == TXi
+        }else if (*stateptr < 10){// if state == TXi
             // TODO Start Timeout timer
             if (!isEmpty(transmitQueue)){// If TransmitQueue not empty:
                 uint16_t packet = *(uint16_t*)dequeue(transmitQueue);
@@ -260,41 +288,20 @@ void SPI4_IRQHandler(void){
 }
 
 
-int spi_msg_to_header (event_type_t msg_type) {
-    // Convert the message types to the bits
-    switch(msg_type) {
-        case RESET_MSG_RECEIVED: // reset message
-            return 1;
-        case DRIVE_MSG_FB_RECEIVED: // forward/backwards drive command
-            return 2;
-        case DRIVE_MSG_LR_RECEIVED: // left/right drive command
-            return 3;
-        case DRIVE_MSG_DS_RECEIVED: // dive/surface drive command
-            return 4;
-        case LAND_MSG_RECEIVED: // land msg
-            return 5;
-        case IR_REQUEST_RECEIVED:  // IR status request msg
-            return 6;
-        default:
-            return -1;
-    }
-}
-
-
 /** Wrapper function for remote to call requestSpiTransmit()
  * @param msg_type: type of the message
  * @param packet: data to sent
  * @param read_var_addr: address to store the return value (only for messages that have a response)
  */
-void requestSpiTransmit_remote(event_type_t msg_type, uint8_t data, uint32_t* read_var_addr) {
+void requestSpiTransmit_remote(packet_type_t msg_type, uint8_t data, uint8_t* read_var_addr) {
     // void requestSpiTransmit(Spi_State_Machine_t spi_type, uint8_t child_id, 
     //                         uint16_t packet, uint32_t* read_var_addr);
 
-    uint8_t header = spi_msg_to_header(msg_type);
+    uint8_t header = (uint8_t)msg_type;
 
     // Packet is first 8 bits is message type and last 8 bits is the data
     uint16_t packet = (header << 8) | data;
 
-    // requestSpiTransmit(NUCLEO_PARENT, 0 /* child_id */, packet, read_var_addr);
+    requestSpiTransmit(NUCLEO_PARENT, 0, packet, read_var_addr);
 }
 

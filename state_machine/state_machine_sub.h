@@ -19,11 +19,11 @@ typedef enum  {
     RESET_MSG_RECEIVED,        // reset message
     IR_REQUEST_RECEIVED,       // IR status request msg
     SENSOR_POLLING_TIMEOUT     // Timeout for polling sensors
-} event_type_t;
+} sub_event_type_t;
 
 typedef struct {
     uint8_t type;
-    uint16_t value;
+    uint16_t data;
 } sub_events_t;
 
 typedef enum {
@@ -38,6 +38,8 @@ typedef struct {
     sub_states_t state;
     uint8_t initialised;
     uint8_t beam_detected;
+    uint8_t lr_command_stash;
+    uint8_t ds_command_stash;
 } sub_t;
 
 
@@ -49,6 +51,9 @@ void init_sub(void);
 void init_timer(void);
 void init_gpio(void);
 void event_handler_sub();
+
+// debug init funciton 
+void init_sub_debugging(sub_states_t testState, uint8_t testBeam);
 
 
 

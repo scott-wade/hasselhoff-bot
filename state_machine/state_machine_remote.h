@@ -48,7 +48,7 @@ struct queue_remote_t {
 /* Global variables --------------------------------------------------------*/
 
 extern remote_event_t remote_state;
-extern uint32_t sub_status;
+extern uint8_t sub_status;
 
 /* MACROS for everyone--------------------------------------------------------*/
 

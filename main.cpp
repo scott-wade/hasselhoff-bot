@@ -1,4 +1,5 @@
-#define WHICH_NUCLEO 0 //change for compilation, 0 for remote, 1 for submarine, 2 for debug remote, 3 for debug sub3, 94 for NZ debugging
+#define WHICH_NUCLEO 3 //change for compilation, 0 for remote, 1 for submarine, 2 for debug remote, 3 for debug sub3, 94 for NZ debugging
+
 
 #include <cstdint>
 #include "main.h"
@@ -48,25 +49,17 @@ int main(void){
 
     }else if(WHICH_NUCLEO == 2){
         /* DEBUGGING CODE PARENT */
-        //testB0Set();
-        //testB0Clear();
-        //testReadWriteRegOpMode();
-        //testSPIStateMachine();
         testNucleoTransmitting(NUCLEO_PARENT);
 
     }else if(WHICH_NUCLEO == 3){
         /* DEBUGGING CODE CHILD */
-        //testB0Set();
-        //testB0Clear();
-        //testReadWriteRegOpMode();
-        //testSPIStateMachine();
         testNucleoReceiving(NUCLEO_CHILD);
 
     }else if (WHICH_NUCLEO == 94){
         /* initialization */
         // initialize the sub clock
         initSubClock();
-        // initialize my gpio for debugging
+
         // initalize a queue and timeout array (utility and debugging)
         
         /* loop */
@@ -75,6 +68,5 @@ int main(void){
             // check on the timeouts
         }
     }
-
 
 }

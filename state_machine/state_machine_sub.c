@@ -12,16 +12,35 @@
 #include "state_machine_sub.h"
 #include "globals.h"
 #include "stdio.h"
-
+#include "../applications/packet.h"
 
 // define global subState
-sub_t subState = { .state = IDLE, .initialised = 0, .beam_detected = 0};
+sub_t subState = { .state = IDLE, .initialised = 0, 
+                .beam_detected = 0, .lr_command_stash = 0, 
+                .ds_command_stash = 0
+                };
+
+// define global sub state message
+uint8_t SUBMARINE_CURRENT_STATUS_MSG;
 
 void init_sub(void){
     /* Initialize sub state machine */ 
     subState.state = IDLE;
     subState.initialised = 0;
     subState.beam_detected = 0;
+    subState.lr_command_stash = 0;
+    subState.ds_command_stash = 0;
+    SUBMARINE_CURRENT_STATUS_MSG = subStateToSubStatusMsg(subState);
+}
+
+void init_sub_debugging(sub_states_t testState, uint8_t testBeam){
+    /* Initialize sub state machine */ 
+    subState.state = testState;
+    subState.initialised = 0;
+    subState.beam_detected = testBeam;
+    subState.lr_command_stash = 0;
+    subState.ds_command_stash = 0;
+    SUBMARINE_CURRENT_STATUS_MSG = subStateToSubStatusMsg(subState);
 }
 
 
