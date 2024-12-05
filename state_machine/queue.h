@@ -39,4 +39,3 @@ typedef struct {
 
 void init_simple_queue(device_enum device);
 void insert_to_simple_queue(sub_events_t event);
-void insert_queue(void);
