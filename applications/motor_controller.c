@@ -47,6 +47,12 @@
       initGPIOasMode(PROPULSION_CW_PROP_PIN[0], PROPULSION_CW_PROP_PIN[1], 2, 0, 0, 0, 2);
       initGPIOasMode(PROPULSION_CCW_PROP_PIN[0], PROPULSION_CCW_PROP_PIN[1], 2, 0, 0, 0, 2);
 
+      /* Initialize Grounds for each of these GPIOs */
+      initGPIOasMode(BALLAST_CW_PROP_GND[0], BALLAST_CW_PROP_GND[1], 0, 0, 2, 0, 0);
+      //initGPIOasMode(BALLAST_CCW_PROP_PIN[0], BALLAST_CCW_PROP_PIN[1], 2, 0, 0, 0, 2); // Ballast CCW is already tied to gnd
+     initGPIOasMode(PROPULSION_CW_PROP_GND[0], PROPULSION_CW_PROP_GND[1], 0, 0, 2, 0, 0);
+     initGPIOasMode(PROPULSION_CCW_PROP_GND[0], PROPULSION_CCW_PROP_GND[1], 0, 0, 2, 0, 0);
+
   }
   
   /* 
