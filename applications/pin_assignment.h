@@ -10,11 +10,11 @@
 
   /* MOTOR PWM PIN ASSIGNMENTS */
   #define BALLAST_CW_PROP_PIN (int[]){3,12} // GPIO D12
-  #define BALLAST_CW_PROP_GND (int[]){3,3} // GPIO D3
+  #define BALLAST_CW_PROP_GND (int[]){4,7} // Counterpart of D12 is already tied to GND (setting same pin as D13 counterpart)
   #define BALLAST_CCW_PROP_PIN (int[]){3,13} // GPIO D13
-  #define BALLAST_CCW_PROP_GND (int[]){-1,-1} // Counterpart of D13 is already tied to GND
+  #define BALLAST_CCW_PROP_GND (int[]){4,7} // GPIO E7
   #define PROPULSION_CW_PROP_PIN (int[]){3,14} // GPIO D14
-  #define PROPULSION_CW_PROP_GND (int[]){1,3) // GPIO B3
+  #define PROPULSION_CW_PROP_GND (int[]){1,3} // GPIO B3
   #define PROPULSION_CCW_PROP_PIN (int[]){3,15} // GPIO D15
   #define PROPULSION_CCW_PROP_GND (int[]){0,4} // GPIO A4
   
