@@ -17,6 +17,7 @@
 #include "timer_queue_remote.h"
 #include "hardware_stm_adc.h"
 #include "state_machine_SPI.h"
+#include "../applications/packet.h"
 
 /* Constants */
 
@@ -38,7 +39,7 @@ struct queue_remote_t queue = {
     .size = 0
 };
 remote_event_t remote_state = INIT_REMOTE; // Global variable of remote's current state
-uint32_t sub_status = 0; // Sub's status
+uint8_t sub_status = 0; // Sub's status
 /* End Global Variables ---------------------------------------------------------*/
 
 
@@ -169,7 +170,7 @@ void tasks(remote_event_t event){
             add_timer(READ_JOYSTICKS_PERIOD_MS, READ_JOYSTICKS); // Add event back on queue as a periodic task
             break;
         case POLL_SUB_STATUS:
-            requestSpiTransmit_remote(IR_REQUEST_RECEIVED, 0, &sub_status);
+            requestSpiTransmit_remote(STATUS_REQ_MSG, 0, &sub_status);
             add_timer(READ_SUB_STATUS_DELAY_MS, READ_SUB_STATUS); // Read status after some delay
             break;
         case READ_SUB_STATUS:

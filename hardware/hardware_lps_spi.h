@@ -43,7 +43,7 @@ extern "C"
 /*Function definitions---------------------------------------------------------*/
 uint16_t initLPS27HardwareMsg1(void);
 uint16_t initLPS27HardwareMsg2(void);
-double calcPressure(uint32_t* highPressureVal, uint32_t* lowPressureVal, uint32_t* xLowPressureVal);
+double calcPressure(uint32_t highPressureVal, uint32_t lowPressureVal, uint32_t xLowPressureVal);
 uint16_t whoAmILPS27Msg(void);
 int verifyWhoAmI(uint8_t checkReading);
 uint16_t initHighPressureTransaction(void);

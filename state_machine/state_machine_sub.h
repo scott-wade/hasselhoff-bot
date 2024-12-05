@@ -52,6 +52,9 @@ void init_timer(void);
 void init_gpio(void);
 void event_handler_sub();
 
+// debug init funciton 
+void init_sub_debugging(sub_states_t testState, uint8_t testBeam);
+
 
 
 #ifdef __cplusplus
