@@ -27,15 +27,13 @@ typedef struct {
     sub_events_t events[MAX_ELEMENTS];
     uint8_t size;
     uint8_t insert_indx;
-    uint8_t process_indx;
+    uint8_t remove_indx;
     device_enum device;
 } simple_queue_t;
 
-// void init_queue(queue_t *queue);
-// void pop(queue_t *queue, queue_element_t *element);
-// void push(queue_t *queue, queue_element_t *element);
-// void remove_from_queue(queue_t *queue, queue_element_t *element);
-// void clear(queue_t *queue);
-
 void init_simple_queue(device_enum device);
 void insert_to_simple_queue(sub_events_t event);
+sub_events_t pop_from_simple_queue(void);
+
+uint8_t isempty_simple_queue(void);
+uint8_t isfull_simple_queue(void);
