@@ -427,7 +427,7 @@ int countdown_timer (void) {
         sched_event(WELCOME_REMOTE);
         remote_state = WELCOME_REMOTE;
         // Notify sub about timeout
-        requestSpiTransmit_remote(RESET_MSG_RECEIVED, 0, NULL); // send reset message
+        requestSpiTransmit_remote(RESET_MSG, 0, NULL); // send reset message
     } else {
         // Negative numbers is game over and leds will flash on and off
         if (count%2 == 0) {

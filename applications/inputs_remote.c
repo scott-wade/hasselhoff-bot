@@ -80,7 +80,7 @@ void read_target_depth (void) {
 
     if (remote_state == DRIVE_REMOTE) {
         // When driving, continuously send joystick values
-        requestSpiTransmit_remote(DRIVE_MSG_DS_RECEIVED, curr_val, NULL); // drive/surface (up/down)
+        requestSpiTransmit_remote(DRIVE_DS_MSG, curr_val, NULL); // drive/surface (up/down)
     }
 
     // Update LED display with depth value
@@ -167,8 +167,8 @@ void read_joysticks (void) {
         }
     } else if (remote_state == DRIVE_REMOTE) {
         // When driving, continuously send joystick values
-        requestSpiTransmit_remote(DRIVE_MSG_LR_RECEIVED, joy_x, NULL); // left/right
-        requestSpiTransmit_remote(DRIVE_MSG_FB_RECEIVED, joy_y, NULL); // forward/back
+        requestSpiTransmit_remote(DRIVE_LR_MSG, joy_x, NULL); // left/right
+        requestSpiTransmit_remote(DRIVE_FB_MSG, joy_y, NULL); // forward/back
     }
 
     // Set previous values

@@ -51,7 +51,7 @@ void init_remote(void){
     init_target_depth_knob();
     init_joysticks();
     init_seg_display();
-    // init_state_machine_spi(NUCLEO_PARENT); // parent = remote
+    init_state_machine_spi(NUCLEO_PARENT); // parent = remote
     // Init status LEDs /////////////////////////
     set_rgb_green_led(); // Power LED
 }
