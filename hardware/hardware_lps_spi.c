@@ -95,11 +95,11 @@ int verifyWhoAmI(uint8_t checkReading)
 }
 
 // function calculate the pressure given the three sensor addresses
-double calcPressure(uint32_t* highPressureVal, uint32_t* lowPressureVal, uint32_t* xLowPressureVal)
+double calcPressure(uint32_t highPressureVal, uint32_t lowPressureVal, uint32_t xLowPressureVal)
 {
     // little different from their datasheet, but logically I believe this is what they mean
     // yields pressure in hPa
-    return (*highPressureVal << 16 | *lowPressureVal << 8 | *xLowPressureVal)/4096.;
+    return (double)(highPressureVal << 16 | lowPressureVal << 8 | xLowPressureVal)/4096.;
 }
 
 /* SPI Setup / Transaction Helpers ---------------------------------------*/

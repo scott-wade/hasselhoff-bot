@@ -11,6 +11,7 @@
 #include "queue.h"
 #include "main.h"
 #include "spi_queue.h"
+#include "../applications/packet.h"
 
 /* True global variables */
 extern Queue* SPI_COMMS_RECIEVED_QUEUE;
@@ -23,22 +24,24 @@ extern Queue* SPI_SENSOR_RECIEVED_QUEUE;
 typedef struct{
     uint8_t child_id; //SPI ID
     Queue* txQueue;
-    uint32_t* read_var_addr;
+    uint8_t* read_var_addr;
 } transmitEvent;
 
 typedef enum{
-    NUCLEO_PARENT,
+    NUCLEO_PARENT, // The remote
     NUCLEO_CHILD,
     SENSOR_PARENT
 } Spi_State_Machine_t;
+
 
 #define REMOTE_SPI_CHILD_ID 0
 
 /*Function definitions---------------------------------------------------------*/
 void init_state_machine_spi(Spi_State_Machine_t);
 void event_handler_spi(Spi_State_Machine_t spi_type);
-void requestSpiTransmit(uint8_t child_id, uint16_t packet, uint32_t* read_var_addr);
-
+void requestSpiTransmit(Spi_State_Machine_t spi_type, uint8_t child_id, 
+    uint16_t packet, uint8_t* read_var_addr);
+void requestSpiTransmit_remote(packet_type_t msg_type, uint8_t data, uint8_t* read_var_addr);
 
 
 #ifdef __cplusplus

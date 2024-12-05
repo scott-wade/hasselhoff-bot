@@ -21,11 +21,11 @@
 /* Declarations ----------------------------------------------------------*/
 static double resultantPressure;
 static double currentDepth;
-static uint32_t readingBuffer;
+static uint8_t readingBuffer;
 
-static uint32_t highPressureReg;
-static uint32_t lowPressureReg;
-static uint32_t xlowPressureReg;
+static uint8_t highPressureReg;
+static uint8_t lowPressureReg;
+static uint8_t xlowPressureReg;
 
 /* Functions. ----------------------------------------------------------*/
 // initialization of pressure sensor
@@ -35,10 +35,10 @@ void initPressureSensor(void)
     // ^probably better managed by the SPI initialization
 
     // use hardware level functions to generate messages for intializing
-    requestSpiTransmit(DEPTH_SENSOR_ID, initLPS27HardwareMsg1(), &readingBuffer);
-    requestSpiTransmit(DEPTH_SENSOR_ID, initLPS27HardwareMsg2(), &readingBuffer);
+    requestSpiTransmit(SENSOR_PARENT, DEPTH_SENSOR_ID, initLPS27HardwareMsg1(), &readingBuffer);
+    requestSpiTransmit(SENSOR_PARENT, DEPTH_SENSOR_ID, initLPS27HardwareMsg2(), &readingBuffer);
     // issue a reading request for the who am I register as a final check
-    requestSpiTransmit(DEPTH_SENSOR_ID, whoAmILPS27Msg(), &readingBuffer);
+    requestSpiTransmit(SENSOR_PARENT, DEPTH_SENSOR_ID, whoAmILPS27Msg(), &readingBuffer);
 }
 
 // call this function from the spi state machine level once the initializing receipts are complete
@@ -57,14 +57,14 @@ void validateSensorInitMsg(void)
 void measurePressure(void)
 {
     // call from the SPI state machine to kick off the chain of pressure readings
-    requestSpiTransmit(DEPTH_SENSOR_ID, initHighPressureTransaction(), &highPressureReg);
-    requestSpiTransmit(DEPTH_SENSOR_ID, initLowPressureTransaction(), &lowPressureReg);
-    requestSpiTransmit(DEPTH_SENSOR_ID, initXtraLowPressureTransaction(), &xlowPressureReg);
+    requestSpiTransmit(SENSOR_PARENT, DEPTH_SENSOR_ID, initHighPressureTransaction(), &highPressureReg);
+    requestSpiTransmit(SENSOR_PARENT, DEPTH_SENSOR_ID, initLowPressureTransaction(), &lowPressureReg);
+    requestSpiTransmit(SENSOR_PARENT, DEPTH_SENSOR_ID, initXtraLowPressureTransaction(), &xlowPressureReg);
 }
 
 double getPressure(void)
 {
-    resultantPressure = calcPressure(&highPressureReg, &lowPressureReg, &xlowPressureReg);
+    resultantPressure = calcPressure(highPressureReg, lowPressureReg, xlowPressureReg);
     return resultantPressure;
 }
 

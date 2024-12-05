@@ -15,6 +15,8 @@
 #include "../debug_mort.h"
 #include "../state_machine/spi_queue.h"
 #include <cstdint>
+#include "../state_machine/state_machine_sub.h"
+#include "../applications/packet.h"
 
 
 void testReadRegOpMode(void){
@@ -113,7 +115,7 @@ void testSPIStateMachine(void){
     printf("packet: %u\n", packet);
 
     // var to read from spi to
-    uint32_t spi_rx = 0;
+    uint8_t spi_rx = 0;
 
     // run state machine
     int delaything = 0;
@@ -122,7 +124,7 @@ void testSPIStateMachine(void){
         event_handler_spi(NUCLEO_PARENT);
         delaything = delaything + 1;
         if(delaything == 100000){
-            requestSpiTransmit(1, packet, &spi_rx);
+            requestSpiTransmit(NUCLEO_PARENT, 1, packet, &spi_rx);
             delaything=0;
         }
         if(spi_rx>0){
@@ -137,7 +139,7 @@ void testSPIQueue(void){
     Queue* testQueue = createQueue(sizeof(transmitEvent));
 
     // create a test event
-    uint32_t returnvalue = 0;
+    uint8_t returnvalue = 0;
     transmitEvent testEvent;
     testEvent.txQueue = createQueue(sizeof(uint8_t));
     testEvent.child_id = 47;
@@ -159,45 +161,47 @@ void testSPIQueue(void){
 
 }
 
-void testNucleoTransmitting(void){
+void testNucleoTransmitting(){
     // send periodic DEBUG packets (header=0xde) with 0xad as the data value
+
     init_state_machine_spi(NUCLEO_PARENT);
     
 
     uint32_t iter = 0;
-    uint32_t read_var = 0;
-    uint32_t read_var_prev = read_var;
-    uint16_t packet = (uint16_t)(0xdead);
+    uint8_t read_var = 99;
+    uint8_t read_var_prev = read_var;
+
     for (int i = 0; i < 100000000; i++){
-        if(iter >= 10000000){
-            requestSpiTransmit(1, packet, &read_var);
-            printf("Requesting Transmission with packet %u\n", packet);
+        printf("Read value: %u", read_var);
+        delay(10);
+        if((iter % 10000000) == 0){
+            requestSpiTransmit_remote(STATUS_REQ_MSG, 0xad, &read_var);
+            printf("Requesting Status Transmission\n");
         }
         event_handler_spi(NUCLEO_PARENT);
-        if(!isEmpty(SPI_COMMS_RECIEVED_QUEUE)){
-            read_var = *(uint16_t*)dequeue(SPI_COMMS_RECIEVED_QUEUE);
-            printf("read var changed from %u to %u \n", read_var_prev, read_var);
-            read_var_prev = read_var;
-        }
+        // if (read_var_prev != read_var){
+        //     printf("Received new read value: %u", read_var);
+        //     read_var_prev = read_var;
+        // }
+        
         iter ++;
     }
 
 }
 
-void testNucleoReceiving(void){
+void testNucleoReceiving(){
+    /* Process sub-side events recieved via SPI */ 
 
     init_state_machine_spi(NUCLEO_CHILD);
+    init_sub_debugging(LANDING, 1);
+
 
     while(1){
         // service spi state machine
         event_handler_spi(NUCLEO_CHILD);
+        event_handler_sub();
 
-        if (!isEmpty(SPI_COMMS_RECIEVED_QUEUE)){// approximation for a recieved msg event handler
-            // dequeue the recieved data
-            uint8_t data = *(uint8_t*)dequeue(SPI_COMMS_RECIEVED_QUEUE);
-            // print it out
-            printf("Recieved data: %u \n", data);
-        }
+
     }
 
 }

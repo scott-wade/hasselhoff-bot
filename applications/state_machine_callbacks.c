@@ -2,9 +2,6 @@
 
 void idle_callback(void)
 {
-    // Send ACK
-    requestSpiTransmit(REMOTE_SPI_CHILD_ID, ACK, NULL);
-    // Child ID, Packet, ADDRESS
     // Transition to Welcome
     subState.state = WELCOME;
 }
@@ -162,12 +159,7 @@ void IR_request_message_in_welcome(void)
 }
 void IR_request_message_in_drive(void)
 {
-    // Send IR state
-    comms_payload_t payload = {
-         .type = IR_RESPONSE, 
-         .payload = subState.beam_detected
-         };
-    requestSpiTransmit(REMOTE_SPI_CHILD_ID, *(uint16_t*) &payload, NULL);
+    return; // Ignore  
 }
 void IR_request_message_in_land(void)
 {
