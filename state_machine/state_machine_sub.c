@@ -61,9 +61,6 @@ void event_handler_sub(){
     }
     printf("Event is: %d\n", current_event.type);
 
-    // Define a static drive message array
-    static float drive_cmd[3];
-
     switch (current_event.type) {
         case DRIVE_MSG_DS_RECEIVED:
             switch(subState.state)
@@ -98,7 +95,7 @@ void event_handler_sub(){
                         break;
                     }
                     case DRIVE: {
-                        subState.lr_command = ;
+                        subState.lr_command = current_event.data;
                         break;
                     }
                     case LANDING: {
