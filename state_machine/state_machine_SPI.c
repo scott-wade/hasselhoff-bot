@@ -89,6 +89,7 @@ void event_handler_spi(Spi_State_Machine_t spi_type){
         case SENSOR_PARENT: // parent on SPI4
             if (!isEmpty(SPI_SENSOR_EVENT_QUEUE)){
                 CURRENT_SENSOR_TRANSMIT_EVENT = *(transmitEvent*)dequeue(SPI_SENSOR_EVENT_QUEUE);
+                printf("Dequeued spi comms event \n");
             }
         break;
         default: printf(stderr, "Unsupported/incorrect SPI Machine type"); break;
