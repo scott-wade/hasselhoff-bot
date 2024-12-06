@@ -47,6 +47,12 @@
       initGPIOasMode(PROPULSION_CW_PROP_PIN[0], PROPULSION_CW_PROP_PIN[1], 2, 0, 0, 0, 2);
       initGPIOasMode(PROPULSION_CCW_PROP_PIN[0], PROPULSION_CCW_PROP_PIN[1], 2, 0, 0, 0, 2);
 
+      /* Initialize Grounds for each of these GPIOs */
+      initGPIOasMode(BALLAST_CW_PROP_GND[0], BALLAST_CW_PROP_GND[1], 0, 0, 2, 0, 0);
+      initGPIOasMode(BALLAST_CCW_PROP_GND[0], BALLAST_CCW_PROP_GND[1], 2, 0, 0, 0, 2); // Ballast CCW is already tied to gnd
+      initGPIOasMode(PROPULSION_CW_PROP_GND[0], PROPULSION_CW_PROP_GND[1], 0, 0, 2, 0, 0);
+      initGPIOasMode(PROPULSION_CCW_PROP_GND[0], PROPULSION_CCW_PROP_GND[1], 0, 0, 2, 0, 0);
+
   }
   
   /* 
@@ -86,7 +92,9 @@
       setDutyCycle(MOTOR_TIMER, PROPULSION_CW_PROP_CH, IDLE_DUTY_CYCLE);
       setDutyCycle(MOTOR_TIMER, PROPULSION_CCW_PROP_CH, IDLE_DUTY_CYCLE);
       
-      sub_sleep(1.0);
+      for (int i=0; i<200; i++){
+          printf("Holding for self test\n");
+      }
   }
 
   /* 
@@ -129,13 +137,15 @@
   */
   void ballastControl(float target_depth)
   {
-     float current_depth;
+     float current_depth = 10.0;
      //current_depth = readDepthSensor();
 
      if (current_depth > target_depth) { // Raise Depth
         
         float idle_duty_cycle = IDLE_DUTY_CYCLE + FWD_DEADZONE; 
         float thrust = idle_duty_cycle + 0.5*(1-idle_duty_cycle);
+
+        printf("Setting thrust %f\n", thrust);
 
         setDutyCycle(MOTOR_TIMER, BALLAST_CW_PROP_CH, thrust);
         setDutyCycle(MOTOR_TIMER, BALLAST_CCW_PROP_CH, thrust);
