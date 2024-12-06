@@ -79,18 +79,18 @@ void event_handler_spi(Spi_State_Machine_t spi_type){
     // check for events
     switch(spi_type){
         case NUCLEO_PARENT: // parent on SPI1
-            if (!isEmpty(SPI_COMMS_EVENT_QUEUE)){
+            if (!isEmpty(SPI_COMMS_EVENT_QUEUE) && SPI_COMMS_STATE == 99){
                 CURRENT_COMMS_TRANSMIT_EVENT = *(transmitEvent*)dequeue(SPI_COMMS_EVENT_QUEUE);
                 // printf("Dequeued spi comms event \n");
             }
         break;
         case NUCLEO_CHILD: // child on SPI1
-            if (!isEmpty(SPI_COMMS_EVENT_QUEUE)){
+            if (!isEmpty(SPI_COMMS_EVENT_QUEUE) && SPI_COMMS_STATE == 99){
                 CURRENT_COMMS_TRANSMIT_EVENT = *(transmitEvent*)dequeue(SPI_COMMS_EVENT_QUEUE);
             }
         break;
         case SENSOR_PARENT: // parent on SPI4
-            if (!isEmpty(SPI_SENSOR_EVENT_QUEUE)){
+            if (!isEmpty(SPI_SENSOR_EVENT_QUEUE) && SPI_SENSOR_STATE == 99){
                 CURRENT_SENSOR_TRANSMIT_EVENT = *(transmitEvent*)dequeue(SPI_SENSOR_EVENT_QUEUE);
                 printf("Dequeued spi comms event \n");
             }
