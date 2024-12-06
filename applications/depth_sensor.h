@@ -41,7 +41,8 @@ extern "C"
 
 
 /*Function definitions---------------------------------------------------------*/
-void initPressureSensor(void);
+void initPressureSensorPins(void);
+void initPressureSensorSettings(void);
 void validateSensorInitMsg(void);
 void measurePressure(void);
 
