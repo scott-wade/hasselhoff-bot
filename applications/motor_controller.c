@@ -100,8 +100,9 @@
   /* 
     Converts joystick inputs into PWM signals to the CW and CCW motors 
   */
-  void propulsionControl(float x_input, float y_input)
+  void propulsionControl(float x_input, float y_input, float depth_input)
   {
+    // PROPULSION CONTROL
     float idle_thrust;
     float left_motor_duty;
     float right_motor_duty;
@@ -130,6 +131,9 @@
 
     setDutyCycle(MOTOR_TIMER, PROPULSION_CW_PROP_CH, left_motor_duty);
     setDutyCycle(MOTOR_TIMER, PROPULSION_CCW_PROP_CH, right_motor_duty);
+
+    // DEPTH CONTROL
+    ballastControl(depth_input);
   }
 
   /* 

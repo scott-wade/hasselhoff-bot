@@ -62,6 +62,12 @@ void sensor_polling_in_welcome(void);
 void sensor_polling_in_drive(void);
 void sensor_polling_in_land(void);
 
+// Callbacks
+void idle_callback(void);
+void welcome_callback(void);
+void throttle_callback(void);
+
+
 #ifdef __cplusplus
 }
 #endif

@@ -2,6 +2,7 @@
 
 void idle_callback(void)
 {
+    // Send acknowledgement
     // Transition to Welcome
     subState.state = WELCOME;
 }
@@ -13,11 +14,13 @@ void welcome_callback(void)
     // IR Receiver on
 }
 
-void throttle_callback(uint8_t value)
+void throttle_callback(void)
 {
-    // Queue prop commands
-    uint8_t fb = value;
-    // propulsionControl(value, subState.lr_command_stash, subState.ds_command_stash);
+    float fb_command = (subState.fb_command-128)/128;
+    float lr_command = (subState.lr_command - 128)/128;
+    float ds_command = 1 + 16*(subState.ds_command)/255; // HARDCODED max and min depths. TO BE CHANGED
+
+    propulsionControl(fb_command, lr_command, ds_command);
 }
 
 void sensor_poll_callback(void)
@@ -66,7 +69,7 @@ void steering_message_in_drive(uint8_t value)
     // event.type = DRIVE_MSG_LR_RECEIVED;
     // event.value = value;
     //TODO: Add queue
-    subState.lr_command_stash = value;
+    subState.lr_command = value;
 
 }
 void steering_message_in_land(uint8_t value)
@@ -90,7 +93,7 @@ void dive_message_in_drive(uint8_t value)
     // event.type = DRIVE_MSG_DS_RECEIVED;
     // event.value = value;
     //TODO: Add queue
-    subState.ds_command_stash = value;
+    subState.ds_command = value;
 }
 void dive_message_in_land(uint8_t value)
 {
