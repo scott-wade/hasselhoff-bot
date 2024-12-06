@@ -61,123 +61,84 @@ void event_handler_sub(){
     }
     printf("Event is: %d\n", current_event.type);
 
-    switch (current_event.type) {
-        case DRIVE_MSG_DS_RECEIVED:
-            switch(subState.state)
-                {
-                    case IDLE: {
-                        idle_callback();
-                        break;
-                    }
-                    case WELCOME: {
-                        welcome_callback();
-                        break;
-                    }
-                    case DRIVE: {
-                        subState.ds_command = current_event.data;
-                        break;
-                    }
-                    case LANDING: {
-                        break;
-                    }
-                    default: break;
+    switch(subState.state) {
+        case IDLE: {
+            switch(current_event.type) {
+                case SENSOR_POLLING_TIMEOUT: {
+                    // TODO
+                    break;
                 }
-            break;
-        case DRIVE_MSG_LR_RECEIVED:
-            switch(subState.state)
-                {
-                    case IDLE: {
-                        idle_callback();
-                        break;
-                    }
-                    case WELCOME: {
-                        welcome_callback();
-                        break;
-                    }
-                    case DRIVE: {
-                        subState.lr_command = current_event.data;
-                        break;
-                    }
-                    case LANDING: {
-                        break;
-                    }
-                    default: break;
+                default: {
+                    idle_callback();
+                    break;
                 }
-            break;
-        case DRIVE_MSG_FB_RECEIVED:
-            switch(subState.state)
-                {
-                    case IDLE: {
-                        idle_callback();
-                        break;
-                    }
-                    case WELCOME: {
-                        welcome_callback();
-                        break;
-                    }   
-                    case DRIVE: {
-                        // Save FB command to drive_cmd
-                        subState.fb_command = current_event.data;
-                        // PROPEL MOTORS
-                        throttle_callback();
-                        break;
-                    }
-                    case LANDING: {
-                        // Do Nothing
-                        break;
-                    }
-                    default: break;
+            }
+        }
+        case WELCOME: {
+            switch(current_event.type) {
+                case DRIVE_MSG_DS_RECEIVED:
+                case DRIVE_MSG_LR_RECEIVED:
+                case DRIVE_MSG_FB_RECEIVED: {
+                    welcome_callback();
+                    break;
                 }
-            break;
-        
-        case LAND_MSG_RECEIVED:
-            switch(subState.state)
-                {
-                    case IDLE: break; // first packet received
-                    case WELCOME: {
-                        break;
-                    }
-                    case DRIVE: {
-                        // Transition to LAND state
-                        subState.state = LANDING;
-                        break;
-                    }
-                    case LANDING: 
-                        break;
-                    default: break;
+                case SENSOR_POLLING_TIMEOUT: {
+                    // TODO
+                    break;
                 }
-            break;
-        case RESET_MSG_RECEIVED:
-            switch(subState.state)
-                {
-                    case IDLE: break; // first packet received
-                    case WELCOME: break;
-                    case DRIVE:
-                        break;
-                    case LANDING:
-                        break;
-                    default: break;
+                default: break;
+            }
+        }
+        case DRIVE: {
+            switch(current_event.type) {
+                case DRIVE_MSG_DS_RECEIVED: {
+                    subState.ds_command = current_event.data;
+                    break;
                 }
-            break;
-        case IR_REQUEST_RECEIVED:
-            switch(subState.state)
-                {
-                    case IDLE: break; // first packet received
-                    case LANDING: break;
-                    case DRIVE:
-                        break;
-                    case WELCOME:
-                        break;
-                    default: break;
+                case DRIVE_MSG_LR_RECEIVED: {
+                    subState.lr_command = current_event.data;
+                    break;
                 }
-            break;
-        case SENSOR_POLLING_TIMEOUT:
-            // queue sensor spi stuff regardless of state
-            break;
-        default:
+                case DRIVE_MSG_FB_RECEIVED: {
+                    subState.fb_command = current_event.data;
+                    throttle_callback();
+                    break;
+                }
+                case LAND_MSG_RECEIVED: {
+                    land_message_in_drive();
+                    break;
+                }
+                case RESET_MSG_RECEIVED: {
+                    reset_message_in_drive();
+                    break;
+                }
+                case SENSOR_POLLING_TIMEOUT: {
+                    // TODO
+                    break;
+                }
+            }
+        }
+        case LANDING: {
+            switch(current_event.type) {
+                case LAND_MSG_RECEIVED: {
+                    land_message_in_land();
+                    break;
+                }
+                case RESET_MSG_RECEIVED: {
+                    reset_message_in_land();
+                    break;
+                }
+                case SENSOR_POLLING_TIMEOUT: {
+                    // TODO
+                    break;
+                }
+            }
+        }
+        default: {
             // When undefined event fired, throw an error
             printf(stderr, "Undefined Sub Event");
             break;
+        }
     }
     printf("--------------------\n");
 
