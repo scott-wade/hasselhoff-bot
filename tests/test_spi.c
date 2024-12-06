@@ -141,7 +141,7 @@ void testSPIQueue(void){
     // create a test event
     uint8_t returnvalue = 0;
     transmitEvent testEvent;
-    testEvent.txQueue = createQueue(sizeof(uint8_t));
+    testEvent.tx_packet = 0;
     testEvent.child_id = 47;
     testEvent.read_var_addr = &returnvalue;
 
