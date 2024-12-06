@@ -52,13 +52,6 @@ void init_remote(void){
     init_joysticks();
     init_seg_display();
     init_state_machine_spi(NUCLEO_PARENT); // parent = remote
-    // Init status LEDs /////////////////////////
-    set_rgb_green_led(); // Set power LED
-    clear_blue_led();
-    clear_yellow_led();
-    clear_green_led();
-    clear_white_led();
-    clear_rgb_red_led();    
 }
 
 
@@ -126,11 +119,11 @@ void tasks(remote_event_t event){
         case INIT_REMOTE:
             init_remote();
             // Schedule one-time tasks
-            add_timer(START_ADC_DELAY_MS, START_ADC);
+            add_timer(START_ADC_DELAY_MS, START_ADC); // Start ADC
             // Schedule periodic tasks to the queue
             sched_event(CYCLE_LED_DISPLAY);
             add_timer(START_ADC_DELAY_MS + 10, READ_TARGET_DEPTH); // Start after ADC
-            sched_event(READ_JOYSTICKS);
+            add_timer(START_ADC_DELAY_MS + 10, READ_JOYSTICKS); // Start after ADC
             sched_event(POLL_SUB_STATUS);
             // NEXT: Init -> Welcome
             remote_state = WELCOME_REMOTE;
@@ -142,6 +135,7 @@ void tasks(remote_event_t event){
                 add_timer(WELCOME_PERIOD_MS, WELCOME_REMOTE); // Add event back on queue as a periodic task            
             break;
         case DRIVE_REMOTE:
+            clear_all_leds();
             set_white_led(); // Set driving status LED
             sched_event(COUNTDOWN_TIMER); // Start countdown timer
             // NEXT: welcome -> driving

@@ -349,21 +349,22 @@ int init_status_leds(void) {
     initGPIOasMode(RGB_RED_PORT, RGB_RED_PIN, MODE_OUT, OD_PUPD, PUPD_FLOAT, initial_value, 0);
     
     // Set initial states for the LEDs
-    // set_blue_led();
-    clear_blue_led();
-    // set_yellow_led();
-    clear_yellow_led();
-    // set_green_led();
-    clear_green_led();
-    // set_white_led();
-    clear_white_led();
-    // set_rgb_green_led();
-    clear_rgb_green_led();
-    // set_rgb_red_led();
-    clear_rgb_red_led();
-
+    clear_all_leds();
 
     return 0; // success
+}
+
+
+/**
+ * Clear all LEDs to off
+ */
+void clear_all_leds(void) {
+    clear_blue_led();
+    clear_yellow_led();
+    clear_green_led();
+    clear_white_led();
+    clear_rgb_green_led();
+    clear_rgb_red_led();
 }
 
 /*

@@ -302,6 +302,6 @@ void requestSpiTransmit_remote(packet_type_t msg_type, uint8_t data, uint8_t* re
     // Packet is first 8 bits is message type and last 8 bits is the data
     uint16_t packet = (header << 8) | data;
 
-    requestSpiTransmit(NUCLEO_PARENT, 0, packet, read_var_addr);
+    // requestSpiTransmit(NUCLEO_PARENT, 0, packet, read_var_addr);
 }
 

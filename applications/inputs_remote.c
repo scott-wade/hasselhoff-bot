@@ -162,6 +162,8 @@ void read_joysticks (void) {
     if (remote_state == WELCOME_REMOTE){
         if ((joy_x <= JOY_ACTIVE_ZONE) || (joy_x >= (MAX_JOY_VAL - JOY_ACTIVE_ZONE)) ||
             (joy_y <= JOY_ACTIVE_ZONE) || (joy_y >= (MAX_JOY_VAL - JOY_ACTIVE_ZONE))) {
+            printf("Go to DRIVE_REMOTE: Joy_x = %d | Joy_y = %d\n", joy_x, joy_y);
+
             // Go Welcome -> Drive
             sched_event(DRIVE_REMOTE); 
         }
