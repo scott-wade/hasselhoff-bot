@@ -13,17 +13,13 @@
 #include "spi_queue.h"
 #include "../applications/packet.h"
 
-/* True global variables */
-extern Queue* SPI_COMMS_RECIEVED_QUEUE;
-extern Queue* SPI_SENSOR_RECIEVED_QUEUE;
-
 /* MACROS for everyone--------------------------------------------------------*/
 
 
 /* Data structures for SPI state machine */
 typedef struct{
     uint8_t child_id; //SPI ID
-    Queue* txQueue;
+    uint16_t tx_packet;
     uint8_t* read_var_addr;
 } transmitEvent;
 

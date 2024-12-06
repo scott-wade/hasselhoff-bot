@@ -11,6 +11,7 @@
 
 #include "state_machine_sub.h"
 #include "globals.h"
+#include "queue.h"
 #include "../applications/state_machine_callbacks.h"
 #include "stdio.h"
 #include "../applications/packet.h"
@@ -49,17 +50,10 @@ void init_sub_debugging(sub_states_t testState, uint8_t testBeam){
 
 void event_handler_sub(){
     /* Checks and handles events for sub */
-    
-    // Get current event
-    sub_events_t current_event = simpleQ.events[simpleQ.process_indx];
-    printf("Processing event %d\n", simpleQ.process_indx);
-    simpleQ.process_indx++;
-    simpleQ.size--;
-    if (simpleQ.process_indx == MAX_ELEMENTS)
-    {
-        simpleQ.process_indx = 0;
-    }
-    printf("Event is: %d\n", current_event.type);
+    sub_events_t current_event;
+    if(!isempty_simple_queue()){
+        current_event = pop_from_simple_queue();
+        printf("Processing event of type %d\n", current_event.type);
 
     switch(subState.state) {
         case IDLE: {
