@@ -55,86 +55,86 @@ void event_handler_sub(){
         current_event = pop_from_simple_queue();
         printf("Processing event of type %d\n", current_event.type);
 
-    switch(subState.state) {
-        case IDLE: {
-            switch(current_event.type) {
-                case SENSOR_POLLING_TIMEOUT: {
-                    // TODO
-                    break;
-                }
-                default: {
-                    idle_callback();
-                    break;
-                }
-            }
-        }
-        case WELCOME: {
-            switch(current_event.type) {
-                case DRIVE_MSG_DS_RECEIVED:
-                case DRIVE_MSG_LR_RECEIVED:
-                case DRIVE_MSG_FB_RECEIVED: {
-                    welcome_callback();
-                    break;
-                }
-                case SENSOR_POLLING_TIMEOUT: {
-                    // TODO
-                    break;
-                }
-                default: break;
-            }
-        }
-        case DRIVE: {
-            switch(current_event.type) {
-                case DRIVE_MSG_DS_RECEIVED: {
-                    subState.ds_command = current_event.data;
-                    break;
-                }
-                case DRIVE_MSG_LR_RECEIVED: {
-                    subState.lr_command = current_event.data;
-                    break;
-                }
-                case DRIVE_MSG_FB_RECEIVED: {
-                    subState.fb_command = current_event.data;
-                    throttle_callback();
-                    break;
-                }
-                case LAND_MSG_RECEIVED: {
-                    land_message_in_drive();
-                    break;
-                }
-                case RESET_MSG_RECEIVED: {
-                    reset_message_in_drive();
-                    break;
-                }
-                case SENSOR_POLLING_TIMEOUT: {
-                    // TODO
-                    break;
+        switch(subState.state) {
+            case IDLE: {
+                switch(current_event.type) {
+                    case SENSOR_POLLING_TIMEOUT: {
+                        // TODO
+                        break;
+                    }
+                    default: {
+                        idle_callback();
+                        break;
+                    }
                 }
             }
-        }
-        case LANDING: {
-            switch(current_event.type) {
-                case LAND_MSG_RECEIVED: {
-                    land_message_in_land();
-                    break;
-                }
-                case RESET_MSG_RECEIVED: {
-                    reset_message_in_land();
-                    break;
-                }
-                case SENSOR_POLLING_TIMEOUT: {
-                    // TODO
-                    break;
+            case WELCOME: {
+                switch(current_event.type) {
+                    case DRIVE_MSG_DS_RECEIVED:
+                    case DRIVE_MSG_LR_RECEIVED:
+                    case DRIVE_MSG_FB_RECEIVED: {
+                        welcome_callback();
+                        break;
+                    }
+                    case SENSOR_POLLING_TIMEOUT: {
+                        // TODO
+                        break;
+                    }
+                    default: break;
                 }
             }
+            case DRIVE: {
+                switch(current_event.type) {
+                    case DRIVE_MSG_DS_RECEIVED: {
+                        subState.ds_command = current_event.data;
+                        break;
+                    }
+                    case DRIVE_MSG_LR_RECEIVED: {
+                        subState.lr_command = current_event.data;
+                        break;
+                    }
+                    case DRIVE_MSG_FB_RECEIVED: {
+                        subState.fb_command = current_event.data;
+                        throttle_callback();
+                        break;
+                    }
+                    case LAND_MSG_RECEIVED: {
+                        land_message_in_drive();
+                        break;
+                    }
+                    case RESET_MSG_RECEIVED: {
+                        reset_message_in_drive();
+                        break;
+                    }
+                    case SENSOR_POLLING_TIMEOUT: {
+                        // TODO
+                        break;
+                    }
+                }
+            }
+            case LANDING: {
+                switch(current_event.type) {
+                    case LAND_MSG_RECEIVED: {
+                        land_message_in_land();
+                        break;
+                    }
+                    case RESET_MSG_RECEIVED: {
+                        reset_message_in_land();
+                        break;
+                    }
+                    case SENSOR_POLLING_TIMEOUT: {
+                        // TODO
+                        break;
+                    }
+                }
+            }
+            default: {
+                // When undefined event fired, throw an error
+                printf(stderr, "Undefined Sub Event");
+                break;
+            }
         }
-        default: {
-            // When undefined event fired, throw an error
-            printf(stderr, "Undefined Sub Event");
-            break;
-        }
+        printf("--------------------\n");
     }
-    printf("--------------------\n");
-
 
 }
