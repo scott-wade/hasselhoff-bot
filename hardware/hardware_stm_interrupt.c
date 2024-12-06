@@ -115,7 +115,8 @@ void EXTI9_5_IRQHandler(void)
     {
         // clear pending interrupt (by writing a 1)
         *reg_pointer_32 = EXTERNAL_INTERRUPT_CONTROLLER_PENDING_EXTI6;
-        // toggle PB0 as our action
+        // toggle PB0 as our action (debugging)
         ToggleGPIOOutput(PORT_B, 0);
+        printf("external int fired\n");
     }
 }
