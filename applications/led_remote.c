@@ -40,22 +40,22 @@
 
 
 // Blue: D4
-#define BLUE_PORT       3 // D
+#define BLUE_PORT       PORT_D // D
 #define BLUE_PIN        4
 // Yellow: D3
-#define YELLOW_PORT     3 // D
+#define YELLOW_PORT     PORT_D // D
 #define YELLOW_PIN      3
 // Green: C10
-#define GREEN_PORT      2 // C
+#define GREEN_PORT      PORT_C // C
 #define GREEN_PIN       10
 // White: C8
-#define WHITE_PORT      2 // C
+#define WHITE_PORT      PORT_C // C
 #define WHITE_PIN       8
 // RGB Green: E2
-#define RGB_GREEN_PORT  4 // E
+#define RGB_GREEN_PORT  PORT_E // E
 #define RGB_GREEN_PIN   2
 // RGB Red: E4
-#define RGB_RED_PORT    4 // E
+#define RGB_RED_PORT    PORT_E // E
 #define RGB_RED_PIN     4
 
 #define CNT_DOWN_DIG_0  0 // Disp digit for countdown timer

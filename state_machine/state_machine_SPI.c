@@ -246,7 +246,7 @@ void spiInterruptHandler(uint8_t spi_id){
                 *stateptr = 99;
                 // TODO Stop timeout timer
             }
-            printf("Processed confirmation with recieved data: %u", recievedData);
+            // printf("Processed confirmation with recieved data: %u", recievedData);
         }
         
     }
@@ -254,7 +254,7 @@ void spiInterruptHandler(uint8_t spi_id){
 
     // if transmit event
     if ((current_status_register & TXE_MASK) > 0){
-        printf("Handling TXE interrupt\n");
+        // printf("Handling TXE interrupt\n");
         if (*stateptr == 99){ // if state == IDLE
             // disable Spi TXE Interrupts(SPI id)
             disableSpiTXEInterrupts(spi_id);

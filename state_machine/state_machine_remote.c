@@ -53,7 +53,12 @@ void init_remote(void){
     init_seg_display();
     init_state_machine_spi(NUCLEO_PARENT); // parent = remote
     // Init status LEDs /////////////////////////
-    set_rgb_green_led(); // Power LED
+    set_rgb_green_led(); // Set power LED
+    clear_blue_led();
+    clear_yellow_led();
+    clear_green_led();
+    clear_white_led();
+    clear_rgb_red_led();    
 }
 
 
