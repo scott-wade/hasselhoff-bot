@@ -48,7 +48,7 @@ void init_sub_debugging(sub_states_t testState, uint8_t testBeam){
 void event_handler_sub(){
     /* Checks and handles events for sub */
     sub_events_t current_event;
-    if(~isempty_simple_queue()){
+    if(!isempty_simple_queue()){
         current_event = pop_from_simple_queue();
         printf("Processing event of type %d\n", current_event.type);
 
