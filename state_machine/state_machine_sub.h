@@ -38,8 +38,9 @@ typedef struct {
     sub_states_t state;
     uint8_t initialised;
     uint8_t beam_detected;
-    uint8_t lr_command_stash;
-    uint8_t ds_command_stash;
+    uint8_t lr_command;
+    uint8_t ds_command;
+    uint8_t fb_command;
 } sub_t;
 
 
