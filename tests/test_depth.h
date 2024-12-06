@@ -1,6 +1,6 @@
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __depth_sensor_H_
-#define __depth_sensor_H_
+#ifndef __test_depth_H_
+#define __test_depth_H_
 
 #ifdef __cplusplus
 extern "C"
@@ -41,13 +41,10 @@ extern "C"
 
 
 /*Function definitions---------------------------------------------------------*/
-void initPressureSensorPins(void);
-void initPressureSensorSettings(void);
-void validateSensorInitMsg(void);
-void measurePressure(void);
+void initButtonIntInput(void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /*__depth_sensor_H */
+#endif /*__test_depth_H */

@@ -6,12 +6,14 @@
 #include "debug_mort.h"
 #include "state_machine/state_machine_sub.h"
 #include "state_machine/state_machine_remote.h"
+#include "state_machine/state_machine_SPI.h"
 #include "tests/test_spi.h"
 #include "tests/test_gpio.h"
-#include "state_machine_SPI.h"
+#include "tests/test_depth.h"
 #include "inputs_remote.h"
 #include "hardware_stm_adc.h"
 #include "applications/sub_clock.h"
+#include "applications/depth_sensor.h"
 #include "led_remote.h"
 #include "ir_range.h"
 #include "timer_queue_remote.h"
@@ -59,9 +61,14 @@ int main(void){
         /* initialization */
         // initialize the sub clock
         initSubClock();
-
-        // initalize a queue and timeout array (utility and debugging)
-        
+        // initialize my gpio for debugging
+        initButtonIntInput();
+        // initialize sensor GPIO
+        initPressureSensorPins();      
+        // initialize SPI comm to sensor(s)
+        init_state_machine_spi(SENSOR_PARENT);
+        // initalize a queue and timeout array (utility and debugging)**
+        // initialize the depth sensor settings
         /* loop */
         while(1){
             // service event queue
