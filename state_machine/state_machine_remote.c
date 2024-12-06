@@ -59,7 +59,7 @@ void init_remote(void){
 /* Queue ------------------------------------------------------------------*/
 // Push new event to end of queue
 int sched_event(remote_event_t event) {
-    // printf("remote_state = %d\n", remote_state);
+    printf("remote_state = %d\n", remote_state);
 
     // Allocate memory for queue node
     queue_node_t* new_node = malloc(sizeof(queue_node_t));
@@ -135,11 +135,11 @@ void tasks(remote_event_t event){
                 add_timer(WELCOME_PERIOD_MS, WELCOME_REMOTE); // Add event back on queue as a periodic task            
             break;
         case DRIVE_REMOTE:
+           // NEXT: welcome -> driving
+            remote_state = DRIVE_REMOTE;
             clear_all_leds();
             set_white_led(); // Set driving status LED
             sched_event(COUNTDOWN_TIMER); // Start countdown timer
-            // NEXT: welcome -> driving
-            remote_state = DRIVE_REMOTE;
             break;
         case LAND_REMOTE:
             clear_white_led(); // Turn off drive status LED
