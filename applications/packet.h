@@ -9,12 +9,12 @@
 
 // Define packet.type 
 typedef enum {
-    RESET_MSG = 1,
-    DRIVE_FB_MSG,
-    DRIVE_LR_MSG,
-    DRIVE_DS_MSG,
-    LAND_MSG,
-    STATUS_REQ_MSG
+    RESET_MSG = 0b1,
+    DRIVE_FB_MSG = 0b10,
+    DRIVE_LR_MSG = 0b11,
+    DRIVE_DS_MSG = 0b100,
+    LAND_MSG = 0b101,
+    STATUS_REQ_MSG = 0b110
 
 } packet_type_t;
 

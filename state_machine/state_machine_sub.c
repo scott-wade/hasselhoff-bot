@@ -11,6 +11,7 @@
 
 #include "state_machine_sub.h"
 #include "globals.h"
+#include "queue.h"
 #include "../applications/state_machine_callbacks.h"
 #include "stdio.h"
 #include "../applications/packet.h"
@@ -49,135 +50,130 @@ void init_sub_debugging(sub_states_t testState, uint8_t testBeam){
 
 void event_handler_sub(){
     /* Checks and handles events for sub */
-    
-    // Get current event
-    sub_events_t current_event = simpleQ.events[simpleQ.process_indx];
-    printf("Processing event %d\n", simpleQ.process_indx);
-    simpleQ.process_indx++;
-    simpleQ.size--;
-    if (simpleQ.process_indx == MAX_ELEMENTS)
-    {
-        simpleQ.process_indx = 0;
-    }
-    printf("Event is: %d\n", current_event.type);
+    sub_events_t current_event;
+    if(!isempty_simple_queue()){
+        current_event = pop_from_simple_queue();
+        printf("Processing event of type %d\n", current_event.type);
 
-    switch (current_event.type) {
-        case DRIVE_MSG_DS_RECEIVED:
-            switch(subState.state)
-                {
-                    case IDLE: {
-                        idle_callback();
-                        break;
+        switch (current_event.type) {
+            case DRIVE_MSG_DS_RECEIVED:
+                switch(subState.state)
+                    {
+                        case IDLE: {
+                            idle_callback();
+                            break;
+                        }
+                        case WELCOME: {
+                            welcome_callback();
+                            break;
+                        }
+                        case DRIVE: {
+                            subState.ds_command = current_event.data;
+                            break;
+                        }
+                        case LANDING: {
+                            break;
+                        }
+                        default: break;
                     }
-                    case WELCOME: {
-                        welcome_callback();
-                        break;
+                break;
+            case DRIVE_MSG_LR_RECEIVED:
+                switch(subState.state)
+                    {
+                        case IDLE: {
+                            idle_callback();
+                            break;
+                        }
+                        case WELCOME: {
+                            welcome_callback();
+                            break;
+                        }
+                        case DRIVE: {
+                            subState.lr_command = current_event.data;
+                            break;
+                        }
+                        case LANDING: {
+                            break;
+                        }
+                        default: break;
                     }
-                    case DRIVE: {
-                        subState.ds_command = current_event.data;
-                        break;
+                break;
+            case DRIVE_MSG_FB_RECEIVED:
+                switch(subState.state)
+                    {
+                        case IDLE: {
+                            idle_callback();
+                            break;
+                        }
+                        case WELCOME: {
+                            welcome_callback();
+                            break;
+                        }   
+                        case DRIVE: {
+                            // Save FB command to drive_cmd
+                            subState.fb_command = current_event.data;
+                            // PROPEL MOTORS
+                            throttle_callback();
+                            break;
+                        }
+                        case LANDING: {
+                            // Do Nothing
+                            break;
+                        }
+                        default: break;
                     }
-                    case LANDING: {
-                        break;
+                break;
+            
+            case LAND_MSG_RECEIVED:
+                switch(subState.state)
+                    {
+                        case IDLE: break; // first packet received
+                        case WELCOME: {
+                            break;
+                        }
+                        case DRIVE: {
+                            // Transition to LAND state
+                            subState.state = LANDING;
+                            break;
+                        }
+                        case LANDING: 
+                            break;
+                        default: break;
                     }
-                    default: break;
-                }
-            break;
-        case DRIVE_MSG_LR_RECEIVED:
-            switch(subState.state)
-                {
-                    case IDLE: {
-                        idle_callback();
-                        break;
+                break;
+            case RESET_MSG_RECEIVED:
+                switch(subState.state)
+                    {
+                        case IDLE: break; // first packet received
+                        case WELCOME: break;
+                        case DRIVE:
+                            break;
+                        case LANDING:
+                            break;
+                        default: break;
                     }
-                    case WELCOME: {
-                        welcome_callback();
-                        break;
+                break;
+            case IR_REQUEST_RECEIVED:
+                switch(subState.state)
+                    {
+                        case IDLE: break; // first packet received
+                        case LANDING: break;
+                        case DRIVE:
+                            break;
+                        case WELCOME:
+                            break;
+                        default: break;
                     }
-                    case DRIVE: {
-                        subState.lr_command = current_event.data;
-                        break;
-                    }
-                    case LANDING: {
-                        break;
-                    }
-                    default: break;
-                }
-            break;
-        case DRIVE_MSG_FB_RECEIVED:
-            switch(subState.state)
-                {
-                    case IDLE: {
-                        idle_callback();
-                        break;
-                    }
-                    case WELCOME: {
-                        welcome_callback();
-                        break;
-                    }   
-                    case DRIVE: {
-                        // Save FB command to drive_cmd
-                        subState.fb_command = current_event.data;
-                        // PROPEL MOTORS
-                        throttle_callback();
-                        break;
-                    }
-                    case LANDING: {
-                        // Do Nothing
-                        break;
-                    }
-                    default: break;
-                }
-            break;
-        
-        case LAND_MSG_RECEIVED:
-            switch(subState.state)
-                {
-                    case IDLE: break; // first packet received
-                    case WELCOME: {
-                        break;
-                    }
-                    case DRIVE: {
-                        // Transition to LAND state
-                        subState.state = LANDING;
-                        break;
-                    }
-                    case LANDING: 
-                        break;
-                    default: break;
-                }
-            break;
-        case RESET_MSG_RECEIVED:
-            switch(subState.state)
-                {
-                    case IDLE: break; // first packet received
-                    case WELCOME: break;
-                    case DRIVE:
-                        break;
-                    case LANDING:
-                        break;
-                    default: break;
-                }
-            break;
-        case IR_REQUEST_RECEIVED:
-            switch(subState.state)
-                {
-                    case IDLE: break; // first packet received
-                    case LANDING: break;
-                    case DRIVE:
-                        break;
-                    case WELCOME:
-                        break;
-                    default: break;
-                }
-            break;
-        case SENSOR_POLLING_TIMEOUT:
-            // queue sensor spi stuff regardless of state
-            break;
-        default:
-            // When undefined event fired, throw an error
-            printf(stderr, "Undefined Sub Event");
-            break;
+                break;
+            case SENSOR_POLLING_TIMEOUT:
+                // queue sensor spi stuff regardless of state
+                break;
+            default:
+                // When undefined event fired, throw an error
+                printf(stderr, "Undefined Sub Event");
+                break;
+
+        }
     }
     printf("--------------------\n");
 

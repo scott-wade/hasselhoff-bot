@@ -37,6 +37,20 @@ uint8_t subStateToSubStatusMsg(sub_t state_struct){
 
     // bits [1-2] are sub state
     uint8_t substate_mask = (uint8_t)(0b01100000);
+    switch (state_struct.state){
+        case IDLE: 
+            sub_status_msg = sub_status_msg | (uint8_t)0b00000000;
+            break;
+        case WELCOME:
+            sub_status_msg = sub_status_msg | (uint8_t)0b00100000;
+            break;
+        case DRIVE:
+            sub_status_msg = sub_status_msg | (uint8_t)0b01000000;
+            break;
+        case LANDING:
+            sub_status_msg = sub_status_msg | (uint8_t)0b01100000;
+            break;
+    }
     sub_status_msg = sub_status_msg | (((uint8_t)state_struct.state) & substate_mask);
 
     printf("Generated message: %u \n ", sub_status_msg);
