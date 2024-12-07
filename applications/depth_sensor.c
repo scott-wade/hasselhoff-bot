@@ -85,3 +85,11 @@ double getDepth(void)
 {
     return currentDepth;
 }
+
+double updateDepth(void)
+{
+    calcDepth();
+    double depth = getDepth();
+
+    return depth;
+}

@@ -45,6 +45,9 @@ void initPressureSensorPins(void);
 void initPressureSensorSettings(void);
 void validateSensorInitMsg(void);
 void measurePressure(void);
+void calcDepth(void);
+double getDepth(void);
+double updateDepth(void);
 
 #ifdef __cplusplus
 }

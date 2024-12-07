@@ -2,6 +2,7 @@
 #ifndef __STATE_MACHINE_SUB_H_
 #define __STATE_MACHINE_SUB_H_
 
+#include <cstdint>
 #ifdef __cplusplus
  extern "C" {
 #endif
@@ -37,7 +38,9 @@ typedef enum {
 typedef struct {
     sub_states_t state;
     uint8_t initialised;
-    uint8_t beam_detected;
+    uint8_t beam_status;
+    float current_depth;
+    uint8_t land_status;
     uint8_t lr_command;
     uint8_t ds_command;
     uint8_t fb_command;
