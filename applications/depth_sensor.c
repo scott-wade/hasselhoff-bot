@@ -16,7 +16,7 @@
 
 /* MACRO definitions----------------------------------------------------------*/
 #define ATM_PRESS 1013.25        // atmospheric pressure in hPa
-#define DEPTH_SENSOR_ID 2
+#define DEPTH_SENSOR_ID 0
 
 /* Declarations ----------------------------------------------------------*/
 static double resultantPressure;
@@ -46,15 +46,20 @@ void initPressureSensorSettings(void)
     requestSpiTransmit(SENSOR_PARENT, DEPTH_SENSOR_ID, whoAmILPS27Msg(), &readingBuffer);
 }
 
+void extraWhoAmICheck(void) {
+    // issue a reading request for the who am I register as a final check
+    requestSpiTransmit(SENSOR_PARENT, DEPTH_SENSOR_ID, whoAmILPS27Msg(), &readingBuffer);    
+}
 // call this function from the spi state machine level once the initializing receipts are complete
 // verifies the who am I reading matches appropriate flag
 void validateSensorInitMsg(void)
 {
-    int sensorCheck;
+    int sensorCheck = 0;
     sensorCheck = verifyWhoAmI(readingBuffer);
     if(sensorCheck != 1)
     {
-        //fprintf(stderr, "Depth sensor 'who am I' reading mismatch");
+        printf("Depth sensor 'who am I' reading mismatch \n");
+        printf("Reading buffer: %hhu\n", readingBuffer);
     }
 }
 

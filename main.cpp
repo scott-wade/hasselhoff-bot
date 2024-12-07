@@ -1,4 +1,4 @@
-#define WHICH_NUCLEO 3 //change for compilation, 0 for remote, 1 for submarine, 2 for debug remote, 3 for debug sub3, 94 for NZ debugging
+#define WHICH_NUCLEO 94 //change for compilation, 0 for remote, 1 for submarine, 2 for debug remote, 3 for debug sub3, 94 for NZ debugging
 
 
 #include <cstdint>
@@ -66,12 +66,14 @@ int main(void){
         // initialize sensor GPIO
         initPressureSensorPins();      
         // initialize SPI comm to sensor(s)
-        init_state_machine_spi(SENSOR_PARENT);
+        init_state_machine_spi(SENSOR_PARENT); // this is a home for the spi queue
         // initalize a queue and timeout array (utility and debugging)**
         // initialize the depth sensor settings
+        initPressureSensorSettings();
         /* loop */
         while(1){
             // service event queue
+            event_handler_spi(SENSOR_PARENT); // handles the SPI transmissions
             // check on the timeouts
         }
     }

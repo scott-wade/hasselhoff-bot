@@ -107,7 +107,7 @@ void configureSPIPeripheral(Spi_Hierarchy_t spi_type, uint8_t spi_id){
     if(spi_type==SENSOR_PARENT) // nucleo - sensor comm
     {
         // set baud rate
-        baudrate_bits = (uint16_t)(0b011); // fpclk/16 = 5.6 MHz (fastest speed below 8 MHz with available prescaler)
+        baudrate_bits = (uint16_t)(0b011 << 3); // fpclk/16 = 5.6 MHz (fastest speed below 8 MHz with available prescaler)
         // depth sensor looking for CPOL = 1 and CPHA = 1
         cpol_cpha_bits = (uint16_t)(0b11);
         // bit order, depth sensor transmists most significant first (same as other case actually)

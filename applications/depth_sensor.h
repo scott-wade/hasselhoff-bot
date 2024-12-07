@@ -43,8 +43,11 @@ extern "C"
 /*Function definitions---------------------------------------------------------*/
 void initPressureSensorPins(void);
 void initPressureSensorSettings(void);
+void extraWhoAmICheck(void);
 void validateSensorInitMsg(void);
 void measurePressure(void);
+void calcDepth(void);
+double getDepth(void);
 
 #ifdef __cplusplus
 }

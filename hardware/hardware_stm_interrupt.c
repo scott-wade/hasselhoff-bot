@@ -14,6 +14,7 @@
 #include <cstdint>
 
 #include "hardware_stm_gpio.h"
+#include "applications/depth_sensor.h"
 
 /* MACRO definitions----------------------------------------------------------*/
 #define SYSTEM_CONTROL_BASE_ADDRESS (0xE000E000)
@@ -115,8 +116,16 @@ void EXTI9_5_IRQHandler(void)
     {
         // clear pending interrupt (by writing a 1)
         *reg_pointer_32 = EXTERNAL_INTERRUPT_CONTROLLER_PENDING_EXTI6;
-        // toggle PB0 as our action (debugging)
-        ToggleGPIOOutput(PORT_B, 0);
+        // toggle PB0 as our action (debugging the EXTI)
+        ToggleGPIOOutput(PORT_B, PIN_0);
         printf("external int fired\n");
+        // debugging communication with sensor
+        extraWhoAmICheck();
+        // if succesfully communicating, we'd get a true here
+        validateSensorInitMsg();
+        
+        //measurePressure();
+        //calcDepth();
+        //printf("depth: %.2f \n", getDepth());
     }
 }
