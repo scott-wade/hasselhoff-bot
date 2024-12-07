@@ -54,7 +54,7 @@ void validateSensorInitMsg(void)
     sensorCheck = verifyWhoAmI(readingBuffer);
     if(sensorCheck != 1)
     {
-        //fprintf(stderr, "Depth sensor 'who am I' reading mismatch");
+        fprintf(stderr, "Depth sensor 'who am I' reading mismatch");
     }
 }
 

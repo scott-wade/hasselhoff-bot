@@ -1,24 +1,24 @@
-#define WHICH_NUCLEO 3 //change for compilation, 0 for remote, 1 for submarine, 2 for debug remote, 3 for debug sub3, 94 for NZ debugging
+#define WHICH_NUCLEO 1 //change for compilation, 0 for remote, 1 for submarine, 2 for debug remote, 3 for debug sub3, 94 for NZ debugging
 
 
 #include <cstdint>
 #include "main.h"
-#include "debug_mort.h"
 #include "state_machine/state_machine_sub.h"
 #include "state_machine/state_machine_remote.h"
-#include "state_machine/state_machine_SPI.h"
+
+
 #include "tests/test_spi.h"
 #include "tests/test_gpio.h"
-#include "tests/test_depth.h"
+#include "state_machine_SPI.h"
 #include "inputs_remote.h"
 #include "hardware_stm_adc.h"
 #include "applications/sub_clock.h"
-#include "applications/depth_sensor.h"
 #include "led_remote.h"
 #include "ir_range.h"
 #include "timer_queue_remote.h"
 #include "motor_controller.h"
-
+#include <cmath>
+#include <iostream>
 
 int main(void){
     if (WHICH_NUCLEO == 0){
@@ -36,16 +36,11 @@ int main(void){
     } else if(WHICH_NUCLEO == 1) {
         /* submarine state machine */
 
-        /* initialization */
+        // initialization
         init_sub(); // State machine
-        // Initialise hardware
-        initMotorHardware();
-        initIRSensor(0); // Initialise IR sensor in digital mode
-        // initPressureSensor();
-
-        /* loop */
+        
+        // loop
         while(1){
-            timer_handler_remote(); // Identical functionality but different events in the queue
             event_handler_sub();
         }
 
@@ -61,14 +56,9 @@ int main(void){
         /* initialization */
         // initialize the sub clock
         initSubClock();
-        // initialize my gpio for debugging
-        initButtonIntInput();
-        // initialize sensor GPIO
-        initPressureSensorPins();      
-        // initialize SPI comm to sensor(s)
-        init_state_machine_spi(SENSOR_PARENT);
-        // initalize a queue and timeout array (utility and debugging)**
-        // initialize the depth sensor settings
+
+        // initalize a queue and timeout array (utility and debugging)
+        
         /* loop */
         while(1){
             // service event queue

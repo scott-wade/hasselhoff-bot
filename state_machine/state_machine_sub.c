@@ -8,12 +8,13 @@
   ******************************************************************************
   */
 
-
+#include "ir_range.h"
+#include "stdio.h"
 #include "state_machine_sub.h"
 #include "globals.h"
+#include "motor_controller.h"
 #include "queue.h"
 #include "../applications/state_machine_callbacks.h"
-#include "stdio.h"
 #include "../applications/packet.h"
 
 // define global subState
@@ -26,7 +27,12 @@ sub_t subState = { .state = IDLE, .initialised = 0,
 uint8_t SUBMARINE_CURRENT_STATUS_MSG;
 
 void init_sub(void){
-    /* Initialize sub state machine */ 
+    /* Initialize all Hardware */
+    initMotorHardware();
+    // TODO : initialize Depth Sensor
+    initIRSensor(0);
+
+    /* Initialize State Machine */ 
     subState.state = IDLE;
     subState.initialised = 0;
     subState.beam_status = 0;
@@ -143,5 +149,4 @@ void event_handler_sub(){
         }
         printf("--------------------\n");
     }
-
 }
