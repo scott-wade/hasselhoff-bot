@@ -52,7 +52,6 @@ uint8_t subStateToSubStatusMsg(sub_t state_struct){
             sub_status_msg = sub_status_msg | (uint8_t)0b00110000;
             break;
     }
-    sub_status_msg = sub_status_msg | (((uint8_t)state_struct.state) & substate_mask);
 
     printf("Generated message: %u \n ", sub_status_msg);
     
