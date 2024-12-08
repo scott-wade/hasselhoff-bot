@@ -29,11 +29,16 @@ static uint8_t xlowPressureReg;
 
 /* Functions. ----------------------------------------------------------*/
 // initialization of pressure sensor
-void initPressureSensor(void)
+void initPressureSensorPins(void)
 {
-    // setup the GPIO pins of the nucleo for SPI ?
-    // ^probably better managed by the SPI initialization
+    // setup the GPIO pin to be used as CS for this sensor
+    // PG2 as CS0
+    initGPIOasMode(PORT_G, PIN_2, MODE_OUT, OD_PUSH_PULL, PUPD_UP, 1, 0);
+    // (rest of pin for SPI -> SCK, PICO, POCI should be handled by SPI initialization)
+}
 
+void initPressureSensorSettings(void)
+{
     // use hardware level functions to generate messages for intializing
     requestSpiTransmit(SENSOR_PARENT, DEPTH_SENSOR_ID, initLPS27HardwareMsg1(), &readingBuffer);
     requestSpiTransmit(SENSOR_PARENT, DEPTH_SENSOR_ID, initLPS27HardwareMsg2(), &readingBuffer);
@@ -49,7 +54,7 @@ void validateSensorInitMsg(void)
     sensorCheck = verifyWhoAmI(readingBuffer);
     if(sensorCheck != 1)
     {
-        //fprintf(stderr, "Depth sensor 'who am I' reading mismatch");
+        fprintf(stderr, "Depth sensor 'who am I' reading mismatch");
     }
 }
 
@@ -79,4 +84,12 @@ void calcDepth(void)
 double getDepth(void)
 {
     return currentDepth;
+}
+
+double updateDepth(void)
+{
+    calcDepth();
+    double depth = getDepth();
+
+    return depth;
 }

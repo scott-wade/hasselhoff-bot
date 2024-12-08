@@ -3,9 +3,10 @@
 
 #include <cstdint>
 #include "main.h"
-#include "debug_mort.h"
 #include "state_machine/state_machine_sub.h"
 #include "state_machine/state_machine_remote.h"
+
+
 #include "tests/test_spi.h"
 #include "tests/test_gpio.h"
 #include "state_machine_SPI.h"
@@ -16,7 +17,8 @@
 #include "ir_range.h"
 #include "timer_queue_remote.h"
 #include "motor_controller.h"
-
+#include <cmath>
+#include <iostream>
 
 int main(void){
     if (WHICH_NUCLEO == 0){
@@ -34,16 +36,11 @@ int main(void){
     } else if(WHICH_NUCLEO == 1) {
         /* submarine state machine */
 
-        /* initialization */
+        // initialization
         init_sub(); // State machine
-        // Initialise hardware
-        initMotorHardware();
-        initIRSensor(0); // Initialise IR sensor in digital mode
-        // initPressureSensor();
-
-        /* loop */
+        
+        // loop
         while(1){
-            timer_handler_remote(); // Identical functionality but different events in the queue
             event_handler_sub();
         }
 
