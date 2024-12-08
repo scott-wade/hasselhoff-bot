@@ -8,6 +8,7 @@
 #include <stdbool.h>
 #include "hardware_stm_gpio.h"
 #include "state_machine_SPI.h"
+#include "timer_queue_remote.h"
 
 
 // Constants ////////////////////
@@ -60,6 +61,8 @@
 
 #define CNT_DOWN_DIG_0  0 // Disp digit for countdown timer
 #define CNT_DOWN_DIG_1  1 // Disp digit for countdown timer
+#define COUTNDOWN       99 // Value to count down from 
+
 
 // Variables
 int led_display_values[4];
@@ -410,7 +413,7 @@ void welcome_remote (void)
 
 // Display timer that counts down in time
 int countdown_timer (void) {
-    static int count = 99; // Starting count
+    static int count = COUTNDOWN; // Starting count
     int blink_count = 10; // How many times to blink before exiting state
 
     int first_dig, second_dig;
@@ -424,11 +427,13 @@ int countdown_timer (void) {
         second_dig = count % 10; // Remainder
     } else if (count <= -1*blink_count) {
         // Game over! Exit driving state
+        count = COUTNDOWN; // Reset count to starting value
         // Driving -> Welcome
+        remote_state = WELCOME_REMOTE; // required here to prevent re-entering countdown
         sched_event(WELCOME_REMOTE);
-        remote_state = WELCOME_REMOTE;
         // Notify sub about timeout
         requestSpiTransmit_remote(RESET_MSG, 0, NULL); // send reset message
+        return 1; // Exit
     } else {
         // Negative numbers is game over and leds will flash on and off
         if (count%2 == 0) {

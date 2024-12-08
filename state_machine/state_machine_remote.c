@@ -122,7 +122,6 @@ void tasks(remote_event_t event){
             add_timer(START_ADC_DELAY_MS, START_ADC); // Start ADC
             // Schedule periodic tasks to the queue
             sched_event(CYCLE_LED_DISPLAY);
-            add_timer(START_ADC_DELAY_MS + 10, READ_TARGET_DEPTH); // Start after ADC
             add_timer(START_ADC_DELAY_MS + 10, READ_JOYSTICKS); // Start after ADC
             sched_event(POLL_SUB_STATUS);
             // NEXT: Init -> Welcome
@@ -140,6 +139,7 @@ void tasks(remote_event_t event){
             clear_all_leds();
             set_white_led(); // Set driving status LED
             sched_event(COUNTDOWN_TIMER); // Start countdown timer
+            sched_event(READ_TARGET_DEPTH); // Read depth knob
             break;
         case LAND_REMOTE:
             clear_white_led(); // Turn off drive status LED
@@ -157,7 +157,8 @@ void tasks(remote_event_t event){
             break;
         case READ_TARGET_DEPTH:
             read_target_depth();
-            add_timer(READ_DEPTH_PERIOD_MS, READ_TARGET_DEPTH); // Add event back on queue as a periodic task
+            if (remote_state == DRIVE_REMOTE)
+                add_timer(READ_DEPTH_PERIOD_MS, READ_TARGET_DEPTH); // Add event back on queue as a periodic task
             break;
         case COUNTDOWN_TIMER:
             countdown_timer();

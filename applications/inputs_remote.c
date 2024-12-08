@@ -83,15 +83,12 @@ void read_target_depth (void) {
     }
 
     // Update LED display with depth value
-    if (prev_val != curr_val) {
-        // If value changed, set the led display value
-        int first_dig = curr_val / 10; // Integer division
-        int second_dig = curr_val % 10; // Remainder
+    int first_dig = curr_val / 10; // Integer division
+    int second_dig = curr_val % 10; // Remainder
 
-        // Set the values on the led display
-        set_led_disp_val(TAR_DEP_DIG_0, first_dig);
-        set_led_disp_val(TAR_DEP_DIG_1, second_dig);
-    }
+    // Set the values on the led display
+    set_led_disp_val(TAR_DEP_DIG_0, first_dig);
+    set_led_disp_val(TAR_DEP_DIG_1, second_dig);
 
     prev_val = curr_val; // Set current to old
 }
