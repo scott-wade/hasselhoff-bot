@@ -26,6 +26,10 @@
   // Front Ballast Prop -> CW BALLAST PROP
   // Rear Ballast Prop -> CCW BALLAST PROP
   
+
+  /* *****************************************************************************************************************************************
+  *********************************************** MOTOR INITIALIZATION ***********************************************************************
+  ******************************************************************************************************************************************** */
   /* 
     Initialize Motor Hardware and Run Propulsion Self test  
   */
@@ -46,6 +50,12 @@
       initGPIOasMode(BALLAST_CCW_PROP_PIN[0], BALLAST_CCW_PROP_PIN[1], 2, 0, 0, 0, 2);
       initGPIOasMode(PROPULSION_CW_PROP_PIN[0], PROPULSION_CW_PROP_PIN[1], 2, 0, 0, 0, 2);
       initGPIOasMode(PROPULSION_CCW_PROP_PIN[0], PROPULSION_CCW_PROP_PIN[1], 2, 0, 0, 0, 2);
+
+      /* Initialize Grounds for each of these GPIOs */
+      initGPIOasMode(BALLAST_CW_PROP_GND[0], BALLAST_CW_PROP_GND[1], 0, 0, 2, 0, 0);
+      initGPIOasMode(BALLAST_CCW_PROP_GND[0], BALLAST_CCW_PROP_GND[1], 2, 0, 0, 0, 2); // Ballast CCW is already tied to gnd
+      initGPIOasMode(PROPULSION_CW_PROP_GND[0], PROPULSION_CW_PROP_GND[1], 0, 0, 2, 0, 0);
+      initGPIOasMode(PROPULSION_CCW_PROP_GND[0], PROPULSION_CCW_PROP_GND[1], 0, 0, 2, 0, 0);
 
   }
   
@@ -69,9 +79,7 @@
       initPWMonChannel(MOTOR_TIMER, PROPULSION_CW_PROP_CH, IDLE_DUTY_CYCLE);
       initPWMonChannel(MOTOR_TIMER, PROPULSION_CCW_PROP_CH, IDLE_DUTY_CYCLE);
 
-      enableTimer(MOTOR_TIMER);
-
-      
+      enableTimer(MOTOR_TIMER); 
   }
 
   /* 
@@ -86,13 +94,16 @@
       setDutyCycle(MOTOR_TIMER, PROPULSION_CW_PROP_CH, IDLE_DUTY_CYCLE);
       setDutyCycle(MOTOR_TIMER, PROPULSION_CCW_PROP_CH, IDLE_DUTY_CYCLE);
       
-      sub_sleep(1.0);
+      for (int i=0; i<200; i++){
+          printf("Holding for self test\n");
+      }
   }
 
-  /* 
-    Converts joystick inputs into PWM signals to the CW and CCW motors 
-  */
-  void propulsionControl(float x_input, float y_input)
+  /* *****************************************************************************************************************************************
+  *********************************************** MOTOR CONTROL  *****************************************************************************
+  ******************************************************************************************************************************************** */
+
+  void planarControl(float x_input, float y_input)
   {
     float idle_thrust;
     float left_motor_duty;
@@ -124,64 +135,17 @@
     setDutyCycle(MOTOR_TIMER, PROPULSION_CCW_PROP_CH, right_motor_duty);
   }
 
-  /* 
-    Navigate to a target depth by setting PWM signals 
-  */
-  void ballastControl(float target_depth)
+  void depthControl(float z_input)
   {
-     float current_depth;
-     //current_depth = readDepthSensor();
+    float idle_duty_cycle = IDLE_DUTY_CYCLE + FWD_DEADZONE; 
+    float thrust = idle_duty_cycle + z_input*(1-idle_duty_cycle);
 
-     if (current_depth > target_depth) { // Raise Depth
-        
-        float idle_duty_cycle = IDLE_DUTY_CYCLE + FWD_DEADZONE; 
-        float thrust = idle_duty_cycle + 0.5*(1-idle_duty_cycle);
-
-        setDutyCycle(MOTOR_TIMER, BALLAST_CW_PROP_CH, thrust);
-        setDutyCycle(MOTOR_TIMER, BALLAST_CCW_PROP_CH, thrust);
-     }
-  }
-
-  /*
-    Landing sequence via PID ballastControl
-    return
-        -1 failed to reach target depth
-        1 reached target depth
-  */
-  uint8_t landingSequence(float target_depth, uint16_t max_ticks)
-  {
-    //  float current_depth;
-    //  uint8_t ticks = 0;
-    //  float i = 0;
-    //  //current_depth = readDepthSensor();
-
-    //  while (fabs(current_depth - target_depth) > LANDING_EPS) { // Raise Depth
-    //     // If target depth is larger we want to go up which corresponds to positive offsets on duty cycles
-    //     float err = current_depth - target_depth; 
-    //     i = i + err;
-    //     // Preventing windup
-    //     if (i > LANDING_MAX_I) {
-    //         i = LANDING_MAX_I
-    //     } else if (i < -LANDING_MAX_I) {
-    //         i = -LANDING_MAX_I;
-    //     }
-    //     float output = LANDING_KP * err 
-
-    //     float idle_duty_cycle = IDLE_DUTY_CYCLE + FWD_DEADZONE; 
-    //     float thrust = idle_duty_cycle + 0.5*(1-idle_duty_cycle + output);
-
-    //     setDutyCycle(MOTOR_TIMER, BALLAST_CW_PROP_CH, thrust);
-    //     setDutyCycle(MOTOR_TIMER, BALLAST_CCW_PROP_CH, thrust);
-    //     sub_sleep(0.1);
-    //     ticks = ticks + 1;
-    //     if (ticks > max_ticks)
-    //     {
-    //         return -1;
-    //     }
-    //  }
-    //  return 1;
+    setDutyCycle(MOTOR_TIMER, BALLAST_CW_PROP_CH, thrust);
+    setDutyCycle(MOTOR_TIMER, BALLAST_CCW_PROP_CH, thrust);
   }
 
   void welcomeTrajectory(void)
   {
+    // Execute a Circular Trajectory
+    planarControl(0.4, 0.3);
   }

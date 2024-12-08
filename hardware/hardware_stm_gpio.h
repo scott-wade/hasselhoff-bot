@@ -36,6 +36,7 @@
 #define MODE_AF2        2
 #define MODE_AF        2
 #define OD_PUPD         0
+#define OD_PUSH_PULL    0
 #define OD_OPEN_DRAIN   0
 #define PUPD_FLOAT      0
 #define PUPD_UP         1
