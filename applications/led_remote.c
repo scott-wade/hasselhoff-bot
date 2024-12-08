@@ -474,12 +474,12 @@ void read_sub_status(void) {
     // Sub state is Idle (00), Welcome (01), Drive (10), Land (11)
     if (sub_state == 0b01 && remote_state != WELCOME_REMOTE) {
         // Sub in welcome state
-        printf("[ERROR] OUT OF SYNC: Sub is in welcome state!");
+        fprintf(stderr, "[ERROR] OUT OF SYNC: Sub is in welcome state!\n");
     } else if (sub_state == 0b10 && remote_state != DRIVE_REMOTE) {
         // Sub in drive state
-        printf("[ERROR] OUT OF SYNC: Sub is in drive state!");
+        fprintf(stderr, "[ERROR] OUT OF SYNC: Sub is in drive state!\n");
     } else if (sub_state == 0b11 && remote_state != LAND_REMOTE) {
         // Sub in drive state
-        printf("[ERROR] OUT OF SYNC: Sub is in land state!");
+        fprintf(stderr, "[ERROR] OUT OF SYNC: Sub is in land state!\n");
     }
 }
