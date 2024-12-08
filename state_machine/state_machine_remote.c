@@ -52,6 +52,7 @@ void init_remote(void){
     init_joysticks();
     init_seg_display();
     init_state_machine_spi(NUCLEO_PARENT); // parent = remote
+    printf("Initialized remote\n");
 }
 
 
