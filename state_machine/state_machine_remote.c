@@ -59,7 +59,7 @@ void init_remote(void){
 /* Queue ------------------------------------------------------------------*/
 // Push new event to end of queue
 int sched_event(remote_event_t event) {
-    printf("remote_state = %d\n", remote_state);
+    // printf("remote_state = %d\n", remote_state);
 
     // Allocate memory for queue node
     queue_node_t* new_node = malloc(sizeof(queue_node_t));

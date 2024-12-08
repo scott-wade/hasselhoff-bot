@@ -12,7 +12,7 @@
 #include "state_machine_SPI.h"
 
 
-#define MAX_POT_VAL             3390 // Empirically measured max potentiometer value
+#define MAX_POT_VAL             4095 // Empirically measured max potentiometer value
 #define TAR_DEP_DIG_0           2 // Index of first digit of target depth
 #define TAR_DEP_DIG_1           3 // Index of second digit of target depth
 #define MAX_JOY_VAL             4094 // Empirically measured max joystick value
@@ -62,11 +62,10 @@ int init_target_depth_knob(void) {
 /*
  * Returns the target depth that is measured from the potentiometer as a discrete value
  */
-uint16_t get_target_depth(int prev_val) {
+uint16_t get_target_depth(void) {
     // Filter the value
-    uint16_t processed_val = analog_filter(prev_val, target_depth, 0.7 /* alpha */);
     // Map to desired range
-    processed_val = analog2discrete(processed_val, 
+    uint16_t processed_val = analog2discrete(target_depth, 
                         0, MAX_POT_VAL, // Input range
                         1, 17); // Desired range
     
@@ -76,7 +75,7 @@ uint16_t get_target_depth(int prev_val) {
 
 void read_target_depth (void) {
     static uint8_t prev_val = 0;
-    uint8_t curr_val = get_target_depth(prev_val);
+    uint8_t curr_val = get_target_depth();
 
     if (remote_state == DRIVE_REMOTE) {
         // When driving, continuously send joystick values
