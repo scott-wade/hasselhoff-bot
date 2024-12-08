@@ -15,26 +15,26 @@
 
 
 /* MACRO definitions----------------------------------------------------------*/
-#define ATM_PRESS 1013.25        // atmospheric pressure in hPa
 #define DEPTH_SENSOR_ID 0
 
 /* Declarations ----------------------------------------------------------*/
 static double resultantPressure;
+static double atmPressure;
 static double currentDepth;
 static uint8_t readingBuffer;
 
 static uint8_t highPressureReg;
 static uint8_t lowPressureReg;
 static uint8_t xlowPressureReg;
+static uint8_t firstReading = 1;
 
 /* Functions. ----------------------------------------------------------*/
-// initialization of pressure sensor
-void initPressureSensorPins(void)
+// initialize a value to be used as atmospheric pressure / zero depth
+void initPressure(void)
 {
-    // setup the GPIO pin to be used as CS for this sensor
-    // PG2 as CS0
-    initGPIOasMode(PORT_G, PIN_2, MODE_OUT, OD_PUSH_PULL, PUPD_UP, 1, 0);
-    // (rest of pin for SPI -> SCK, PICO, POCI should be handled by SPI initialization)
+    // pin initialization handled by SPI intialization
+    // call for a pressure reading (dummy proofs taking a pressure reading early)
+    measurePressure();
 }
 
 void initPressureSensorSettings(void)
@@ -50,6 +50,7 @@ void extraWhoAmICheck(void) {
     // issue a reading request for the who am I register as a final check
     requestSpiTransmit(SENSOR_PARENT, DEPTH_SENSOR_ID, whoAmILPS27Msg(), &readingBuffer);    
 }
+
 // call this function from the spi state machine level once the initializing receipts are complete
 // verifies the who am I reading matches appropriate flag
 void validateSensorInitMsg(void)
@@ -59,7 +60,10 @@ void validateSensorInitMsg(void)
     if(sensorCheck != 1)
     {
         printf("Depth sensor 'who am I' reading mismatch \n");
-        printf("Reading buffer: %hhu\n", readingBuffer);
+    }
+    else
+    {
+        printf("depth hello world\n");
     }
 }
 
@@ -75,18 +79,23 @@ void measurePressure(void)
 double getPressure(void)
 {
     resultantPressure = calcPressure(highPressureReg, lowPressureReg, xlowPressureReg);
+    // when we take our first pressure reading and calculate a result, treat this as our atmospheric 0 pressure point
+    if(firstReading)
+    {
+        atmPressure = resultantPressure;
+        firstReading = 0;
+    }
     return resultantPressure;
 }
 
 // function to calculate depth in inches based on hPa reading
-// this should get called upon completion of the SPI state machine when transitioning out of the final pressure reading
-// that will ensure that whenever getDepth is called on, it will be the freshest reading
 void calcDepth(void)
 {
-    currentDepth = (getPressure() - ATM_PRESS) * 0.40146;
+    currentDepth = (getPressure() - atmPressure) * 0.401869;
 }
 
 double getDepth(void)
 {
+    calcDepth();
     return currentDepth;
 }

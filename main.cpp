@@ -60,16 +60,16 @@ int main(void){
     }else if (WHICH_NUCLEO == 94){
         /* initialization */
         // initialize the sub clock
-        initSubClock();
-        // initialize my gpio for debugging
-        initButtonIntInput();
-        // initialize sensor GPIO
-        initPressureSensorPins();      
+        initSubClock();    
         // initialize SPI comm to sensor(s)
-        init_state_machine_spi(SENSOR_PARENT); // this is a home for the spi queue
-        // initalize a queue and timeout array (utility and debugging)**
+        init_state_machine_spi(SENSOR_PARENT); // this is a home for the spi queue    
+        // initalize a sub state machine queue and timeout array
         // initialize the depth sensor settings
         initPressureSensorSettings();
+        // initialize my gpio for debugging
+        initButtonIntInput();    
+        // queue up initial pressure readings
+        initPressure();
         /* loop */
         while(1){
             // service event queue

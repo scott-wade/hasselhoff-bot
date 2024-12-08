@@ -29,7 +29,7 @@
 
 /* Flag / Settings ----------------------------------------------------------*/
 #define READ                    0b1 << 7
-#define WRITE                   0b0 << 0
+#define WRITE                   0b0 << 7
 // CTRL REG1 FLAGS
 #define DATA_RATE               0b101 << 4  // 75 Hz max data rate (though this gets halved at min regardless)
 #define EN_LPFP                 0b0 << 3    // even with filters off, can still get really low noise
@@ -98,8 +98,14 @@ int verifyWhoAmI(uint8_t checkReading)
 double calcPressure(uint32_t highPressureVal, uint32_t lowPressureVal, uint32_t xLowPressureVal)
 {
     // little different from their datasheet, but logically I believe this is what they mean
-    // yields pressure in hPa
-    return (double)(highPressureVal << 16 | lowPressureVal << 8 | xLowPressureVal)/4096.;
+    int32_t combineSignedPressure = (highPressureVal << 16 | lowPressureVal << 8 | xLowPressureVal);
+    if (combineSignedPressure & 0x800000) { // Check the 24th bit
+        printf("neg pressure ?");
+        combineSignedPressure |= 0xFF000000; // Extend the sign bit
+    }    
+    // return scaled pressure in hPa
+    return combineSignedPressure/4096.;
+    // return (double)(highPressureVal << 16 | lowPressureVal << 8 | xLowPressureVal)/4096.;
 }
 
 /* SPI Setup / Transaction Helpers ---------------------------------------*/

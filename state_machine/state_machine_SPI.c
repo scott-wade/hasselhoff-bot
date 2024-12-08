@@ -86,7 +86,7 @@ void event_handler_spi(Spi_State_Machine_t spi_type){
         case SENSOR_PARENT: // parent on SPI4
             if (!isEmpty(SPI_SENSOR_EVENT_QUEUE) && SPI_SENSOR_STATE == 99){
                 CURRENT_SENSOR_TRANSMIT_EVENT = *(transmitEvent*)dequeue(SPI_SENSOR_EVENT_QUEUE);
-                printf("Dequeued spi sensor comm event \n");
+                //printf("Dequeued spi sensor comm event \n");
                 newTransmission = 1;
             }
         break;
@@ -128,7 +128,7 @@ void event_handler_spi(Spi_State_Machine_t spi_type){
         // clear CSi pin if addressing sensors
         if (spi_type == SENSOR_PARENT) {
             SETorCLEARGPIOoutput(CS_PINS[currentState*2], CS_PINS[currentState*2+1], 0);
-            printf("CS pin low \n");
+            //printf("CS pin low \n");
         }
         // write to TX buffer
         // printf("writing to tx: %u\n", currpacket);
@@ -223,18 +223,19 @@ void spiInterruptHandler(uint8_t spi_id){
         else {// if currently transmitting
             // (this is the typical conclusion of a message for sensor communication)
             // write received data to the read_var_addr of the current transmission event
-            uint8_t recievedData = (uint8_t)readRX(spi_id);
+            uint8_t receivedData = 0;
+            receivedData = (uint8_t)readRX(spi_id);
             // reading in from a sensor event
             if(spi_id == 4) {
-                *(CURRENT_SENSOR_TRANSMIT_EVENT.read_var_addr) = recievedData;
+                *(CURRENT_SENSOR_TRANSMIT_EVENT.read_var_addr) = receivedData;
                 // raise the CS pin since we're done reading
                 uint8_t childID = CURRENT_SENSOR_TRANSMIT_EVENT.child_id;
                 SETorCLEARGPIOoutput(CS_PINS[childID*2], CS_PINS[childID*2+1], 1);
-                printf("received data: %hhu \n", recievedData);
+                //printf("received: %hhu \n", receivedData);
             }
             // reading in from a nucleo
             else {
-                *(CURRENT_COMMS_TRANSMIT_EVENT.read_var_addr) = recievedData;                
+                *(CURRENT_COMMS_TRANSMIT_EVENT.read_var_addr) = receivedData;                
             }
             // Transition to IDLE
             *stateptr = 99;
