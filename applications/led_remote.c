@@ -378,32 +378,52 @@ void welcome_remote (void)
 {
     // Light up LED status lights
     static int led_i = 0;
+    static bool reverse = false; // Go in reverse direction
+
+    // LED labels
+    // 1. Power: RGB
+    // 2. Comms: yellow
+    // 3. Target: Blue
+    // 4. Landing: Green
+    // 5. Driving: white
     switch(led_i) {
         case 0:
-            clear_rgb_green_led();
-            clear_rgb_red_led();
-            set_white_led();
+            // RGB on
+            clear_all_leds();
+            set_rgb_green_led();
+            set_rgb_red_led();
+            reverse = false; // Go up
             break;
         case 1:
-            clear_white_led();
-            set_blue_led();
-            break;
-        case 2:
-            clear_blue_led();
+            // Yellow on
+            clear_all_leds();
             set_yellow_led();
             break;
+        case 2:
+            // Blue on
+            clear_all_leds();
+            set_blue_led();
+            break;
         case 3:
-            clear_yellow_led();
+            // Green on
+            clear_all_leds();
             set_green_led();
             break;
         case 4:
-            clear_green_led();
-            set_rgb_green_led();
-            set_rgb_red_led();
+            // White on
+            clear_all_leds();
+            set_white_led();
+            reverse = true; // Go down
             break;
     }
-    led_i = (led_i+1)%5;
 
+    // Go forwards and backwards along the leds
+    if (reverse)
+        led_i--;
+    else
+        led_i++;
+    
+    //////////////////////////////////////////////////////////
     // Change led display numbers
     static int disp_i = 0;
     int disp_vals[4] = {disp_i, disp_i, disp_i, disp_i};
@@ -461,16 +481,20 @@ int countdown_timer (void) {
  */
 void read_sub_status(void) {
     // IR status[bit 0], sub state[bit 1-2], power (?)
+    uint8_t is_target_detected, sub_state;
 
-    // Set status LED is target is detected
-    uint8_t is_target_detected = sub_status & 0b01;
-    if (is_target_detected)
-        set_blue_led();
-    else
-        clear_blue_led();
+    // Set status LED is target is detected, only in drive/land states
+    if ((remote_state == DRIVE_REMOTE) || 
+        (remote_state == LAND_REMOTE)) {
+            is_target_detected = sub_status & 0b01;
+            if (is_target_detected)
+                set_blue_led();
+            else
+                clear_blue_led();
+        }
 
     // Get sub state
-    uint8_t sub_state = (sub_status >> 1) & 0b11;
+    sub_state = (sub_status >> 1) & 0b11;
     // Sub state is Idle (00), Welcome (01), Drive (10), Land (11)
     if (sub_state == 0b01 && remote_state != WELCOME_REMOTE) {
         // Sub in welcome state
