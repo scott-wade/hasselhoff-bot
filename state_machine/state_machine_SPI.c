@@ -239,7 +239,7 @@ void spiInterruptHandler(uint8_t spi_id){
 
     // if transmit event
     if ((current_status_register & TXE_MASK) > 0){
-        printf("Handling TXE interrupt\n");
+        // printf("Handling TXE interrupt\n");
         if (*stateptr == 99){ // if state == IDLE
             // disable Spi TXE Interrupts(SPI id)
             disableSpiTXEInterrupts(spi_id);
@@ -274,9 +274,6 @@ void SPI4_IRQHandler(void){
  * @param read_var_addr: address to store the return value (only for messages that have a response)
  */
 void requestSpiTransmit_remote(packet_type_t msg_type, uint8_t data, uint8_t* read_var_addr) {
-    // void requestSpiTransmit(Spi_State_Machine_t spi_type, uint8_t child_id, 
-    //                         uint16_t packet, uint32_t* read_var_addr);
-
     uint8_t header = (uint8_t)msg_type;
 
     // Packet is first 8 bits is message type and last 8 bits is the data

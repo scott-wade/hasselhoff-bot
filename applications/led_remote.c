@@ -40,22 +40,22 @@
 
 
 // Blue: D4
-#define BLUE_PORT       3 // D
+#define BLUE_PORT       PORT_D // D
 #define BLUE_PIN        4
 // Yellow: D3
-#define YELLOW_PORT     3 // D
+#define YELLOW_PORT     PORT_D // D
 #define YELLOW_PIN      3
 // Green: C10
-#define GREEN_PORT      2 // C
+#define GREEN_PORT      PORT_C // C
 #define GREEN_PIN       10
 // White: C8
-#define WHITE_PORT      2 // C
+#define WHITE_PORT      PORT_C // C
 #define WHITE_PIN       8
 // RGB Green: E2
-#define RGB_GREEN_PORT  4 // E
+#define RGB_GREEN_PORT  PORT_E // E
 #define RGB_GREEN_PIN   2
 // RGB Red: E4
-#define RGB_RED_PORT    4 // E
+#define RGB_RED_PORT    PORT_E // E
 #define RGB_RED_PIN     4
 
 #define CNT_DOWN_DIG_0  0 // Disp digit for countdown timer
@@ -349,21 +349,22 @@ int init_status_leds(void) {
     initGPIOasMode(RGB_RED_PORT, RGB_RED_PIN, MODE_OUT, OD_PUPD, PUPD_FLOAT, initial_value, 0);
     
     // Set initial states for the LEDs
-    // set_blue_led();
-    clear_blue_led();
-    // set_yellow_led();
-    clear_yellow_led();
-    // set_green_led();
-    clear_green_led();
-    // set_white_led();
-    clear_white_led();
-    // set_rgb_green_led();
-    clear_rgb_green_led();
-    // set_rgb_red_led();
-    clear_rgb_red_led();
-
+    clear_all_leds();
 
     return 0; // success
+}
+
+
+/**
+ * Clear all LEDs to off
+ */
+void clear_all_leds(void) {
+    clear_blue_led();
+    clear_yellow_led();
+    clear_green_led();
+    clear_white_led();
+    clear_rgb_green_led();
+    clear_rgb_red_led();
 }
 
 /*
@@ -427,7 +428,7 @@ int countdown_timer (void) {
         sched_event(WELCOME_REMOTE);
         remote_state = WELCOME_REMOTE;
         // Notify sub about timeout
-        requestSpiTransmit_remote(RESET_MSG_RECEIVED, 0, NULL); // send reset message
+        requestSpiTransmit_remote(RESET_MSG, 0, NULL); // send reset message
     } else {
         // Negative numbers is game over and leds will flash on and off
         if (count%2 == 0) {

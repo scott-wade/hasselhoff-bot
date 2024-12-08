@@ -1,4 +1,4 @@
-#define WHICH_NUCLEO 1 //change for compilation, 0 for remote, 1 for submarine, 2 for debug remote, 3 for debug sub3, 94 for NZ debugging
+#define WHICH_NUCLEO 0 //change for compilation, 0 for remote, 1 for submarine, 2 for debug remote, 3 for debug sub3, 94 for NZ debugging
 
 
 #include <cstdint>
@@ -31,7 +31,7 @@ int main(void){
             // Check for tasks in queue and then execute them
             event_handler_remote();
             // SPI event handler
-            // event_handler_spi(NUCLEO_PARENT); // Remote = parent
+            event_handler_spi(NUCLEO_PARENT); // Remote = parent
         }
     } else if(WHICH_NUCLEO == 1) {
         /* submarine state machine */
