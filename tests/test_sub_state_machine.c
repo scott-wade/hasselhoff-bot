@@ -1,3 +1,6 @@
+#include "test_sub_state_machine.h"
+#include <assert.h>
+
 void test_sub_state_machine(void)
 {
     sub_events_t event;
@@ -77,7 +80,7 @@ void test_sub_state_machine(void)
     assert(subState.state == DRIVE);
     // SENSOR TIMEOUT
     event.type = SENSOR_POLLING_TIMEOUT;
-    event.value = NULL;
+    event.data = NULL;
     insert_to_simple_queue(event);
     event_handler_sub();
     assert(subState.state == DRIVE);
@@ -102,7 +105,7 @@ void test_sub_state_machine(void)
     assert(subState.state == DRIVE);
     // LAND MESSAGE
     event.type = LAND_MSG_RECEIVED;
-    event.value = NULL;
+    event.data = NULL;
     insert_to_simple_queue(event);
     event_handler_sub();
     assert(subState.state == LANDING);

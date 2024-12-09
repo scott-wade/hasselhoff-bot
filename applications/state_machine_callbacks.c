@@ -5,12 +5,6 @@
 #include "ir_range.h"
 #include <math.h>
 
-#define WELCOME_DEPTH 6
-#define LAND_DEPTH 15
-#define DEPTH_TOLERANCE 1
-#define MIN_POT_DEPTH 4.0
-#define MAX_POT_DEPTH 10.0
-
 void any_message_in_idle(void)
 {
     // Transition to WELCOME
