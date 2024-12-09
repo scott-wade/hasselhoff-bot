@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 #define WHICH_NUCLEO 0 //change for compilation, 0 for remote, 1 for submarine, 2 for debug remote, 3 for debug sub3, 94 for NZ debugging
+=======
+#define WHICH_NUCLEO 94 //change for compilation, 0 for remote, 1 for submarine, 2 for debug remote, 3 for debug sub3, 94 for NZ debugging
+>>>>>>> nathan
 
 
 #include <cstdint>
@@ -55,13 +59,20 @@ int main(void){
     }else if (WHICH_NUCLEO == 94){
         /* initialization */
         // initialize the sub clock
-        initSubClock();
-
-        // initalize a queue and timeout array (utility and debugging)
-        
+        initSubClock();    
+        // initialize SPI comm to sensor(s)
+        init_state_machine_spi(SENSOR_PARENT); // this is a home for the spi queue    
+        // initalize a sub state machine queue and timeout array
+        // initialize the depth sensor settings
+        initPressureSensorSettings();
+        // initialize my gpio for debugging
+        initButtonIntInput();    
+        // queue up initial pressure readings
+        initPressure();
         /* loop */
         while(1){
             // service event queue
+            event_handler_spi(SENSOR_PARENT); // handles the SPI transmissions
             // check on the timeouts
         }
     }

@@ -14,6 +14,7 @@
 #include <cstdint>
 
 #include "hardware_stm_gpio.h"
+#include "applications/depth_sensor.h"
 
 /* MACRO definitions----------------------------------------------------------*/
 #define SYSTEM_CONTROL_BASE_ADDRESS (0xE000E000)
@@ -51,6 +52,8 @@
 #define EXTERNAL_INTERRUPT_CONTROLLER_FTSR_EXTI6 ((uint32_t)0x40)
 #define EXTERNAL_INTERRUPT_CONTROLLER_PENDING_REGISTER (EXTERNAL_INTERRUPT_CONTROLLER_BASE_ADDRESS+0x14)
 #define EXTERNAL_INTERRUPT_CONTROLLER_PENDING_EXTI6 ((uint32_t)0x40)
+
+static int interruptCounter = 0; // for debugging
 
 void enableSPI1Interrupt(void){
     uint32_t* reg_pointer_32;
@@ -108,15 +111,27 @@ void EXTI9_5_IRQHandler(void)
 {
     uint32_t *reg_pointer_32;
     reg_pointer_32 = (uint32_t *)EXTERNAL_INTERRUPT_CONTROLLER_PENDING_REGISTER;
-
+    uint8_t depthRxBuffer = 0;
     // check which interrupt fired
     // mask for if its EXTI6
     if((*reg_pointer_32 & EXTERNAL_INTERRUPT_CONTROLLER_PENDING_EXTI6) > 0)
     {
         // clear pending interrupt (by writing a 1)
         *reg_pointer_32 = EXTERNAL_INTERRUPT_CONTROLLER_PENDING_EXTI6;
-        // toggle PB0 as our action (debugging)
-        ToggleGPIOOutput(PORT_B, 0);
-        printf("external int fired\n");
+        // toggle PB0 as our action (debugging the EXTI)
+        ToggleGPIOOutput(PORT_B, PIN_0);
+
+        //debugging depth calculation
+        // iterate the interrupt counter
+        interruptCounter = interruptCounter + 1;
+        // every other button press, let's take a depth reading / talk to the sensor
+        if(interruptCounter % 2 == 0) {
+            printf("inches: %.2f \n", getDepth());
+        } 
+        // do a calculation and double check if things are making sense
+        else {
+            //getPressure();
+        }        
+        printf("pressure: %.2f \n", getPressure());
     }
 }
