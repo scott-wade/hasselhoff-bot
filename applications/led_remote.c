@@ -8,6 +8,7 @@
 #include <stdbool.h>
 #include "hardware_stm_gpio.h"
 #include "state_machine_SPI.h"
+#include "timer_queue_remote.h"
 
 
 // Constants ////////////////////
@@ -60,6 +61,8 @@
 
 #define CNT_DOWN_DIG_0  0 // Disp digit for countdown timer
 #define CNT_DOWN_DIG_1  1 // Disp digit for countdown timer
+#define COUTNDOWN       99 // Value to count down from 
+
 
 // Variables
 int led_display_values[4];
@@ -375,32 +378,52 @@ void welcome_remote (void)
 {
     // Light up LED status lights
     static int led_i = 0;
+    static bool reverse = false; // Go in reverse direction
+
+    // LED labels
+    // 1. Power: RGB
+    // 2. Comms: yellow
+    // 3. Target: Blue
+    // 4. Landing: Green
+    // 5. Driving: white
     switch(led_i) {
         case 0:
-            clear_rgb_green_led();
-            clear_rgb_red_led();
-            set_white_led();
+            // RGB on
+            clear_all_leds();
+            set_rgb_green_led();
+            set_rgb_red_led();
+            reverse = false; // Go up
             break;
         case 1:
-            clear_white_led();
-            set_blue_led();
-            break;
-        case 2:
-            clear_blue_led();
+            // Yellow on
+            clear_all_leds();
             set_yellow_led();
             break;
+        case 2:
+            // Blue on
+            clear_all_leds();
+            set_blue_led();
+            break;
         case 3:
-            clear_yellow_led();
+            // Green on
+            clear_all_leds();
             set_green_led();
             break;
         case 4:
-            clear_green_led();
-            set_rgb_green_led();
-            set_rgb_red_led();
+            // White on
+            clear_all_leds();
+            set_white_led();
+            reverse = true; // Go down
             break;
     }
-    led_i = (led_i+1)%5;
 
+    // Go forwards and backwards along the leds
+    if (reverse)
+        led_i--;
+    else
+        led_i++;
+    
+    //////////////////////////////////////////////////////////
     // Change led display numbers
     static int disp_i = 0;
     int disp_vals[4] = {disp_i, disp_i, disp_i, disp_i};
@@ -410,7 +433,7 @@ void welcome_remote (void)
 
 // Display timer that counts down in time
 int countdown_timer (void) {
-    static int count = 99; // Starting count
+    static int count = COUTNDOWN; // Starting count
     int blink_count = 10; // How many times to blink before exiting state
 
     int first_dig, second_dig;
@@ -424,11 +447,12 @@ int countdown_timer (void) {
         second_dig = count % 10; // Remainder
     } else if (count <= -1*blink_count) {
         // Game over! Exit driving state
+        count = COUTNDOWN; // Reset count to starting value
         // Driving -> Welcome
         sched_event(WELCOME_REMOTE);
-        remote_state = WELCOME_REMOTE;
         // Notify sub about timeout
         requestSpiTransmit_remote(RESET_MSG, 0, NULL); // send reset message
+        return 0; // Exit
     } else {
         // Negative numbers is game over and leds will flash on and off
         if (count%2 == 0) {
@@ -446,6 +470,8 @@ int countdown_timer (void) {
 
     // Decrement counter
     count--; 
+
+    return count;
 }
 
 
@@ -456,25 +482,29 @@ int countdown_timer (void) {
  */
 void read_sub_status(void) {
     // IR status[bit 0], sub state[bit 1-2], power (?)
+    uint8_t is_target_detected, sub_state;
 
-    // Set status LED is target is detected
-    uint8_t is_target_detected = sub_status & 0b01;
-    if (is_target_detected)
-        set_blue_led();
-    else
-        clear_blue_led();
+    // Set status LED is target is detected, only in drive/land states
+    if ((remote_state == DRIVE_REMOTE) || 
+        (remote_state == LAND_REMOTE)) {
+            is_target_detected = sub_status & 0b01;
+            if (is_target_detected)
+                set_blue_led();
+            else
+                clear_blue_led();
+        }
 
     // Get sub state
-    uint8_t sub_state = (sub_status >> 1) & 0b11;
+    sub_state = (sub_status >> 1) & 0b11;
     // Sub state is Idle (00), Welcome (01), Drive (10), Land (11)
     if (sub_state == 0b01 && remote_state != WELCOME_REMOTE) {
         // Sub in welcome state
-        printf("[ERROR] OUT OF SYNC: Sub is in welcome state!");
+        fprintf(stderr, "[ERROR] OUT OF SYNC: Sub is in welcome state!\n");
     } else if (sub_state == 0b10 && remote_state != DRIVE_REMOTE) {
         // Sub in drive state
-        printf("[ERROR] OUT OF SYNC: Sub is in drive state!");
+        fprintf(stderr, "[ERROR] OUT OF SYNC: Sub is in drive state!\n");
     } else if (sub_state == 0b11 && remote_state != LAND_REMOTE) {
         // Sub in drive state
-        printf("[ERROR] OUT OF SYNC: Sub is in land state!");
+        fprintf(stderr, "[ERROR] OUT OF SYNC: Sub is in land state!\n");
     }
 }

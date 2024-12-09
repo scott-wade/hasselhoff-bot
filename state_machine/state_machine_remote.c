@@ -52,6 +52,7 @@ void init_remote(void){
     init_joysticks();
     init_seg_display();
     init_state_machine_spi(NUCLEO_PARENT); // parent = remote
+    printf("Initialized remote\n");
 }
 
 
@@ -59,7 +60,7 @@ void init_remote(void){
 /* Queue ------------------------------------------------------------------*/
 // Push new event to end of queue
 int sched_event(remote_event_t event) {
-    printf("remote_state = %d\n", remote_state);
+    // printf("remote_state: %d\n", remote_state);
 
     // Allocate memory for queue node
     queue_node_t* new_node = malloc(sizeof(queue_node_t));
@@ -122,29 +123,30 @@ void tasks(remote_event_t event){
             add_timer(START_ADC_DELAY_MS, START_ADC); // Start ADC
             // Schedule periodic tasks to the queue
             sched_event(CYCLE_LED_DISPLAY);
-            add_timer(START_ADC_DELAY_MS + 10, READ_TARGET_DEPTH); // Start after ADC
             add_timer(START_ADC_DELAY_MS + 10, READ_JOYSTICKS); // Start after ADC
             sched_event(POLL_SUB_STATUS);
             // NEXT: Init -> Welcome
-            remote_state = WELCOME_REMOTE;
             sched_event(WELCOME_REMOTE);
             break;
         case WELCOME_REMOTE:
+            remote_state = WELCOME_REMOTE;
             welcome_remote();
-            if (remote_state == WELCOME_REMOTE)
-                add_timer(WELCOME_PERIOD_MS, WELCOME_REMOTE); // Add event back on queue as a periodic task            
+            add_timer(WELCOME_PERIOD_MS, WELCOME_REMOTE); // Add event back on queue as a periodic task            
             break;
         case DRIVE_REMOTE:
-           // NEXT: welcome -> driving
             remote_state = DRIVE_REMOTE;
+            // Delete the periodic welcome state from timer queue to stop it
+            delete_timer_by_id(WELCOME_REMOTE);
+            // NEXT: welcome -> driving
             clear_all_leds();
             set_white_led(); // Set driving status LED
             sched_event(COUNTDOWN_TIMER); // Start countdown timer
+            sched_event(READ_TARGET_DEPTH); // Read depth knob
             break;
         case LAND_REMOTE:
+            remote_state = LAND_REMOTE;
             clear_white_led(); // Turn off drive status LED
             set_green_led(); // Set landing status LED
-            remote_state = LAND_REMOTE;
             break;
         case CYCLE_LED_DISPLAY:
             cycle_led_display(); // Cycle thru the 4 digits
@@ -156,13 +158,16 @@ void tasks(remote_event_t event){
             startADCConversion(ADC_2);
             break;
         case READ_TARGET_DEPTH:
+            if (remote_state != DRIVE_REMOTE) 
+                break;
             read_target_depth();
             add_timer(READ_DEPTH_PERIOD_MS, READ_TARGET_DEPTH); // Add event back on queue as a periodic task
             break;
         case COUNTDOWN_TIMER:
+            if (remote_state != DRIVE_REMOTE)
+                break;
             countdown_timer();
-            if (remote_state == DRIVE_REMOTE)
-                add_timer(COUNTDOWN_TIMER_PERIOD_MS, COUNTDOWN_TIMER); // Add event back on queue as a periodic task
+            add_timer(COUNTDOWN_TIMER_PERIOD_MS, COUNTDOWN_TIMER); // Add event back on queue as a periodic task
             break;
         case READ_JOYSTICKS:
             read_joysticks();
@@ -182,7 +187,7 @@ void tasks(remote_event_t event){
             break;
     }
 }
-void event_handler_remote(void){
+void event_handler_remote(void) {
     /* Checks and handles events for remote */
     // Pop the first event on the queue
     remote_event_t event;
