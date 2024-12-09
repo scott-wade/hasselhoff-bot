@@ -1,3 +1,13 @@
+/**
+  ******************************************************************************
+  * @file    spi_queue.c 
+  * @author  stwade@andrew.cmu.edu
+  * @version 1.0
+  * @date    October-2024
+  * @brief   Queue implementation for the SPI state machine
+  ******************************************************************************
+  */
+
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -5,41 +15,44 @@
 #include "spi_queue.h"
 
 
+int isFull(Queue* q) {
+    return q->size == SPI_QUEUE_MAX_SIZE;
+}
+
 int isEmpty(Queue* q) {
-    return q->front == NULL;
+    return q->size == 0;
 }
 
 Queue* createQueue(size_t elementSize) {
-    Queue *q = malloc(sizeof(Queue));
-    q->front = q->rear = NULL;
+    Queue* q = (Queue*)malloc(sizeof(Queue));
+    q->front = 0;
+    q->rear = -1;
+    q->size = 0;
+    q->elementSize = elementSize;
     return q;
 }
 
-void enqueue(Queue* q, void* data) {
-    Node *newNode = malloc(sizeof(Node));
-    newNode->data = data;
-    newNode->next = NULL;
-
-    if (q->rear == NULL) {
-        q->front = q->rear = newNode;
+void enqueue(Queue* q, void* item) {
+    if (isFull(q)) {
+        printf("Queue is full. Cannot enqueue.\n");
         return;
     }
-
-    q->rear->next = newNode;
-    q->rear = newNode;
+    
+    q->rear = (q->rear + 1) % SPI_QUEUE_MAX_SIZE;
+    q->data[q->rear] = malloc(q->elementSize);
+    memcpy(q->data[q->rear], item, q->elementSize);
+    q->size++;
 }
 
 void* dequeue(Queue* q) {
-    if (q->front == NULL) 
+    if (isEmpty(q)) {
+        printf("Queue is empty. Cannot dequeue.\n");
         return NULL;
-
-    Node *temp = q->front;
-    void *data = temp->data;
-    q->front = q->front->next;
-
-    if (q->front == NULL) 
-        q->rear = NULL;
-
-    free(temp);
-    return data;
+    }
+    
+    void* item = q->data[q->front];
+    free(q->data[q->front]);
+    q->front = (q->front + 1) % SPI_QUEUE_MAX_SIZE;
+    q->size--;
+    return item;
 }
