@@ -33,6 +33,8 @@ sub_events_t pop_from_simple_queue(void){
         printf("simpleQ is empty but tried to pop anyway\n");
     }else{
         sub_events_t current_event = simpleQ.events[simpleQ.remove_indx];
+        printf("Event %d dequeued from index %d\n", 
+            current_event.type, simpleQ.remove_indx);
         simpleQ.remove_indx ++;
         if (simpleQ.insert_indx == MAX_ELEMENTS){
                 simpleQ.remove_indx = 0;
@@ -44,7 +46,7 @@ sub_events_t pop_from_simple_queue(void){
 
 uint8_t isempty_simple_queue(void){
     /* Return 1 if queue is empty, 0 if not */
-    if(simpleQ.size > 0){
+    if(simpleQ.size == 0){
         return 1;
     }
     else{
