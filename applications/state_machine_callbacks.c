@@ -79,14 +79,20 @@ void reset_message_in_any_state(void)
     subState.state = WELCOME;
 }
 
-int land_message_in_land(void)
+void land_message_in_land(void)
 {
     float current_depth = subState.current_depth;
     if (fabs(current_depth - WELCOME_DEPTH) <= DEPTH_TOLERANCE) {
-        return 1;
+        subState.land_status = 1; // Update internal state to match landing status
+        
+        // If we have reached desired depth add a reset message to the queue
+        sub_events_t event;
+        event.type = RESET_MSG_RECEIVED;
+        event.data = NULL;
+        insert_to_simple_queue(event);
     } else {
         depthControl(-0.5);
-        return 0;
+        subState.land_status = 0;
     }
 }
 

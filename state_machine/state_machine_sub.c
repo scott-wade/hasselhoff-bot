@@ -133,10 +133,11 @@ void event_handler_sub(){
                     }
                     case SENSOR_POLLING_TIMEOUT: {
                         poll_sensors();
+                        land_message_in_land();
                         break;
                     }
                     default: {
-                        int land_status = land_message_in_land();
+                        land_message_in_land();
                         break;
                     }
                 }

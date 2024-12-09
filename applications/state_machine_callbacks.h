@@ -25,7 +25,7 @@ void drive_message_in_drive(void);
 void land_message_in_drive(void);
 
 // LANDING State callbacks
-int land_message_in_land(void);
+void land_message_in_land(void);
 
 // Auxiliary functions
 void poll_sensors(void);
