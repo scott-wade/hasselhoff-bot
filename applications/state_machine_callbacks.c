@@ -92,7 +92,9 @@ void land_message_in_land(void)
 
 void poll_sensors(void)
 {
-    // Read Depth Sensor
+    // Queue up depth sensor readings to update pressure readings in memory
+    measurePressure();
+    // Update depth calculation based on pressure in memory
     subState.current_depth = getDepth();
 
     // IR Beam status
