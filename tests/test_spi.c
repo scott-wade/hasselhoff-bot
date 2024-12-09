@@ -214,7 +214,9 @@ void testNucleoReceiving(){
     while(1){
         // service spi state machine
         event_handler_spi(NUCLEO_CHILD);
+        printf("handled spi events\n");
         event_handler_sub();
+        printf("handled sub events\n");
         
     }
 

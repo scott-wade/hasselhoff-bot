@@ -17,7 +17,7 @@ void insert_to_simple_queue(sub_events_t event)
 
     simpleQ.events[simpleQ.insert_indx] = event;
     // printf("Event %d added to index %d\n", 
-            // event.type, simpleQ.insert_indx);
+    //         event.type, simpleQ.insert_indx);
     simpleQ.insert_indx++;
     if (simpleQ.insert_indx == MAX_ELEMENTS)
     {
