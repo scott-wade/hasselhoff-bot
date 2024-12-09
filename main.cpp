@@ -1,8 +1,5 @@
-<<<<<<< HEAD
 #define WHICH_NUCLEO 0 //change for compilation, 0 for remote, 1 for submarine, 2 for debug remote, 3 for debug sub3, 94 for NZ debugging
-=======
-#define WHICH_NUCLEO 94 //change for compilation, 0 for remote, 1 for submarine, 2 for debug remote, 3 for debug sub3, 94 for NZ debugging
->>>>>>> nathan
+
 
 
 #include <cstdint>
@@ -13,10 +10,12 @@
 
 #include "tests/test_spi.h"
 #include "tests/test_gpio.h"
+#include "tests/test_depth.h"
 #include "state_machine_SPI.h"
 #include "inputs_remote.h"
 #include "hardware_stm_adc.h"
 #include "applications/sub_clock.h"
+#include "applications/depth_sensor.h"
 #include "led_remote.h"
 #include "ir_range.h"
 #include "timer_queue_remote.h"
