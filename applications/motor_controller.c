@@ -95,7 +95,9 @@
       setDutyCycle(MOTOR_TIMER, PROPULSION_CCW_PROP_CH, IDLE_DUTY_CYCLE);
       
       for (int i=0; i<200; i++){
-          printf("Holding for self test\n");
+          for (int j=0; j<200; j++){
+          }
+        //   printf("Holding for self test\n");
       }
   }
 

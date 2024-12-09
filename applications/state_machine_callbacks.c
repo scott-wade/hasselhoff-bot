@@ -8,14 +8,12 @@
 void any_message_in_idle(void)
 {
     // Transition to WELCOME
-    printf("AMII\n");
     subState.state = WELCOME;
 }
 
 void drive_message_in_welcome(void)
 {
     // Transition to DRIVE
-    printf("DMIW");
     subState.state = DRIVE;
 }
 

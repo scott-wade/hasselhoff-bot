@@ -199,6 +199,7 @@ void spiInterruptHandler(uint8_t spi_id){
         if (*stateptr == 99){// if state == IDLE
             //readRX() and enqueue according event to the submarine queue
             uint16_t recievedData = readRX(spi_id);
+            printf("Received data %u\n\n", recievedData);
             uint8_t first8bits = *((uint8_t*)&(recievedData)+1);
             uint8_t last8bits = *((uint8_t*)&(recievedData)+0);
             // construct the sub state machine event
@@ -208,6 +209,7 @@ void spiInterruptHandler(uint8_t spi_id){
 
             // insert the event to the sub state machine event queue
             insert_to_simple_queue(receivedEvent);
+            printf("Adding event\n");
 
             // if incoming msg is a status request, write the status
             if (receivedEvent.type == STATUS_REQ_MSG){

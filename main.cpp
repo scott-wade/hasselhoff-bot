@@ -77,7 +77,20 @@ int main(void){
         }
     } else if (WHICH_NUCLEO == 4)
     {
-        test_sub_state_machine();
+        printf("Initialising......\n");
+        init_sub();
+        printf("Initialised SUB ......\n");
+        init_state_machine_spi(SENSOR_PARENT);
+        printf("Initialised SENSOR_PARENT ......\n");
+        init_state_machine_spi(NUCLEO_CHILD);
+        printf("Initialised NUCLEO CHILD......\n");
+
+        while(1)
+        {
+            event_handler_spi(SENSOR_PARENT);
+            event_handler_spi(NUCLEO_CHILD);
+            event_handler_sub();
+        }
     }
 
 }
