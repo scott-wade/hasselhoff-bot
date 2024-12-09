@@ -111,7 +111,7 @@ void EXTI9_5_IRQHandler(void)
 {
     uint32_t *reg_pointer_32;
     reg_pointer_32 = (uint32_t *)EXTERNAL_INTERRUPT_CONTROLLER_PENDING_REGISTER;
-    uint8_t depthRxBuffer = 0;
+
     // check which interrupt fired
     // mask for if its EXTI6
     if((*reg_pointer_32 & EXTERNAL_INTERRUPT_CONTROLLER_PENDING_EXTI6) > 0)
