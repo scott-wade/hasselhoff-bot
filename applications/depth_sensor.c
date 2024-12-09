@@ -100,11 +100,3 @@ double getDepth(void)
     calcDepth();
     return currentDepth;
 }
-
-double updateDepth(void)
-{
-    calcDepth();
-    double depth = getDepth();
-
-    return depth;
-}
