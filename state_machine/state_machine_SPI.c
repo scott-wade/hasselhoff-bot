@@ -86,7 +86,7 @@ void event_handler_spi(Spi_State_Machine_t spi_type){
         case SENSOR_PARENT: // parent on SPI4
             if (!isEmpty(SPI_SENSOR_EVENT_QUEUE) && SPI_SENSOR_STATE == 99){
                 CURRENT_SENSOR_TRANSMIT_EVENT = *(transmitEvent*)dequeue(SPI_SENSOR_EVENT_QUEUE);
-                printf("Dequeued spi comms event \n");
+                //printf("Dequeued spi comms event \n");
                 newTransmission = 1;
             }
         break;
@@ -180,22 +180,24 @@ void spiInterruptHandler(uint8_t spi_id){
     uint16_t TXE_MASK = 0b10;
     uint16_t RXNE_MASK = 0b1;
 
-    // set local vars
-    uint8_t* stateptr;
-    if(spi_id == 1) {
-        stateptr = &SPI_COMMS_STATE;
-    }
-    else if (spi_id == 4) {
-        stateptr = &SPI_SENSOR_STATE;
-    }
-
     // check to see if it is a transmit or recieve event
     uint16_t current_status_register = readSpiStatusRegister(spi_id);
+
+    // Transition to IDLE
+    
+    uint8_t state;
+    if(spi_id == 1) {
+        state = SPI_COMMS_STATE;
+    }
+    else if (spi_id == 4) {
+        state = SPI_SENSOR_STATE = 99;
+    }
 
     // check recieve event first
     if ((current_status_register & RXNE_MASK) > 0){
 
-        if (*stateptr == 99){// if state == IDLE
+        if (state == 99){// if state == IDLE
+            // writeTX(spi_id, (uint8_t)170);
             //readRX() and enqueue according event to the submarine queue
             uint16_t recievedData = readRX(spi_id);
             uint8_t first8bits = *((uint8_t*)&(recievedData)+1);
@@ -208,14 +210,14 @@ void spiInterruptHandler(uint8_t spi_id){
             // insert the event to the sub state machine event queue
             insert_to_simple_queue(receivedEvent);
 
-            // if incoming msg is a status request, write the status
-            if (receivedEvent.type == STATUS_REQ_MSG){
-                writeTX(spi_id, SUBMARINE_CURRENT_STATUS_MSG);
-            }
-            else{
-                // otherwise, write an ack. packet
-                writeTX(spi_id, ACK_PACKET);
-            }
+            // // if incoming msg is a status request, write the status
+            // if (receivedEvent.type == STATUS_REQ_MSG){
+            //     writeTX(spi_id, SUBMARINE_CURRENT_STATUS_MSG);
+            // }
+            // else{
+            //     // otherwise, write an ack. packet
+            //     writeTX(spi_id, ACK_PACKET);
+            // }
             
 
         }else{// if currently transmitting
@@ -229,7 +231,12 @@ void spiInterruptHandler(uint8_t spi_id){
                 }
             }
             // Transition to IDLE
-            *stateptr = 99;
+            if(spi_id == 1) {
+                SPI_COMMS_STATE = 99;
+            }
+            else if (spi_id == 4) {
+                SPI_SENSOR_STATE = 99;
+            }
             // TODO Stop timeout timer
             // printf("Processed confirmation with recieved data: %u", recievedData);
         }
@@ -239,8 +246,8 @@ void spiInterruptHandler(uint8_t spi_id){
 
     // if transmit event
     if ((current_status_register & TXE_MASK) > 0){
-        printf("Handling TXE interrupt\n");
-        if (*stateptr == 99){ // if state == IDLE
+        //printf("Handling TXE interrupt\n");
+        if (state == 99){ // if state == IDLE
             // disable Spi TXE Interrupts(SPI id)
             disableSpiTXEInterrupts(spi_id);
         }else{// if state == TXi, end the transmission

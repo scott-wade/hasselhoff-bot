@@ -116,7 +116,7 @@ void configureSPIPeripheral(Spi_Hierarchy_t spi_type, uint8_t spi_id){
     else // nucleo - nucleo comm
     {
         //a) Configure the serial clock baud rate using the BR[2:0] bits (Note: 3).
-        baudrate_bits = (uint16_t)(0b000 << 3); //fpclk/2 = 45MHz
+        baudrate_bits = (uint16_t)(0b011 << 3); //fpclk/2 = 45MHz
         //b) Configure the CPOL and CPHA bits combination to define one of the four
         //relationships between the data transfer and the serial clock. (Note: 2 - except the
         //case when CRC is enabled at TI mode).

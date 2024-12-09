@@ -22,7 +22,7 @@ typedef enum  {
 } sub_event_type_t;
 
 typedef struct {
-    uint8_t type;
+    sub_event_type_t type;
     uint8_t data;
 } sub_events_t;
 

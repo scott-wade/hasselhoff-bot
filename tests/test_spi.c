@@ -17,6 +17,7 @@
 #include <cstdint>
 #include "../state_machine/state_machine_sub.h"
 #include "../applications/packet.h"
+#include "globals.h"
 
 
 void testReadRegOpMode(void){
@@ -162,7 +163,7 @@ void testSPIQueue(void){
 }
 
 void testNucleoTransmitting(){
-    // send periodic DEBUG packets (header=0xde) with 0xad as the data value
+    // send periodic STATUS_REQ_MSG packets (header=0xde) with 0xad as the data value
 
     init_state_machine_spi(NUCLEO_PARENT);
     
@@ -172,17 +173,25 @@ void testNucleoTransmitting(){
     uint8_t read_var_prev = read_var;
 
     for (int i = 0; i < 100000000; i++){
-        printf("Read value: %u", read_var);
-        delay(10);
-        if((iter % 10000000) == 0){
-            requestSpiTransmit_remote(STATUS_REQ_MSG, 0xad, &read_var);
-            printf("Requesting Status Transmission\n");
+        printf("Read value: %u\n", read_var);
+        delay(1);
+        if((iter % 5) == 0){
+            requestSpiTransmit_remote(STATUS_REQ_MSG, 0, &read_var);
+            printf("Requesting Status Transmission, type %u \n", STATUS_REQ_MSG);
         }
-        event_handler_spi(NUCLEO_PARENT);
-        // if (read_var_prev != read_var){
-        //     printf("Received new read value: %u", read_var);
-        //     read_var_prev = read_var;
+        if(((iter+1) % 5) == 0){
+            requestSpiTransmit_remote(RESET_MSG, 0, NULL);
+            printf("Requesting Reset Transmission %u \n", RESET_MSG);
+        }
+        if(((iter+1) % 5) == 0){
+            requestSpiTransmit_remote(DRIVE_DS_MSG, 212, NULL);
+            printf("Requesting Drive DS Transmission %u \n", DRIVE_DS_MSG);
+        }
+        // if(((iter+2) % 5) == 0){
+        //     requestSpiTransmit_remote(STATUS_REQ_MSG, 0, &read_var);
+        //     printf("Requesting Status Transmission\n");
         // }
+        event_handler_spi(NUCLEO_PARENT);
         
         iter ++;
     }
@@ -191,17 +200,22 @@ void testNucleoTransmitting(){
 
 void testNucleoReceiving(){
     /* Process sub-side events recieved via SPI */ 
+    sub_states_t debug_sub_state_state = WELCOME;
+    uint8_t debug_sub_IR = 1;
 
     init_state_machine_spi(NUCLEO_CHILD);
-    init_sub_debugging(LANDING, 1);
+    init_sub_debugging(debug_sub_state_state, debug_sub_IR);
 
+    // print the packet that the sub is sending to the remote
+    printf("Sensor message to send to remote: %u\n", SUBMARINE_CURRENT_STATUS_MSG);
 
+    // writeTX(1, (uint8_t)85);
+    writeTX(1, SUBMARINE_CURRENT_STATUS_MSG);
     while(1){
         // service spi state machine
         event_handler_spi(NUCLEO_CHILD);
         event_handler_sub();
-
-
+        
     }
 
 }
