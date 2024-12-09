@@ -17,11 +17,6 @@
 
 
 /* Data structures for SPI state machine */
-typedef struct{
-    uint8_t child_id; //SPI ID
-    uint16_t tx_packet;
-    uint8_t* read_var_addr;
-} transmitEvent;
 
 typedef enum{
     NUCLEO_PARENT, // The remote

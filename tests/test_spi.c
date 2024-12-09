@@ -137,7 +137,7 @@ void testSPIStateMachine(void){
 
 
 void testSPIQueue(void){
-    Queue* testQueue = createQueue(sizeof(transmitEvent));
+    Queue testQueue = createQueue();
 
     // create a test event
     uint8_t returnvalue = 0;
@@ -147,7 +147,7 @@ void testSPIQueue(void){
     testEvent.read_var_addr = &returnvalue;
 
     // add that event to the queue
-    enqueue(testQueue, &testEvent);
+    enqueue(testQueue, testEvent);
 
     if(!isEmpty(testQueue)){
         printf("testQueue is not Empty (PASS)\n");
@@ -157,7 +157,7 @@ void testSPIQueue(void){
 
     // try to retrieve the event from the queue
 
-    transmitEvent returnedEvent = *(transmitEvent*)dequeue(testQueue);
+    transmitEvent returnedEvent = dequeue(testQueue);
     printf("Want 47, got child id %u\n", returnedEvent.child_id); // should get 47
 
 }
