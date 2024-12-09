@@ -66,7 +66,7 @@ void reset_message_in_any_state(void)
 
         depthControl(z_input);
 
-        current_depth = updateDepth(); // UPDATE depth sensor reading
+        current_depth = getDepth(); // UPDATE depth sensor reading
     }
 
     // Transition to WELCOME
@@ -93,7 +93,7 @@ void land_message_in_land(void)
 void poll_sensors(void)
 {
     // Read Depth Sensor
-    subState.current_depth = updateDepth();
+    subState.current_depth = getDepth();
 
     // IR Beam status
     subState.beam_status = getSensorTripped();
