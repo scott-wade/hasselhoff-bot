@@ -8,12 +8,14 @@
 void any_message_in_idle(void)
 {
     // Transition to WELCOME
+    printf("AMII\n");
     subState.state = WELCOME;
 }
 
 void drive_message_in_welcome(void)
 {
     // Transition to DRIVE
+    printf("DMIW");
     subState.state = DRIVE;
 }
 
@@ -78,12 +80,6 @@ void land_message_in_land(void)
     float current_depth = subState.current_depth;
     if (fabs(current_depth - WELCOME_DEPTH) <= DEPTH_TOLERANCE) {
         subState.land_status = 1; // Update internal state to match landing status
-        
-        // If we have reached desired depth add a reset message to the queue
-        sub_events_t event;
-        event.type = RESET_MSG_RECEIVED;
-        event.data = NULL;
-        insert_to_simple_queue(event);
     } else {
         depthControl(-0.5);
         subState.land_status = 0;

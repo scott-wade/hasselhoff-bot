@@ -44,12 +44,7 @@ sub_events_t pop_from_simple_queue(void){
 
 uint8_t isempty_simple_queue(void){
     /* Return 1 if queue is empty, 0 if not */
-    if(simpleQ.size > 0){
-        return 1;
-    }
-    else{
-        return 0;
-    }
+    return simpleQ.size == 0;
 
 }
 

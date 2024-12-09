@@ -11,8 +11,9 @@ extern "C"
 
 void test_sub_state_machine(void);
 
+
 #ifdef __cplusplus
-extern "C"
 }
 #endif
+
 #endif

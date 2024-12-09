@@ -1,4 +1,4 @@
-#define WHICH_NUCLEO 0 //change for compilation, 0 for remote, 1 for submarine, 2 for debug remote, 3 for debug sub3, 94 for NZ debugging
+#define WHICH_NUCLEO 4 //change for compilation, 0 for remote, 1 for submarine, 2 for debug remote, 3 for debug sub3, 94 for NZ debugging
 
 
 
@@ -7,10 +7,6 @@
 #include "state_machine/state_machine_sub.h"
 #include "state_machine/state_machine_remote.h"
 
-
-#include "tests/test_spi.h"
-#include "tests/test_gpio.h"
-#include "tests/test_depth.h"
 #include "state_machine_SPI.h"
 #include "inputs_remote.h"
 #include "hardware_stm_adc.h"
@@ -22,6 +18,11 @@
 #include "motor_controller.h"
 #include <cmath>
 #include <iostream>
+
+#include "tests/test_spi.h"
+#include "tests/test_gpio.h"
+#include "tests/test_depth.h"
+#include "tests/test_sub_state_machine.h"
 
 int main(void){
     if (WHICH_NUCLEO == 0){
@@ -74,6 +75,9 @@ int main(void){
             event_handler_spi(SENSOR_PARENT); // handles the SPI transmissions
             // check on the timeouts
         }
+    } else if (WHICH_NUCLEO == 4)
+    {
+        test_sub_state_machine();
     }
 
 }
