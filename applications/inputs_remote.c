@@ -159,7 +159,6 @@ void read_joysticks (void) {
         if ((joy_x <= JOY_ACTIVE_ZONE) || (joy_x >= (MAX_JOY_VAL - JOY_ACTIVE_ZONE)) ||
             (joy_y <= JOY_ACTIVE_ZONE) || (joy_y >= (MAX_JOY_VAL - JOY_ACTIVE_ZONE))) {
             // Go Welcome -> Drive
-            remote_state = DRIVE_REMOTE;
             sched_event(DRIVE_REMOTE); 
         }
     } else if (remote_state == DRIVE_REMOTE) {

@@ -449,11 +449,10 @@ int countdown_timer (void) {
         // Game over! Exit driving state
         count = COUTNDOWN; // Reset count to starting value
         // Driving -> Welcome
-        remote_state = WELCOME_REMOTE; // required here to prevent re-entering countdown
         sched_event(WELCOME_REMOTE);
         // Notify sub about timeout
         requestSpiTransmit_remote(RESET_MSG, 0, NULL); // send reset message
-        return 1; // Exit
+        return 0; // Exit
     } else {
         // Negative numbers is game over and leds will flash on and off
         if (count%2 == 0) {
@@ -471,6 +470,8 @@ int countdown_timer (void) {
 
     // Decrement counter
     count--; 
+
+    return count;
 }
 
 

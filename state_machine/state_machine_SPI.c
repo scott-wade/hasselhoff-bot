@@ -19,6 +19,7 @@
 #include <cstdint>
 #include "../globals.h"
 #include "state_machine_SPI.h"
+#include <stdbool.h>
 
 // macros
 #define ACK_PACKET (uint8_t)(0b10101010)
@@ -280,5 +281,21 @@ void requestSpiTransmit_remote(packet_type_t msg_type, uint8_t data, uint8_t* re
     uint16_t packet = (header << 8) | data;
 
     requestSpiTransmit(NUCLEO_PARENT, 0, packet, read_var_addr);
+
+    // Print log messages
+    bool debug = false;
+    if (debug) {
+        printf("SPI type: ");
+        switch (msg_type){
+            case RESET_MSG: printf("RESET_MSG"); break;
+            case DRIVE_FB_MSG: printf("DRIVE_FB_MSG"); break;
+            case DRIVE_LR_MSG: printf("DRIVE_LR_MSG"); break;
+            case DRIVE_DS_MSG: printf("DRIVE_DS_MSG"); break;
+            case LAND_MSG: printf("LAND_MSG"); break;
+            case STATUS_REQ_MSG: printf("STATUS_REQ_MSG"); break;
+            default: printf(stderr, "Invalid packet header"); break;
+        }
+        printf(", data: %d\n", data);
+    }
 }
 
