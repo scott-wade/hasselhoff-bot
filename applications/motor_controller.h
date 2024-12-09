@@ -9,8 +9,10 @@ void initMotorHardware(void);
 void initMotorGPIOs(void);
 void initMotorTimers(void);
 void runPropulsionSelfTest(void); 
-void propulsionControl(float x_input, float y_input, float depth_input);
-void ballastControl(float target_depth);
+
+void planarControl(float x_input, float y_input);
+void depthControl(float z_input);
+void welcomeTrajectory(void);
 
 #ifdef __cplusplus
 }

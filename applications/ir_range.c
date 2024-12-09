@@ -1,6 +1,6 @@
 #include "ir_range.h"
 
-void initIRSensor(uint8_t analog)
+void initIRSensor(uint8_t analog) // What does this Analog argument do?
 {
     initGPIOasMode(IR_RANGE_PORT_NUM, IR_RANGE_PIN_NUM, 
                     MODE_IN, OD_PUPD, PUPD_UP, 0, 0);

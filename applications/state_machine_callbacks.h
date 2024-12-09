@@ -13,59 +13,30 @@
  extern "C" {
 #endif
 
-// Drive message throttle callbacks
-void throttle_message_in_idle(uint8_t value);
-void throttle_message_in_welcome(uint8_t value);
-void throttle_message_in_drive(uint8_t value);
-void throttle_message_in_land(uint8_t value);
+#define WELCOME_DEPTH 6
+#define LAND_DEPTH 15
+#define DEPTH_TOLERANCE 1
+#define MIN_POT_DEPTH 4.0
+#define MAX_POT_DEPTH 10.0
 
-// Drive message steering callbacks
-void steering_message_in_idle(uint8_t value);
-void steering_message_in_welcome(uint8_t value);
-void steering_message_in_drive(uint8_t value);
-void steering_message_in_land(uint8_t value);
+// IDLE State callbacks
+void any_message_in_idle(void);
 
-// Drive message dive/surface callback
-void dive_message_in_idle(uint8_t value);
-void dive_message_in_welcome(uint8_t value);
-void dive_message_in_drive(uint8_t value);
-void dive_message_in_land(uint8_t value);
+// WELCOME State callbacks
+void drive_message_in_welcome(void);
+void default_in_welcome(void);
 
-// Land message received
-void land_message_in_idle(void);
-void land_message_in_welcome(void);
+// DRIVE State callbacks
+void drive_message_in_drive(void);
 void land_message_in_drive(void);
+
+// LANDING State callbacks
 void land_message_in_land(void);
 
+// Auxiliary functions
+void poll_sensors(void);
+void reset_message_in_any_state(void);
 
-// Landing finished
-void landing_finished_in_idle(void);
-void landing_finished_in_welcome(void);
-void landing_finished_in_drive(void);
-void landing_finished_in_land(void);
-
-// IR Status Request
-void IR_request_message_in_idle(void);
-void IR_request_message_in_welcome(void);
-void IR_request_message_in_drive(void);
-void IR_request_message_in_land(void);
-
-// Reset packet
-void reset_message_in_idle(void);
-void reset_message_in_welcome(void);
-void reset_message_in_drive(void);
-void reset_message_in_land(void);
-
-// Sensor polling timeout
-void sensor_polling_in_idle(void);
-void sensor_polling_in_welcome(void);
-void sensor_polling_in_drive(void);
-void sensor_polling_in_land(void);
-
-// Callbacks
-void idle_callback(void);
-void welcome_callback(void);
-void throttle_callback(void);
 
 
 #ifdef __cplusplus

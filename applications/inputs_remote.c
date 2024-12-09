@@ -12,11 +12,11 @@
 #include "state_machine_SPI.h"
 
 
-#define MAX_POT_VAL             3390 // Empirically measured max potentiometer value
+#define MAX_POT_VAL             4095 // Empirically measured max potentiometer value
 #define TAR_DEP_DIG_0           2 // Index of first digit of target depth
 #define TAR_DEP_DIG_1           3 // Index of second digit of target depth
-#define MAX_JOY_VAL             3000 // Empirically measured max joystick value
-#define JOYSTICK_TRIGGER_TOL    1000 // Amount to trigger joystick action from welcome
+#define MAX_JOY_VAL             4094 // Empirically measured max joystick value
+#define JOY_ACTIVE_ZONE         100
 
 // Variables to store DMA value outputs
 uint16_t target_depth;
@@ -62,11 +62,10 @@ int init_target_depth_knob(void) {
 /*
  * Returns the target depth that is measured from the potentiometer as a discrete value
  */
-uint16_t get_target_depth(int prev_val) {
+uint16_t get_target_depth(void) {
     // Filter the value
-    uint16_t processed_val = analog_filter(prev_val, target_depth, 0.3 /* alpha */);
     // Map to desired range
-    processed_val = analog2discrete(processed_val, 
+    uint16_t processed_val = analog2discrete(target_depth, 
                         0, MAX_POT_VAL, // Input range
                         1, 17); // Desired range
     
@@ -76,23 +75,20 @@ uint16_t get_target_depth(int prev_val) {
 
 void read_target_depth (void) {
     static uint8_t prev_val = 0;
-    uint8_t curr_val = get_target_depth(prev_val);
+    uint8_t curr_val = get_target_depth();
 
     if (remote_state == DRIVE_REMOTE) {
         // When driving, continuously send joystick values
-        requestSpiTransmit_remote(DRIVE_MSG_DS_RECEIVED, curr_val, NULL); // drive/surface (up/down)
+        requestSpiTransmit_remote(DRIVE_DS_MSG, curr_val, NULL); // drive/surface (up/down)
     }
 
     // Update LED display with depth value
-    if (prev_val != curr_val) {
-        // If value changed, set the led display value
-        int first_dig = curr_val / 10; // Integer division
-        int second_dig = curr_val % 10; // Remainder
+    int first_dig = curr_val / 10; // Integer division
+    int second_dig = curr_val % 10; // Remainder
 
-        // Set the values on the led display
-        set_led_disp_val(TAR_DEP_DIG_0, first_dig);
-        set_led_disp_val(TAR_DEP_DIG_1, second_dig);
-    }
+    // Set the values on the led display
+    set_led_disp_val(TAR_DEP_DIG_0, first_dig);
+    set_led_disp_val(TAR_DEP_DIG_1, second_dig);
 
     prev_val = curr_val; // Set current to old
 }
@@ -135,14 +131,14 @@ int init_joysticks(void) {
  * Returns joystick x value
  */
 uint16_t get_joystick_x (int prev_val) {
-    uint16_t processed_val = analog_filter(prev_val, joystick[0], 0.3 /* alpha */);
+    uint16_t processed_val = analog_filter(prev_val, joystick[0], 0.7 /* alpha */);
     return processed_val;
 }
 /*
  * Returns joystick y value
  */
 uint16_t get_joystick_y (int prev_val) {
-    uint16_t processed_val = analog_filter(prev_val, joystick[1], 0.3 /* alpha */);
+    uint16_t processed_val = analog_filter(prev_val, joystick[1], 0.7 /* alpha */);
     return processed_val;
 }
 
@@ -160,15 +156,15 @@ void read_joysticks (void) {
 
     // If in welcome state and joysticks are within a range, then go to drive state
     if (remote_state == WELCOME_REMOTE){
-        if ((joy_x <= 5) || (joy_x >= MAX_JOY_VAL) ||
-            (joy_y <= 5) || (joy_y >= MAX_JOY_VAL)) {
+        if ((joy_x <= JOY_ACTIVE_ZONE) || (joy_x >= (MAX_JOY_VAL - JOY_ACTIVE_ZONE)) ||
+            (joy_y <= JOY_ACTIVE_ZONE) || (joy_y >= (MAX_JOY_VAL - JOY_ACTIVE_ZONE))) {
             // Go Welcome -> Drive
             sched_event(DRIVE_REMOTE); 
         }
     } else if (remote_state == DRIVE_REMOTE) {
         // When driving, continuously send joystick values
-        requestSpiTransmit_remote(DRIVE_MSG_LR_RECEIVED, joy_x, NULL); // left/right
-        requestSpiTransmit_remote(DRIVE_MSG_FB_RECEIVED, joy_y, NULL); // forward/back
+        requestSpiTransmit_remote(DRIVE_LR_MSG, joy_x, NULL); // left/right
+        requestSpiTransmit_remote(DRIVE_FB_MSG, joy_y, NULL); // forward/back
     }
 
     // Set previous values

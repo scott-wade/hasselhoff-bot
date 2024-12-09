@@ -19,6 +19,7 @@
 #include <cstdint>
 #include "../globals.h"
 #include "state_machine_SPI.h"
+#include <stdbool.h>
 
 // macros
 #define ACK_PACKET (uint8_t)(0b10101010)
@@ -86,7 +87,7 @@ void event_handler_spi(Spi_State_Machine_t spi_type){
         case SENSOR_PARENT: // parent on SPI4
             if (!isEmpty(SPI_SENSOR_EVENT_QUEUE) && SPI_SENSOR_STATE == 99){
                 CURRENT_SENSOR_TRANSMIT_EVENT = *(transmitEvent*)dequeue(SPI_SENSOR_EVENT_QUEUE);
-                //printf("Dequeued spi comms event \n");
+                //printf("Dequeued spi sensor comm event \n");
                 newTransmission = 1;
             }
         break;
@@ -126,9 +127,10 @@ void event_handler_spi(Spi_State_Machine_t spi_type){
         }
 
         // clear CSi pin if addressing sensors
-        if (spi_type == SENSOR_PARENT) 
-            SETorCLEARGPIOoutput(CS_PINS[currentState/2], CS_PINS[currentState/2+1], 0);
-
+        if (spi_type == SENSOR_PARENT) {
+            SETorCLEARGPIOoutput(CS_PINS[currentState*2], CS_PINS[currentState*2+1], 0);
+            //printf("CS pin low \n");
+        }
         // write to TX buffer
         // printf("writing to tx: %u\n", currpacket);
         writeTX(spi_id, currentEvent.tx_packet);
@@ -200,6 +202,7 @@ void spiInterruptHandler(uint8_t spi_id){
             // writeTX(spi_id, (uint8_t)170);
             //readRX() and enqueue according event to the submarine queue
             uint16_t recievedData = readRX(spi_id);
+            printf("Received data %u\n\n", recievedData);
             uint8_t first8bits = *((uint8_t*)&(recievedData)+1);
             uint8_t last8bits = *((uint8_t*)&(recievedData)+0);
             // construct the sub state machine event
@@ -209,6 +212,7 @@ void spiInterruptHandler(uint8_t spi_id){
 
             // insert the event to the sub state machine event queue
             insert_to_simple_queue(receivedEvent);
+            printf("Adding event\n");
 
             // // if incoming msg is a status request, write the status
             // if (receivedEvent.type == STATUS_REQ_MSG){
@@ -220,15 +224,23 @@ void spiInterruptHandler(uint8_t spi_id){
             // }
             
 
-        }else{// if currently transmitting
+        }
+        else {// if currently transmitting
+            // (this is the typical conclusion of a message for sensor communication)
             // write received data to the read_var_addr of the current transmission event
-            uint8_t recievedData = (uint8_t)readRX(spi_id);
-            *(CURRENT_COMMS_TRANSMIT_EVENT.read_var_addr) = recievedData;
-            // deactivate (set high) all cs pins
-            if(spi_id == 4){
-                for(int i = 0; i < 3; i++){
-                    SETorCLEARGPIOoutput(CS_PINS[i/2], CS_PINS[i/2+1], 1);
-                }
+            uint8_t receivedData = 0;
+            receivedData = (uint8_t)readRX(spi_id);
+            // reading in from a sensor event
+            if(spi_id == 4) {
+                *(CURRENT_SENSOR_TRANSMIT_EVENT.read_var_addr) = receivedData;
+                // raise the CS pin since we're done reading
+                uint8_t childID = CURRENT_SENSOR_TRANSMIT_EVENT.child_id;
+                SETorCLEARGPIOoutput(CS_PINS[childID*2], CS_PINS[childID*2+1], 1);
+                //printf("received: %hhu \n", receivedData);
+            }
+            // reading in from a nucleo
+            else {
+                *(CURRENT_COMMS_TRANSMIT_EVENT.read_var_addr) = receivedData;                
             }
             // Transition to IDLE
             if(spi_id == 1) {
@@ -248,6 +260,7 @@ void spiInterruptHandler(uint8_t spi_id){
     if ((current_status_register & TXE_MASK) > 0){
         //printf("Handling TXE interrupt\n");
         if (state == 99){ // if state == IDLE
+
             // disable Spi TXE Interrupts(SPI id)
             disableSpiTXEInterrupts(spi_id);
         }else{// if state == TXi, end the transmission
@@ -281,14 +294,27 @@ void SPI4_IRQHandler(void){
  * @param read_var_addr: address to store the return value (only for messages that have a response)
  */
 void requestSpiTransmit_remote(packet_type_t msg_type, uint8_t data, uint8_t* read_var_addr) {
-    // void requestSpiTransmit(Spi_State_Machine_t spi_type, uint8_t child_id, 
-    //                         uint16_t packet, uint32_t* read_var_addr);
-
     uint8_t header = (uint8_t)msg_type;
 
     // Packet is first 8 bits is message type and last 8 bits is the data
     uint16_t packet = (header << 8) | data;
 
     requestSpiTransmit(NUCLEO_PARENT, 0, packet, read_var_addr);
+
+    // Print log messages
+    bool debug = false;
+    if (debug) {
+        printf("SPI type: ");
+        switch (msg_type){
+            case RESET_MSG: printf("RESET_MSG"); break;
+            case DRIVE_FB_MSG: printf("DRIVE_FB_MSG"); break;
+            case DRIVE_LR_MSG: printf("DRIVE_LR_MSG"); break;
+            case DRIVE_DS_MSG: printf("DRIVE_DS_MSG"); break;
+            case LAND_MSG: printf("LAND_MSG"); break;
+            case STATUS_REQ_MSG: printf("STATUS_REQ_MSG"); break;
+            default: printf(stderr, "Invalid packet header"); break;
+        }
+        printf(", data: %d\n", data);
+    }
 }
 

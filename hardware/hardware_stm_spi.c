@@ -66,7 +66,6 @@ void configureSPIPeripheral(Spi_Hierarchy_t spi_type, uint8_t spi_id){
     *control_register1_addr = *control_register1_addr & ~(uint16_t)(0b1 << 6);
 
     // 1. Write proper GPIO registers: Configure GPIO for MOSI, MISO and SCK pins.
-
     switch(spi_id){
         case 1:
             // PICO pin A6 -> moder 2 for alt, open drain, neither PUPD, alt func = 5
@@ -104,10 +103,11 @@ void configureSPIPeripheral(Spi_Hierarchy_t spi_type, uint8_t spi_id){
     uint16_t baudrate_bits;
     uint16_t cpol_cpha_bits;
     uint16_t lsbfirst_bit;
-    if(spi_type==SENSOR_PARENT) // nucleo - sensor comm
+    if(spi_id == 4) // nucleo - sensor comm
     {
         // set baud rate
-        baudrate_bits = (uint16_t)(0b011); // fpclk/16 = 5.6 MHz (fastest speed below 8 MHz with available prescaler)
+        baudrate_bits = (uint16_t)(0b011 << 3); // fpclk/16 = 5.6 MHz (fastest speed below 8 MHz with available prescaler)
+        baudrate_bits = (uint16_t)(0b100 << 3); // trying at slower baud rates to debug
         // depth sensor looking for CPOL = 1 and CPHA = 1
         cpol_cpha_bits = (uint16_t)(0b11);
         // bit order, depth sensor transmists most significant first (same as other case actually)
@@ -148,6 +148,8 @@ void configureSPIPeripheral(Spi_Hierarchy_t spi_type, uint8_t spi_id){
     *control_register1_addr = baudrate_bits | cpol_cpha_bits | lsbfirst_bit | 
         software_cs_bits | parent_bit | dff_bit;
 
+    // debugging
+    //printf("SPI_CR1 reads %u\n", *control_register1_addr);
     
     //3. Write to SPI_CR2 register:
 
@@ -162,8 +164,7 @@ void configureSPIPeripheral(Spi_Hierarchy_t spi_type, uint8_t spi_id){
     // set SPI_CR2
     *control_register2_addr = *control_register2_addr | SSOE_MASK | INTERRUPT_MASK;
 
-    printf("SPI_CR2 reads %u\n", *control_register2_addr);
-     
+    //printf("SPI_CR2 reads %u\n", *control_register2_addr);
 
     // Enable the interrupts in NVIC
     switch (spi_id){
@@ -177,7 +178,7 @@ void configureSPIPeripheral(Spi_Hierarchy_t spi_type, uint8_t spi_id){
 
     // finally, enable the SPI in SPI control register 1
     *control_register1_addr = *control_register1_addr | (uint16_t)(0b1 << 6);
-    printf("SPI_CR1 reads %u\n", *control_register1_addr);
+    //printf("SPI_CR1 reads %u\n", *control_register1_addr);
 }
 
 void writeTX(uint8_t spi_id, uint16_t value)
@@ -187,7 +188,7 @@ void writeTX(uint8_t spi_id, uint16_t value)
     uint32_t* data_register_address = (uint32_t*)(long)
                 (base_address + SPI_DATA_REGISTER_OFFSET);
     *data_register_address = value;
-    // printf("Wrote to DR\n");
+    //printf("write %u \n", value);
 }
 
 uint16_t readRX(uint8_t spi_id)

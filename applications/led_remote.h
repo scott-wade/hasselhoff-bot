@@ -33,6 +33,7 @@ int set_led_disp_val(int digit, int value);
 void welcome_remote (void);
 int countdown_timer (void);
 void read_sub_status(void);
+void clear_all_leds(void);
 
 
 #ifdef __cplusplus

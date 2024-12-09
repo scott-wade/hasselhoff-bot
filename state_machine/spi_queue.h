@@ -9,16 +9,18 @@
 
 
 #define SPI_QUEUE_MAX_SIZE 10
-typedef struct {
-    void* data[SPI_QUEUE_MAX_SIZE];
-    int front;
-    int rear;
-    int size;
-    size_t elementSize;
+
+typedef struct Node {
+    void *data;
+    struct Node *next;
+} Node;
+
+typedef struct Queue {
+    Node *front;
+    Node *rear;
 } Queue;
 
 // define functions
-int isFull(Queue* q);
 int isEmpty(Queue* q);
 Queue* createQueue(size_t elementSize);
 void enqueue(Queue* q, void* item);
