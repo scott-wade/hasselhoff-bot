@@ -15,7 +15,7 @@ Queue* createQueue(size_t elementSize) {
     return q;
 }
 
-void enqueue(Queue* q, void* item) {
+void enqueue(Queue* q, void* data) {
     Node *newNode = malloc(sizeof(Node));
     newNode->data = data;
     newNode->next = NULL;

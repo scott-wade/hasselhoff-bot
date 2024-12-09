@@ -23,7 +23,7 @@ typedef struct Queue {
 // define functions
 int isEmpty(Queue* q);
 Queue* createQueue(size_t elementSize);
-void enqueue(Queue* q, void* item);
+void enqueue(Queue* q, void* data);
 void* dequeue(Queue* q);
 
 
