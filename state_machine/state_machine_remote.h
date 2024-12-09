@@ -27,7 +27,7 @@ typedef enum {
     COUNTDOWN_TIMER,
     READ_JOYSTICKS,
     POLL_SUB_STATUS,
-    READ_SUB_STATUS
+    READ_SUB_STATUS,
 } remote_event_t;
 
 // Queue node
@@ -44,11 +44,16 @@ struct queue_remote_t {
     queue_node_t* tail;
     uint32_t size;
 };
+// Sub status dict
+typedef struct {
+    bool target_detected;
+} sub_status_vals_t;
 
 /* Global variables --------------------------------------------------------*/
 
 extern remote_event_t remote_state;
 extern uint8_t sub_status;
+extern sub_status_vals_t sub_status_vals;
 
 /* MACROS for everyone--------------------------------------------------------*/
 

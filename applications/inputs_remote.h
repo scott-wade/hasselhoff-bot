@@ -17,6 +17,7 @@ uint16_t get_joystick_x(int prev_val);
 uint16_t get_joystick_y(int prev_val);
 void read_target_depth (void);
 void read_joysticks (void);
+int read_land_button (void);
 
 
 #ifdef __cplusplus

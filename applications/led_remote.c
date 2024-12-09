@@ -492,6 +492,7 @@ void read_sub_status(void) {
                 set_blue_led();
             else
                 clear_blue_led();
+            sub_status_vals.target_detected = is_target_detected;
         }
 
     // Get sub state

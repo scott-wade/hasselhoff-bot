@@ -18,6 +18,7 @@
 #include "hardware_stm_adc.h"
 #include "state_machine_SPI.h"
 #include "../applications/packet.h"
+#include "hardware_stm_interrupt.h"
 
 /* Constants */
 
@@ -38,8 +39,13 @@ struct queue_remote_t queue = {
     .tail = NULL,
     .size = 0
 };
+
 remote_event_t remote_state = INIT_REMOTE; // Global variable of remote's current state
-uint8_t sub_status = 0; // Sub's status
+uint8_t sub_status = 0; // Sub's status data from SPI
+sub_status_vals_t sub_status_vals = { // Sub's status as dict
+    .target_detected = false,
+}; 
+
 /* End Global Variables ---------------------------------------------------------*/
 
 
@@ -52,6 +58,7 @@ void init_remote(void){
     init_joysticks();
     init_seg_display();
     init_state_machine_spi(NUCLEO_PARENT); // parent = remote
+    enableEXTI6OnPortC(); // Enable interrupts
     printf("Initialized remote\n");
 }
 

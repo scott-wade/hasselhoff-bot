@@ -173,6 +173,14 @@ void read_joysticks (void) {
 }
 
 
+int read_land_button (void)
+{
+    // Read the state of the button at PC6
+    return readGPIOinput(PORT_C,  //Port C
+                         6);      //Pin 6
+};
+
+
 /* *******************************************************************************
                     INPUTS UTILITY FUNCTIONS
    ******************************************************************************* */

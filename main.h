@@ -14,6 +14,7 @@
 #include "hardware/hardware_stm_gpio.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 
 /* MACROS for everyone--------------------------------------------------------*/
