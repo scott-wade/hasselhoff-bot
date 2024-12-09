@@ -37,3 +37,4 @@ sub_events_t pop_from_simple_queue(void);
 
 uint8_t isempty_simple_queue(void);
 uint8_t isfull_simple_queue(void);
+void clear_simple_queue(void);

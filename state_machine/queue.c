@@ -58,3 +58,9 @@ uint8_t isfull_simple_queue(void){
         return 0;
     }
 }
+
+void clear_simple_queue(void){
+    simpleQ.size = 0;
+    simpleQ.insert_indx = 0;
+    simpleQ.remove_indx = 0;
+}

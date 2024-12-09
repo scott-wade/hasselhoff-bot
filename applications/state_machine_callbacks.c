@@ -60,17 +60,25 @@ void reset_message_in_any_state(void)
     // Raise to Welcome Depth (BLOCKING CODE)
     float current_depth = subState.current_depth;
 
-    while (fabs(current_depth - WELCOME_DEPTH) > DEPTH_TOLERANCE) {
+    int num_steps = 0;
+    while (fabs(current_depth - WELCOME_DEPTH) > DEPTH_TOLERANCE && num_steps <= 100000) {
         int sign = (current_depth > WELCOME_DEPTH) - (current_depth < WELCOME_DEPTH);
         float z_input = sign*0.5*(fabs(current_depth - WELCOME_DEPTH) > DEPTH_TOLERANCE);
 
         depthControl(z_input);
 
         current_depth = getDepth(); // UPDATE depth sensor reading
+
+        num_steps ++;
     }
+
+    // Halt all motors
+    planarControl(0.0, 0.0);
+    depthControl(0.0);
 
     // Transition to WELCOME
     subState.state = WELCOME;
+    clear_simple_queue();
 }
 
 void land_message_in_land(void)
