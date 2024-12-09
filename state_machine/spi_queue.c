@@ -51,6 +51,7 @@ void* dequeue(Queue* q) {
     }
     
     void* item = q->data[q->front];
+    free(q->data[q->front]);
     q->front = (q->front + 1) % SPI_QUEUE_MAX_SIZE;
     q->size--;
     return item;
