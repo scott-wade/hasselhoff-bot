@@ -24,3 +24,4 @@
     // just hooking the button up in a pulled up setup (ie looking for a falling edge)
     enableEXTI6OnPortC();
  } 
+ 

@@ -5,21 +5,17 @@
 #include "ir_range.h"
 #include <math.h>
 
-#define WELCOME_DEPTH 6
-#define LAND_DEPTH 15
-#define DEPTH_TOLERANCE 1
-#define MIN_POT_DEPTH 4.0
-#define MAX_POT_DEPTH 10.0
-
 void any_message_in_idle(void)
 {
     // Transition to WELCOME
+    printf("AMII\n");
     subState.state = WELCOME;
 }
 
 void drive_message_in_welcome(void)
 {
     // Transition to DRIVE
+    printf("DMIW");
     subState.state = DRIVE;
 }
 
@@ -72,28 +68,30 @@ void reset_message_in_any_state(void)
 
         depthControl(z_input);
 
-        current_depth = updateDepth(); // UPDATE depth sensor reading
+        current_depth = getDepth(); // UPDATE depth sensor reading
     }
 
     // Transition to WELCOME
     subState.state = WELCOME;
 }
 
-int land_message_in_land(void)
+void land_message_in_land(void)
 {
     float current_depth = subState.current_depth;
     if (fabs(current_depth - WELCOME_DEPTH) <= DEPTH_TOLERANCE) {
-        return 1;
+        subState.land_status = 1; // Update internal state to match landing status
     } else {
         depthControl(-0.5);
-        return 0;
+        subState.land_status = 0;
     }
 }
 
 void poll_sensors(void)
 {
-    // Read Depth Sensor
-    subState.current_depth = updateDepth();
+    // Queue up depth sensor readings to update pressure readings in memory
+    measurePressure();
+    // Update depth calculation based on pressure in memory
+    subState.current_depth = getDepth();
 
     // IR Beam status
     subState.beam_status = getSensorTripped();

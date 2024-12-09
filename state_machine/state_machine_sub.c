@@ -42,6 +42,8 @@ void init_sub(void){
     subState.ds_command = 0;
     subState.fb_command = 0;
     SUBMARINE_CURRENT_STATUS_MSG = subStateToSubStatusMsg(subState);
+
+    init_simple_queue(0);
 }
 
 void init_sub_debugging(sub_states_t testState, uint8_t testBeam){
@@ -77,6 +79,7 @@ void event_handler_sub(){
                         break;
                     }
                 }
+                break;
             }
             case WELCOME: {
                 switch(current_event.type) {
@@ -95,6 +98,7 @@ void event_handler_sub(){
                         break;
                     }
                 }
+                break;
             }
             case DRIVE: {
                 switch(current_event.type) {
@@ -124,6 +128,7 @@ void event_handler_sub(){
                         break;
                     }
                 }
+                break;
             }
             case LANDING: {
                 switch(current_event.type) {
@@ -133,13 +138,15 @@ void event_handler_sub(){
                     }
                     case SENSOR_POLLING_TIMEOUT: {
                         poll_sensors();
+                        land_message_in_land();
                         break;
                     }
                     default: {
-                        int land_status = land_message_in_land();
+                        land_message_in_land();
                         break;
                     }
                 }
+                break;
             }
             default: {
                 // When undefined event fired, throw an error
