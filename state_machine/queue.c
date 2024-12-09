@@ -16,13 +16,13 @@ void insert_to_simple_queue(sub_events_t event)
 {
 
     simpleQ.events[simpleQ.insert_indx] = event;
-    printf("Event %d added to index %d\n", 
-            event.type, simpleQ.insert_indx);
+    // printf("Event %d added to index %d\n", 
+            // event.type, simpleQ.insert_indx);
     simpleQ.insert_indx++;
     if (simpleQ.insert_indx == MAX_ELEMENTS)
     {
         simpleQ.insert_indx = 0;
-        printf("Resetting insert_indx");
+        // printf("Resetting insert_indx");
     }
     simpleQ.size++;
 }
@@ -33,10 +33,10 @@ sub_events_t pop_from_simple_queue(void){
         printf("simpleQ is empty but tried to pop anyway\n");
     }else{
         sub_events_t current_event = simpleQ.events[simpleQ.remove_indx];
-        printf("Event %d dequeued from index %d\n", 
-            current_event.type, simpleQ.remove_indx);
+        // printf("Event %d dequeued from index %d\n", 
+            // current_event.type, simpleQ.remove_indx);
         simpleQ.remove_indx ++;
-        if (simpleQ.insert_indx == MAX_ELEMENTS){
+        if (simpleQ.remove_indx == MAX_ELEMENTS){
                 simpleQ.remove_indx = 0;
             }
         simpleQ.size --;
