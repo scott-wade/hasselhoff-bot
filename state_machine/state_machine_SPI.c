@@ -72,21 +72,22 @@ void event_handler_spi(Spi_State_Machine_t spi_type){
     // check for events
     switch(spi_type){
         case NUCLEO_PARENT: // parent on SPI1
-            if (!isEmpty(SPI_COMMS_EVENT_QUEUE) && SPI_COMMS_STATE == 99){
-                CURRENT_COMMS_TRANSMIT_EVENT = dequeue(SPI_COMMS_EVENT_QUEUE);
+            printf("SPI_COMMS_EVENT_QUEUE has size %u \n", SPI_COMMS_EVENT_QUEUE.size);
+            if (!isEmpty(&SPI_COMMS_EVENT_QUEUE) && SPI_COMMS_STATE == 99){
+                CURRENT_COMMS_TRANSMIT_EVENT = dequeue(&SPI_COMMS_EVENT_QUEUE);
                 // printf("Dequeued spi comms event \n");
                 newTransmission = 1;
             }
         break;
         case NUCLEO_CHILD: // child on SPI1
-            if (!isEmpty(SPI_COMMS_EVENT_QUEUE) && SPI_COMMS_STATE == 99){
-                CURRENT_COMMS_TRANSMIT_EVENT = dequeue(SPI_COMMS_EVENT_QUEUE);
+            if (!isEmpty(&SPI_COMMS_EVENT_QUEUE) && SPI_COMMS_STATE == 99){
+                CURRENT_COMMS_TRANSMIT_EVENT = dequeue(&SPI_COMMS_EVENT_QUEUE);
                 newTransmission = 1;
             }
         break;
         case SENSOR_PARENT: // parent on SPI4
-            if (!isEmpty(SPI_SENSOR_EVENT_QUEUE) && SPI_SENSOR_STATE == 99){
-                CURRENT_SENSOR_TRANSMIT_EVENT = dequeue(SPI_SENSOR_EVENT_QUEUE);
+            if (!isEmpty(&SPI_SENSOR_EVENT_QUEUE) && SPI_SENSOR_STATE == 99){
+                CURRENT_SENSOR_TRANSMIT_EVENT = dequeue(&SPI_SENSOR_EVENT_QUEUE);
                 //printf("Dequeued spi sensor comm event \n");
                 newTransmission = 1;
             }
@@ -133,6 +134,8 @@ void event_handler_spi(Spi_State_Machine_t spi_type){
         }
         // write to TX buffer
         // printf("writing to tx: %u\n", currpacket);
+        printf("Writing to TX with packet: %u\n",
+            currentEvent.tx_packet);
         writeTX(spi_id, currentEvent.tx_packet);
         // enable TXE interrupt
         enableSpiTXEInterrupts(spi_id);
@@ -149,13 +152,11 @@ void requestSpiTransmit(Spi_State_Machine_t spi_type, uint8_t child_id, uint16_t
     testEvent.tx_packet = packet;
     testEvent.child_id = child_id;
     testEvent.read_var_addr = read_var_addr;
-
-    printf("Requested spi transmit with child id: %u\n", child_id);
     
     switch(spi_type){// enqueue to the proper state machine's transmit queue
-        case NUCLEO_PARENT: {enqueue(SPI_COMMS_EVENT_QUEUE, testEvent);} break;
-        case NUCLEO_CHILD: {enqueue(SPI_COMMS_EVENT_QUEUE, testEvent);} break;
-        case SENSOR_PARENT: {enqueue(SPI_SENSOR_EVENT_QUEUE, testEvent);} break;
+        case NUCLEO_PARENT: {enqueue(&SPI_COMMS_EVENT_QUEUE, testEvent);} break;
+        case NUCLEO_CHILD: {enqueue(&SPI_COMMS_EVENT_QUEUE, testEvent);} break;
+        case SENSOR_PARENT: {enqueue(&SPI_SENSOR_EVENT_QUEUE, testEvent);} break;
         default: printf(stderr, "Unsupported/incorrect SPI Machine type"); break;
     }
     

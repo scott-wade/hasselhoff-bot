@@ -23,11 +23,11 @@ typedef struct {
 } Queue;
 
 // define functions
-int isFull(Queue q);
-int isEmpty(Queue q);
+int isFull(Queue* q);
+int isEmpty(Queue* q);
 Queue createQueue();
-void enqueue(Queue q, transmitEvent item);
-transmitEvent dequeue(Queue q);
+void enqueue(Queue* q, transmitEvent item);
+transmitEvent dequeue(Queue* q);
 
 
 

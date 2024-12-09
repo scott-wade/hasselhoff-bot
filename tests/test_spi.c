@@ -147,9 +147,9 @@ void testSPIQueue(void){
     testEvent.read_var_addr = &returnvalue;
 
     // add that event to the queue
-    enqueue(testQueue, testEvent);
+    enqueue(&testQueue, testEvent);
 
-    if(!isEmpty(testQueue)){
+    if(!isEmpty(&testQueue)){
         printf("testQueue is not Empty (PASS)\n");
     }else{
         printf("testQueue is Empty (BAD)\n");
@@ -157,7 +157,7 @@ void testSPIQueue(void){
 
     // try to retrieve the event from the queue
 
-    transmitEvent returnedEvent = dequeue(testQueue);
+    transmitEvent returnedEvent = dequeue(&testQueue);
     printf("Want 47, got child id %u\n", returnedEvent.child_id); // should get 47
 
 }
