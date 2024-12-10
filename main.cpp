@@ -1,4 +1,4 @@
-#define WHICH_NUCLEO 3 //change for compilation, 0 for remote, 1 for submarine, 2 for debug remote, 3 for debug sub3, 94 for NZ debugging
+#define WHICH_NUCLEO 0 //change for compilation, 0 for remote, 1 for submarine, 2 for debug remote, 3 for debug sub3, 94 for NZ debugging
 
 
 #include <cstdint>
@@ -25,12 +25,16 @@
 int main(void){
     if (WHICH_NUCLEO == 0){
 
+        printf("Starting Remote\n");
         init_remote();
+
+        printf("Initialized Remote\n");
         
         /* loop */
         while(1){
             // Check for tasks in queue and then execute them
             event_handler_remote();
+            printf("Handling Event\n");
             
             // SPI event handler
             event_handler_spi(NUCLEO_PARENT); // Remote = parent

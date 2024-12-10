@@ -39,11 +39,13 @@ typedef struct queue_node_t {
 } queue_node_t; // QueueNode type
 
 // Defintion of FIFO queue
-struct queue_remote_t {
+typedef struct queue_remote_t {
     queue_node_t* head;
     queue_node_t* tail;
     uint32_t size;
-};
+} queue_remote_t;
+
+extern queue_remote_t queue;
 
 /* Functions  ------------------------------------------------------------------*/
 void enqueue_event(remote_event_t event, double duration_ms);

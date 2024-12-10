@@ -61,21 +61,31 @@ remote_event_t dequeue_by_schedule(void)
     while (curr_node != NULL) {
 
         // Parse attributes of current node
-        ret_event = curr_node -> event;
         duration_ms = curr_node -> duration_ms;
         creation_time = curr_node->creation_time;
 
         if (fabs(current_time - creation_time) >= duration_ms) {
 
-            // Time to execute this event
-            curr_node->prev->next = curr_node->next;
-            curr_node->next->prev = curr_node->prev;
+            ret_event = curr_node -> event;
+
+            if (curr_node -> prev != NULL) {
+                curr_node->prev->next = curr_node->next;
+            } else {
+                
+            }
+
+            if (curr_node -> next != NULL) {
+                curr_node->next->prev = curr_node->prev;
+            }
+
+            if (queue.head == curr_node) {
+                queue.head = curr_node -> next;
+            }
 
             free(curr_node);
             queue.size--;
 
-            if (queue.size == 0){
-                // If queue is now empty, make sure both head/tail are NULL
+            if (queue.size == 0) {
                 queue.head = NULL;
                 queue.tail = NULL;
             }

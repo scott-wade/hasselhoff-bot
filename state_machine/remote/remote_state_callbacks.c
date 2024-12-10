@@ -27,7 +27,6 @@ void remote_init_callback(void)
     init_joysticks();
     init_seg_display();
     init_state_machine_spi(NUCLEO_PARENT); // parent = remote
-    printf("Initialized remote\n");
 
     // Startup Events
     // Schedule one-time tasks
