@@ -19,7 +19,7 @@
 
 // define global subState
 sub_t subState = { .state = IDLE, .initialised = 0, 
-                .beam_status = 0, .current_depth = 0.0, .land_status = 0,
+                .beam_status = 0, .current_depth = 0.0, .land_status = 0, .reset_status = 0,
                 .lr_command = 0, .ds_command = 0, .fb_command = 0
                 };
 
@@ -38,6 +38,7 @@ void init_sub(void){
     subState.beam_status = 0;
     subState.current_depth = 0.0;
     subState.land_status = 0;
+    subState.reset_status = 0;
     subState.lr_command = 0;
     subState.ds_command = 0;
     subState.fb_command = 0;
@@ -53,6 +54,7 @@ void init_sub_debugging(sub_states_t testState, uint8_t testBeam){
     subState.beam_status = testBeam;
     subState.current_depth = 0.0;
     subState.land_status = 0;
+    subState.reset_status = 0;
     subState.lr_command = 0;
     subState.ds_command = 0;
     subState.fb_command = 0;
