@@ -4,7 +4,7 @@ Packet structure and type defs for sub-to-remote and remote-to-sub communication
 
 #pragma once
 
-#include "../main.h"
+#include "main.h"
 #include "state_machine_sub.h"
 #include "state_machine_remote.h"
 #include "hardware_stm_spi.h"

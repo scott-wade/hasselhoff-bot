@@ -9,14 +9,14 @@
   */
 
 
-#include "../hardware/hardware_stm_gpio.h"
-#include "../hardware/hardware_stm_spi.h"
-#include "../state_machine/state_machine_SPI.h"
-#include "../debug_mort.h"
-#include "../state_machine/spi_queue.h"
+#include "hardware_stm_gpio.h"
+#include "hardware_stm_spi.h"
+#include "state_machine_SPI.h"
+#include "debug_mort.h"
+#include "spi_queue.h"
 #include <cstdint>
-#include "../state_machine/state_machine_sub.h"
-#include "../applications/packet.h"
+#include "state_machine_sub.h"
+#include "packet.h"
 #include "globals.h"
 
 

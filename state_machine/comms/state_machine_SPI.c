@@ -13,11 +13,11 @@
 #include "spi_queue.h"
 #include "queue.h"
 #include "state_machine_sub.h"
-#include "../hardware/hardware_stm_spi.h"
-#include "../hardware/hardware_stm_gpio.h"
-#include "../hardware/hardware_stm_timer.h"
+#include "hardware_stm_spi.h"
+#include "hardware_stm_gpio.h"
+#include "hardware_stm_timer.h"
 #include <cstdint>
-#include "../globals.h"
+#include "globals.h"
 #include "state_machine_SPI.h"
 #include <stdbool.h>
 

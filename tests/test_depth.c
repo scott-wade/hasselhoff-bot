@@ -9,9 +9,9 @@
  */
 
  #include "test_depth.h"
- #include "hardware/hardware_lps_spi.h"
- #include "hardware/hardware_stm_gpio.h"
- #include "hardware/hardware_stm_interrupt.h"
+ #include "hardware_lps_spi.h"
+ #include "hardware_stm_gpio.h"
+ #include "hardware_stm_interrupt.h"
 
 /* MACRO definitions----------------------------------------------------------*/
  

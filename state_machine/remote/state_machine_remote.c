@@ -17,7 +17,7 @@
 #include "timer_queue_remote.h"
 #include "hardware_stm_adc.h"
 #include "state_machine_SPI.h"
-#include "../applications/packet.h"
+#include "packet.h"
 
 /* Constants */
 

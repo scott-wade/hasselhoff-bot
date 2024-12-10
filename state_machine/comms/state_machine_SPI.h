@@ -11,7 +11,7 @@
 #include "queue.h"
 #include "main.h"
 #include "spi_queue.h"
-#include "../applications/packet.h"
+#include "packet.h"
 
 /* MACROS for everyone--------------------------------------------------------*/
 

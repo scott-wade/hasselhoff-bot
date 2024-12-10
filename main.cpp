@@ -3,14 +3,14 @@
 
 #include <cstdint>
 #include "main.h"
-#include "state_machine/state_machine_sub.h"
-#include "state_machine/state_machine_remote.h"
+#include "state_machine_sub.h"
+#include "state_machine_remote.h"
 
 #include "state_machine_SPI.h"
 #include "inputs_remote.h"
 #include "hardware_stm_adc.h"
-#include "applications/sub_clock.h"
-#include "applications/depth_sensor.h"
+#include "sub_clock.h"
+#include "depth_sensor.h"
 #include "led_remote.h"
 #include "ir_range.h"
 #include "timer_queue_remote.h"
@@ -18,10 +18,10 @@
 #include <cmath>
 #include <iostream>
 
-#include "tests/test_spi.h"
-#include "tests/test_gpio.h"
-#include "tests/test_depth.h"
-#include "tests/test_sub_state_machine.h"
+#include "test_spi.h"
+#include "test_gpio.h"
+#include "test_depth.h"
+#include "test_sub_state_machine.h"
 
 int main(void){
     if (WHICH_NUCLEO == 0){

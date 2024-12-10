@@ -10,8 +10,8 @@
 
   #include "motor_controller.h"
   #include "pin_assignment.h"
-  #include "../hardware/hardware_stm_gpio.h"
-  #include "../hardware/hardware_stm_timer.h"
+  #include "hardware_stm_gpio.h"
+  #include "hardware_stm_timer.h"
   #include "sub_clock.h"
 
   /* MOTOR PROPERTIES */

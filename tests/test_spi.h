@@ -5,7 +5,7 @@
  extern "C" {
 #endif
 
-#include "../state_machine/state_machine_SPI.h"
+#include "state_machine_SPI.h"
 
 void testReadWriteRegOpMode(void);
 void testReadRegOpMode(void);

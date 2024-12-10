@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../main.h"
+#include "main.h"
 #include "state_machine_remote.h"
 #include "state_machine_sub.h"
 #include <cstdint>

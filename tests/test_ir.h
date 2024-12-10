@@ -1,5 +1,5 @@
 #pragma once
 
-#include "./main.h"
+#include "main.h"
 
 void test_ir(void);
