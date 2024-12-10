@@ -13,14 +13,10 @@
 #include "hardware_stm_interrupt.h"
 
 
-#define MAX_POT_VAL             4095 // Empirically measured max potentiometer value
-#define TAR_DEP_DIG_0           2 // Index of first digit of target depth
-#define TAR_DEP_DIG_1           3 // Index of second digit of target depth
-#define MAX_JOY_VAL             4094 // Empirically measured max joystick value
-
 // Variables to store DMA value outputs
 uint16_t target_depth;
 uint16_t joystick[2]; // [x,y]
+uint8_t land_button_pressed = 0;
 
 
 /**
@@ -144,7 +140,7 @@ uint16_t get_joystick_y (int prev_val) {
 /*
  * Task to keep reading the joystick values
  */
-uint16_t[] read_joysticks (void) {
+void read_joysticks (uint16_t* joy_inputs) {
     static uint16_t prev_joy_x = 0;
     static uint16_t prev_joy_y = 0;
     // Read joystick values
@@ -155,11 +151,9 @@ uint16_t[] read_joysticks (void) {
     prev_joy_x = joy_x;
     prev_joy_y = joy_y;
 
-    uint16_t joy_inputs[2];
     joy_inputs[0] = joy_x;
     joy_inputs[1] = joy_y;
 
-    return joy_inputs;
 }
 
 /* *******************************************************************************

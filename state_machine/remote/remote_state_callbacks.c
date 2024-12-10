@@ -16,6 +16,7 @@
 #include "packet.h"
 #include "state_machine_SPI.h"
 #include "sub_clock.h"
+#include "hardware_stm_adc.h"
 
 void remote_init_callback(void)
 {
@@ -114,12 +115,12 @@ void remote_start_adc_callback(void)
 void remote_read_joysticks_callback(void)
 {
     uint16_t joy_inputs[2];
-    joy_inputs = read_joysticks();
+    read_joysticks(joy_inputs);
 
     // If in welcome state and joysticks are within a range, then go to drive state
     if (remote_state == WELCOME_REMOTE){
-        if ((joy_x <= JOY_ACTIVE_ZONE) || (joy_x >= (MAX_JOY_VAL - JOY_ACTIVE_ZONE)) ||
-            (joy_y <= JOY_ACTIVE_ZONE) || (joy_y >= (MAX_JOY_VAL - JOY_ACTIVE_ZONE))) {
+        if ((joy_inputs[0] <= JOY_ACTIVE_ZONE) || (joy_inputs[0] >= (MAX_JOY_VAL - JOY_ACTIVE_ZONE)) ||
+            (joy_inputs[1] <= JOY_ACTIVE_ZONE) || (joy_inputs[1] >= (MAX_JOY_VAL - JOY_ACTIVE_ZONE))) {
             
             // Go Welcome -> Drive (singleton event)
             enqueue_event(DRIVE_REMOTE, getSubMS() + 10);
@@ -133,8 +134,8 @@ void remote_read_joysticks_callback(void)
         }
         
         // When driving, continuously send joystick values
-        requestSpiTransmit_remote(DRIVE_LR_MSG, joy_x, &sub_status); // left/right
-        requestSpiTransmit_remote(DRIVE_FB_MSG, joy_y, &sub_status); // forward/back
+        requestSpiTransmit_remote(DRIVE_LR_MSG, joy_inputs[0], &sub_status); // left/right
+        requestSpiTransmit_remote(DRIVE_FB_MSG, joy_inputs[1], &sub_status); // forward/back
 
     }
 
@@ -149,7 +150,7 @@ void remote_read_target_depth_callback(void)
     }
             
     uint8_t target_depth = read_target_depth();
-    requestSpiTransmit_remote(DRIVE_DS_MSG, curr_val, &sub_status); // drive/surface (up/down)
+    requestSpiTransmit_remote(DRIVE_DS_MSG, target_depth, &sub_status); // drive/surface (up/down)
 
     // Self schedule
     enqueue_event(READ_TARGET_DEPTH, READ_DEPTH_PERIOD_MS);

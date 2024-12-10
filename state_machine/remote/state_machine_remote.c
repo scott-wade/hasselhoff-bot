@@ -68,7 +68,7 @@ void event_handler_remote(void) {
                 break;
 
             case COUNTDOWN_TIMER:
-                remote_countdown_timer()l
+                remote_countdown_timer();
                 break;
 
             case READ_JOYSTICKS:

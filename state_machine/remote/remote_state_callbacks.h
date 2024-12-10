@@ -25,6 +25,8 @@
 void remote_init_callback(void);
 void remote_welcome_callback(void);
 void remote_drive_callback(void);
+void remote_land_callback(void);
+void remote_reset_callback(void);
 
 // AUXILIARY EVENTS
 void remote_start_adc_callback(void);

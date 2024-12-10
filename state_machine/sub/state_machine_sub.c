@@ -127,6 +127,8 @@ void event_handler_sub(){
                         poll_sensors();
                         break;
                     }
+                    default:
+                        break;
                 }
                 break;
             }
@@ -148,7 +150,7 @@ void event_handler_sub(){
                 }
                 break;
             }
-            case RESET: {
+            case RESETTING: {
                 switch (current_event.type)
                 {                
                     default:

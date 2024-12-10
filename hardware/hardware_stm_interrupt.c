@@ -15,8 +15,8 @@
 #include <cstdint>
 #include "hardware_stm_gpio.h"
 #include "applications/depth_sensor.h"
-#include "timer_queue_remote.h"
 #include "state_machine_remote.h"
+#include "inputs_remote.h"
 
 /* MACRO definitions----------------------------------------------------------*/
 #define SYSTEM_CONTROL_BASE_ADDRESS (0xE000E000)
