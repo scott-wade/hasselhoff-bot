@@ -8,14 +8,15 @@
   ******************************************************************************
   */
 
-#include "ir_range.h"
+
 #include "stdio.h"
 #include "state_machine_sub.h"
 #include "globals.h"
 #include "motor_controller.h"
 #include "queue.h"
-#include "../applications/state_machine_callbacks.h"
-#include "../applications/packet.h"
+#include "ir_range.h"
+#include "state_machine_callbacks.h"
+#include "packet.h"
 
 // define global subState
 sub_t subState = { .state = IDLE, .initialised = 0, 
@@ -43,6 +44,7 @@ void init_sub(void){
     init_simple_queue(0);
 }
 
+// TODO : DELETE
 void init_sub_debugging(sub_states_t testState, uint8_t testBeam){
     /* Initialize sub state machine */ 
     subState.state = testState;
