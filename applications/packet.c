@@ -36,21 +36,24 @@ uint8_t subStateToSubStatusMsg(sub_t state_struct){
     // Bit 1 is Land Status
     sub_status_msg = sub_status_msg | (uint8_t)(state_struct.land_status << 6);
 
+    // Bit 2 is Reset Status
+    sub_status_msg = sub_status_msg | (uint8_t)(state_struct.reset_status << 5);
 
-    // bits [2-3] are sub state
-    uint8_t substate_mask = (uint8_t)(0b00110000);
+
+    // bits [3-4] are sub state
+    uint8_t substate_mask = (uint8_t)(0b00011000);
     switch (state_struct.state){
         case IDLE: 
             sub_status_msg = sub_status_msg | (uint8_t)0b00000000;
             break;
         case WELCOME:
-            sub_status_msg = sub_status_msg | (uint8_t)0b00010000;
+            sub_status_msg = sub_status_msg | (uint8_t)0b00001000;
             break;
         case DRIVE:
-            sub_status_msg = sub_status_msg | (uint8_t)0b00100000;
+            sub_status_msg = sub_status_msg | (uint8_t)0b00010000;
             break;
         case LANDING:
-            sub_status_msg = sub_status_msg | (uint8_t)0b00110000;
+            sub_status_msg = sub_status_msg | (uint8_t)0b00011000;
             break;
     }
 
