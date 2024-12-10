@@ -55,8 +55,6 @@
 #define EXTERNAL_INTERRUPT_CONTROLLER_PENDING_REGISTER (EXTERNAL_INTERRUPT_CONTROLLER_BASE_ADDRESS+0x14)
 #define EXTERNAL_INTERRUPT_CONTROLLER_PENDING_EXTI6 ((uint32_t)0x40)
 
-static int interruptCounter = 0; // for debugging
-
 void enableSPI1Interrupt(void){
     uint32_t* reg_pointer_32;
     reg_pointer_32 = (uint32_t *)NVIC_INTERRUPT_SET_ENABLE_REGISTER_32_63;

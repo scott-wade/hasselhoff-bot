@@ -55,7 +55,7 @@ extern sub_t subState;
 void init_sub(void);
 void init_timer(void);
 void init_gpio(void);
-void event_handler_sub();
+void event_handler_sub(void);
 
 // debug init funciton 
 void init_sub_debugging(sub_states_t testState, uint8_t testBeam);

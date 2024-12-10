@@ -84,3 +84,7 @@ void event_handler_remote(void) {
 }
 
 /* End Event Scheduler ------------------------------------------------------------------*/
+void init_remote(void) 
+{
+    enqueue_event(INIT_REMOTE, 0);
+}

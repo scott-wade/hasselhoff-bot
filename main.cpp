@@ -24,16 +24,21 @@
 
 int main(void){
     if (WHICH_NUCLEO == 0){
-        /* remote state machine */
-        sched_event(INIT_REMOTE); // Start with initialization event
+
+        init_remote();
+        
         /* loop */
         while(1){
             // Check for tasks in queue and then execute them
             event_handler_remote();
+            
             // SPI event handler
             event_handler_spi(NUCLEO_PARENT); // Remote = parent
         }
-    } else if(WHICH_NUCLEO == 1) {
+    } 
+    
+    
+    else if(WHICH_NUCLEO == 1) {
         /* submarine state machine */
 
         // initialization
@@ -43,8 +48,17 @@ int main(void){
         while(1){
             event_handler_sub();
         }
+    }
 
-    }else if(WHICH_NUCLEO == 2){
+
+
+
+
+
+// *********************************************************************************************************************
+// DEBUGGING
+
+    else if(WHICH_NUCLEO == 2){
         /* DEBUGGING CODE PARENT */
         testNucleoTransmitting(NUCLEO_PARENT);
 

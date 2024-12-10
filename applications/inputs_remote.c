@@ -70,7 +70,6 @@ uint16_t get_target_depth(void) {
 }
 
 uint8_t read_target_depth (void) {
-    static uint8_t prev_val = 0;
     uint8_t curr_val = get_target_depth();
 
     // Update LED display with depth value
@@ -80,8 +79,6 @@ uint8_t read_target_depth (void) {
     // Set the values on the led display
     set_led_disp_val(TAR_DEP_DIG_0, first_dig);
     set_led_disp_val(TAR_DEP_DIG_1, second_dig);
-
-    prev_val = curr_val; // Set current to old
 
     return curr_val;
 }

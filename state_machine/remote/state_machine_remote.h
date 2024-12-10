@@ -22,7 +22,6 @@ extern uint8_t sub_status;
 /*Function definitions---------------------------------------------------------*/
 void init_remote(void);
 void event_handler_remote(void);
-int sched_event(remote_event_t event);
 
 #ifdef __cplusplus
 }
