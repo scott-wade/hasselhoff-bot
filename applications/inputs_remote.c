@@ -15,8 +15,7 @@
 #define MAX_POT_VAL             4095 // Empirically measured max potentiometer value
 #define TAR_DEP_DIG_0           2 // Index of first digit of target depth
 #define TAR_DEP_DIG_1           3 // Index of second digit of target depth
-#define MAX_JOY_VAL             4094 // Empirically measured max joystick value
-#define JOY_ACTIVE_ZONE         100
+#define MAX_JOY_VAL             2860 // Empirically measured max joystick value
 
 // Variables to store DMA value outputs
 uint16_t target_depth;
@@ -69,7 +68,7 @@ uint16_t get_target_depth(void) {
                         0, MAX_POT_VAL, // Input range
                         1, 17); // Desired range
     
-    // printf("Target Depth = %d -> %d\n", target_depth, processed_val);
+    printf("Target Depth = %d -> %d\n", target_depth, processed_val);
     return processed_val;
 }
 
@@ -154,10 +153,21 @@ void read_joysticks (void) {
 
     // printf("Joy_x = %d | Joy_y = %d\n", joy_x, joy_y);
 
+    // Map to 0-10
+    joy_x = analog2discrete(joy_x, 
+                            0, MAX_JOY_VAL, // Input range
+                            0, 10); // Desired range
+    joy_y = analog2discrete(joy_y, 
+                            0, MAX_JOY_VAL, // Input range
+                            0, 10); // Desired range
+
+    // printf("Mapped Joy_x = %d | Mapped Joy_y = %d\n", joy_x, joy_y);
+
+
     // If in welcome state and joysticks are within a range, then go to drive state
     if (remote_state == WELCOME_REMOTE){
-        if ((joy_x <= JOY_ACTIVE_ZONE) || (joy_x >= (MAX_JOY_VAL - JOY_ACTIVE_ZONE)) ||
-            (joy_y <= JOY_ACTIVE_ZONE) || (joy_y >= (MAX_JOY_VAL - JOY_ACTIVE_ZONE))) {
+        if (joy_x == 0 || joy_x == 10 ||
+            joy_y == 0 || joy_y == 10) {
             // Go Welcome -> Drive
             sched_event(DRIVE_REMOTE); 
         }

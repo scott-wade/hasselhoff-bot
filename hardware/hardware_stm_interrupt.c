@@ -138,10 +138,12 @@ void EXTI9_5_IRQHandler(void)
         uint32_t btn_val2 = read_land_button(); //second check of button state
 
         if (btn_val1 == btn_val2 &&   // If the state of the button was the same before and after the delay 
-            remote_state == DRIVE_REMOTE &&  // Must be in drive state
-            sub_status_vals.target_detected) // AND if the beam is NOT broken
+            remote_state == DRIVE_REMOTE)  // Must be in drive state
         {
-            sched_event(LAND_REMOTE); // transition the remote into the landing state 
+            if (sub_status_vals.target_detected)
+                sched_event(LAND_REMOTE); // transition the remote into the landing state 
+            else
+                printf("Land button pressed but target not detected, abort!\n");
         }
 
         /**
