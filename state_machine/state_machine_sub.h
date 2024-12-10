@@ -18,7 +18,7 @@ typedef enum  {
     DRIVE_MSG_LR_RECEIVED,      // left/right drive command
     DRIVE_MSG_DS_RECEIVED,      // dive/surface drive command
     LAND_MSG_RECEIVED,          // land msg
-    IR_REQUEST_RECEIVED,       // IR status request msg
+    STATUS_REQUEST_RECEIVED,       // IR status request msg
     SENSOR_POLLING_TIMEOUT     // Timeout for polling sensors
 } sub_event_type_t;
 
