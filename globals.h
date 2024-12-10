@@ -22,11 +22,6 @@ extern "C"
     extern simple_queue_t simpleQ;
     extern uint16_t*  rx_packet;
 
-    // submarine status message
-    extern uint8_t SUBMARINE_CURRENT_STATUS_MSG; // defined in state_machine_sub.c
-        // helper functions defined in packet.c
-        // refer to Hasselhoff State Machine spreadsheet, Packet Protocol tab for details
-
 
 #ifdef __cplusplus
 }
