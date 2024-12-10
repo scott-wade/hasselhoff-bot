@@ -9,6 +9,7 @@
   */
 
 
+#include "hardware_stm_spi.h"
 #include "state_machine_sub.h"
 #include "globals.h"
 #include "stdio.h"
@@ -58,3 +59,7 @@ uint8_t subStateToSubStatusMsg(sub_t state_struct){
     return sub_status_msg;
 }
 
+void loadTXPacket(sub_t state_struct){
+    uint8_t packet = subStateToSubStatusMsg(state_struct);
+    writeTX(1, packet);
+}
