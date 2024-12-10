@@ -9,6 +9,18 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 
+/* Constants */
+
+/* Period of periodically occuring tasks */
+#define DISPLAY_CYCLE_PERIOD_MS         1
+#define READ_DEPTH_PERIOD_MS            100
+#define START_ADC_DELAY_MS              100
+#define WELCOME_PERIOD_MS               500
+#define READ_JOYSTICKS_PERIOD_MS        100
+#define COUNTDOWN_TIMER_PERIOD_MS       1000 // 1 sec
+#define READ_SUB_STATUS_DELAY_MS        10
+#define POLL_SUB_STATUS_PERIOD_MS       100
+
 /* Types ---------------------------------------------------------*/
 // List of all events in state machine
 typedef enum {
@@ -30,29 +42,10 @@ typedef enum {
     READ_SUB_STATUS
 } remote_event_t;
 
-// Queue node
-struct QueueNode {
-    remote_event_t event;
-    struct QueueNode* next; // Next node
-    struct QueueNode* prev; // Previous node
-};
-typedef struct QueueNode queue_node_t; // QueueNode type
-
-// Defintion of FIFO queue
-struct queue_remote_t {
-    queue_node_t* head;
-    queue_node_t* tail;
-    uint32_t size;
-};
-
 /* Global variables --------------------------------------------------------*/
 
 extern remote_event_t remote_state;
 extern uint8_t sub_status;
-
-/* MACROS for everyone--------------------------------------------------------*/
-
-
 
 /*Function definitions---------------------------------------------------------*/
 void init_remote(void);
