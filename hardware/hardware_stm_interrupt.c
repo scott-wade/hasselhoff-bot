@@ -10,11 +10,13 @@
 
 #include "hardware_stm_timer.h"
 #include "hardware_stm_interrupt.h"
+#include "inputs_remote.h"
 #include "stm32f4xx_rcc_mort.h"
 #include <cstdint>
-
 #include "hardware_stm_gpio.h"
 #include "applications/depth_sensor.h"
+#include "timer_queue_remote.h"
+#include "state_machine_remote.h"
 
 /* MACRO definitions----------------------------------------------------------*/
 #define SYSTEM_CONTROL_BASE_ADDRESS (0xE000E000)
@@ -107,6 +109,18 @@ void enableEXTI6OnPortC(void)
     *reg_pointer_32 = EXTI9_5_INTERRUPT_BIT; // writing a 0 has no effect, so can hard set this
 }    
 
+// To allow some time to pass to check the state of the button 
+void delay_button(uint32_t time)
+{   
+    //time is in ms 
+    //10 = 10 ms
+    //10000 = 10 s
+    for (uint32_t i = 0; i < time ; i++)
+    {
+        //do nothing
+    };
+};
+
 void EXTI9_5_IRQHandler(void)
 {
     uint32_t *reg_pointer_32;
@@ -118,6 +132,18 @@ void EXTI9_5_IRQHandler(void)
     {
         // clear pending interrupt (by writing a 1)
         *reg_pointer_32 = EXTERNAL_INTERRUPT_CONTROLLER_PENDING_EXTI6;
+
+        uint32_t btn_val1 = readGPIOinput(PORT_C, 6); //initial state of the button
+        delay_button(10); //delay for 10ms
+        uint32_t btn_val2 = readGPIOinput(PORT_C, 6); //second check of button state
+
+        if (btn_val1 == btn_val2) // AND if the beam is NOT broken
+        {
+            land_button_pressed = 1;
+        }
+
+        /**
+        // Debugging code // 
         // toggle PB0 as our action (debugging the EXTI)
         ToggleGPIOOutput(PORT_B, PIN_0);
 
@@ -133,5 +159,6 @@ void EXTI9_5_IRQHandler(void)
             //getPressure();
         }        
         printf("pressure: %.2f \n", getPressure());
+        */
     }
 }

@@ -13,11 +13,11 @@
 typedef enum {
     // Main events
     EMPTY_REMOTE,
-    IDLE_REMOTE,
     INIT_REMOTE,
     WELCOME_REMOTE,
     DRIVE_REMOTE,
     LAND_REMOTE,
+    RESET_REMOTE,
 
     // Other events
     START_ADC,

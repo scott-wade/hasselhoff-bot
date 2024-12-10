@@ -12,18 +12,7 @@
 
 /* Constants */
 
-/* Period of periodically occuring tasks */
-#define DISPLAY_CYCLE_PERIOD_MS         1
-#define READ_DEPTH_PERIOD_MS            100
-#define START_ADC_DELAY_MS              100
-#define WELCOME_PERIOD_MS               500
-#define READ_JOYSTICKS_PERIOD_MS        100
-#define COUNTDOWN_TIMER_PERIOD_MS       1000 // 1 sec
-#define READ_SUB_STATUS_DELAY_MS        10
-#define POLL_SUB_STATUS_PERIOD_MS       100
-
 /* Types ---------------------------------------------------------*/
-// List of all events in state machine
 
 
 /* Global variables --------------------------------------------------------*/

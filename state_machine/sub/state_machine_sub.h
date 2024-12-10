@@ -31,7 +31,8 @@ typedef enum {
     IDLE,
     WELCOME,
     DRIVE,
-    LANDING
+    LANDING,
+    RESET
 } sub_states_t;
 
 typedef struct {

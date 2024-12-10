@@ -10,13 +10,13 @@
 #include "hardware_stm_dma.h"
 #include "state_machine_remote.h"
 #include "state_machine_SPI.h"
+#include "hardware_stm_interrupt.h"
 
 
 #define MAX_POT_VAL             4095 // Empirically measured max potentiometer value
 #define TAR_DEP_DIG_0           2 // Index of first digit of target depth
 #define TAR_DEP_DIG_1           3 // Index of second digit of target depth
 #define MAX_JOY_VAL             4094 // Empirically measured max joystick value
-#define JOY_ACTIVE_ZONE         100
 
 // Variables to store DMA value outputs
 uint16_t target_depth;
@@ -73,14 +73,9 @@ uint16_t get_target_depth(void) {
     return processed_val;
 }
 
-void read_target_depth (void) {
+uint8_t read_target_depth (void) {
     static uint8_t prev_val = 0;
     uint8_t curr_val = get_target_depth();
-
-    if (remote_state == DRIVE_REMOTE) {
-        // When driving, continuously send joystick values
-        requestSpiTransmit_remote(DRIVE_DS_MSG, curr_val, NULL); // drive/surface (up/down)
-    }
 
     // Update LED display with depth value
     int first_dig = curr_val / 10; // Integer division
@@ -91,6 +86,8 @@ void read_target_depth (void) {
     set_led_disp_val(TAR_DEP_DIG_1, second_dig);
 
     prev_val = curr_val; // Set current to old
+
+    return curr_val;
 }
 
 /*
@@ -123,6 +120,8 @@ int init_joysticks(void) {
                        2,  /* dma_stream */ 
                        joystick, /* dest_addr */
                        2 /* num_pins */ );
+    
+    enableEXTI6OnPortC();
 
     return 0; // success
 }
@@ -145,33 +144,23 @@ uint16_t get_joystick_y (int prev_val) {
 /*
  * Task to keep reading the joystick values
  */
-void read_joysticks (void) {
+uint16_t[] read_joysticks (void) {
     static uint16_t prev_joy_x = 0;
     static uint16_t prev_joy_y = 0;
     // Read joystick values
     uint16_t joy_x = get_joystick_x(prev_joy_x);
     uint16_t joy_y = get_joystick_y(prev_joy_y);
 
-    // printf("Joy_x = %d | Joy_y = %d\n", joy_x, joy_y);
-
-    // If in welcome state and joysticks are within a range, then go to drive state
-    if (remote_state == WELCOME_REMOTE){
-        if ((joy_x <= JOY_ACTIVE_ZONE) || (joy_x >= (MAX_JOY_VAL - JOY_ACTIVE_ZONE)) ||
-            (joy_y <= JOY_ACTIVE_ZONE) || (joy_y >= (MAX_JOY_VAL - JOY_ACTIVE_ZONE))) {
-            // Go Welcome -> Drive
-            sched_event(DRIVE_REMOTE); 
-        }
-    } else if (remote_state == DRIVE_REMOTE) {
-        // When driving, continuously send joystick values
-        requestSpiTransmit_remote(DRIVE_LR_MSG, joy_x, NULL); // left/right
-        requestSpiTransmit_remote(DRIVE_FB_MSG, joy_y, NULL); // forward/back
-    }
-
     // Set previous values
     prev_joy_x = joy_x;
     prev_joy_y = joy_y;
-}
 
+    uint16_t joy_inputs[2];
+    joy_inputs[0] = joy_x;
+    joy_inputs[1] = joy_y;
+
+    return joy_inputs;
+}
 
 /* *******************************************************************************
                     INPUTS UTILITY FUNCTIONS

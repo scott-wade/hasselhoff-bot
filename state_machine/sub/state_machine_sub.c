@@ -15,7 +15,7 @@
 #include "motor_controller.h"
 #include "queue.h"
 #include "ir_range.h"
-#include "state_machine_callbacks.h"
+#include "sub_state_callbacks.h"
 #include "packet.h"
 
 // define global subState
@@ -145,6 +145,15 @@ void event_handler_sub(){
                         land_message_in_land();
                         break;
                     }
+                }
+                break;
+            }
+            case RESET: {
+                switch (current_event.type)
+                {                
+                    default:
+                        reset_message_in_any_state();
+                        break;
                 }
                 break;
             }

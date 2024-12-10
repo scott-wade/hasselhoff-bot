@@ -6,7 +6,7 @@ extern "C"
 #endif
 
 #include "state_machine_sub.h"
-#include "state_machine_callbacks.h"
+#include "sub_state_callbacks.h"
 #include "globals.h"
 
 void test_sub_state_machine(void);

@@ -373,7 +373,7 @@ void clear_all_leds(void) {
  * Welcome state for the remote
  * Toggle the LEDs
  */
-void welcome_remote (void)
+void welcome_remote_sequence (void)
 {
     // Light up LED status lights
     static int led_i = 0;
@@ -447,10 +447,6 @@ int countdown_timer (void) {
     } else if (count <= -1*blink_count) {
         // Game over! Exit driving state
         count = COUTNDOWN; // Reset count to starting value
-        // Driving -> Welcome
-        sched_event(WELCOME_REMOTE);
-        // Notify sub about timeout
-        requestSpiTransmit_remote(RESET_MSG, 0, NULL); // send reset message
         return 0; // Exit
     } else {
         // Negative numbers is game over and leds will flash on and off

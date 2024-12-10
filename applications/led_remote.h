@@ -30,7 +30,7 @@ int init_seg_display( void );
 void cycle_led_display( void );
 int set_led_disp_vals(int values[4]);
 int set_led_disp_val(int digit, int value);
-void welcome_remote (void);
+void welcome_remote_sequence(void);
 int countdown_timer (void);
 void read_sub_status(void);
 void clear_all_leds(void);
