@@ -13,7 +13,6 @@
 #include "depth_sensor.h"
 #include "led_remote.h"
 #include "ir_range.h"
-#include "timer_queue_remote.h"
 #include "motor_controller.h"
 #include <cmath>
 #include <iostream>
@@ -29,8 +28,6 @@ int main(void){
         sched_event(INIT_REMOTE); // Start with initialization event
         /* loop */
         while(1){
-            // Check for any expired timers and update queue
-            timer_handler_remote();
             // Check for tasks in queue and then execute them
             event_handler_remote();
             // SPI event handler

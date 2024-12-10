@@ -8,7 +8,6 @@
 #include <stdbool.h>
 #include "hardware_stm_gpio.h"
 #include "state_machine_SPI.h"
-#include "timer_queue_remote.h"
 
 
 // Constants ////////////////////

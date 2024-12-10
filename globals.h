@@ -22,6 +22,9 @@ extern "C"
     extern simple_queue_t simpleQ;
     extern uint16_t*  rx_packet;
 
+    // Remote global
+    
+
 
 #ifdef __cplusplus
 }

@@ -14,7 +14,6 @@
 #include "inputs_remote.h"
 #include "state_machine_sub.h"
 #include "sub_clock.h"
-#include "timer_queue_remote.h"
 #include "hardware_stm_adc.h"
 #include "state_machine_SPI.h"
 #include "packet.h"
@@ -24,11 +23,6 @@
 
 /* Global Variables ---------------------------------------------------------*/
 // Initialize queue
-struct queue_remote_t queue = {
-    .head = NULL,
-    .tail = NULL,
-    .size = 0
-};
 remote_event_t remote_state = INIT_REMOTE; // Global variable of remote's current state
 uint8_t sub_status = 0; // Sub's status
 /* End Global Variables ---------------------------------------------------------*/
@@ -53,20 +47,20 @@ void tasks(remote_event_t event){
         case INIT_REMOTE:
             init_remote();
             // Schedule one-time tasks
-            enqueue(START_ADC, START_ADC_DELAY_MS);
+            enqueue_event(START_ADC, START_ADC_DELAY_MS);
 
             // Schedule periodic tasks
             //For the first instance of these tasks, schedule them after the one-time tasks have been executed
-            enqueue(CYCLE_LED_DISPLAY, START_ADC_DELAY_MS + 10);
-            enqueue(READ_JOYSTICKS, START_ADC_DELAY_MS + 10);
-            enqueue(POLL_SUB_STATUS, START_ADC_DELAY_MS + 10);
-            enqueue(WELCOME_REMOTE, START_ADC_DELAY_MS + 10);
+            enqueue_event(CYCLE_LED_DISPLAY, START_ADC_DELAY_MS + 10);
+            enqueue_event(READ_JOYSTICKS, START_ADC_DELAY_MS + 10);
+            enqueue_event(POLL_SUB_STATUS, START_ADC_DELAY_MS + 10);
+            enqueue_event(WELCOME_REMOTE, START_ADC_DELAY_MS + 10);
             break;
 
         case WELCOME_REMOTE:
             remote_state = WELCOME_REMOTE;
             welcome_remote();
-            enqueue(WELCOME_REMOTE, WELCOME_PERIOD_MS);           
+            enqueue_event(WELCOME_REMOTE, WELCOME_PERIOD_MS);           
             break;
         
         case DRIVE_REMOTE:
@@ -76,8 +70,8 @@ void tasks(remote_event_t event){
             clear_all_leds();
             set_white_led(); // Set driving status LED
 
-            enqueue(COUNTDOWN_TIMER, COUNTDOWN_TIMER_PERIOD_MS);
-            enqueue(READ_TARGET_DEPTH, READ_DEPTH_PERIOD_MS);
+            enqueue_event(COUNTDOWN_TIMER, COUNTDOWN_TIMER_PERIOD_MS);
+            enqueue_event(READ_TARGET_DEPTH, READ_DEPTH_PERIOD_MS);
             break;
         
         case LAND_REMOTE: // TODO: enqueue the land remote event again
@@ -88,7 +82,7 @@ void tasks(remote_event_t event){
         
         case CYCLE_LED_DISPLAY:
             cycle_led_display(); // Cycle thru the 4 digits
-            enqueue(CYCLE_LED_DISPLAY, DISPLAY_CYCLE_PERIOD_MS);
+            enqueue_event(CYCLE_LED_DISPLAY, DISPLAY_CYCLE_PERIOD_MS);
             break;
         
         case START_ADC:
@@ -101,29 +95,29 @@ void tasks(remote_event_t event){
             if (remote_state != DRIVE_REMOTE) 
                 break;
             read_target_depth();
-            enqueue(READ_TARGET_DEPTH, READ_DEPTH_PERIOD_MS);
+            enqueue_event(READ_TARGET_DEPTH, READ_DEPTH_PERIOD_MS);
             break;
 
         case COUNTDOWN_TIMER:
             if (remote_state != DRIVE_REMOTE)
                 break;
             countdown_timer();
-            enqueue(COUNTDOWN_TIMER, COUNTDOWN_TIMER_PERIOD_MS);
+            enqueue_event(COUNTDOWN_TIMER, COUNTDOWN_TIMER_PERIOD_MS);
             break;
 
         case READ_JOYSTICKS:
             read_joysticks();
-            enqueue(READ_JOYSTICKS, READ_JOYSTICKS_PERIOD_MS);
+            enqueue_event(READ_JOYSTICKS, READ_JOYSTICKS_PERIOD_MS);
             break;
 
         case POLL_SUB_STATUS:
             requestSpiTransmit_remote(STATUS_REQ_MSG, 0, &sub_status);
-            enqueue(READ_SUB_STATUS, READ_SUB_STATUS_DELAY_MS);
+            enqueue_event(READ_SUB_STATUS, READ_SUB_STATUS_DELAY_MS);
             break;
 
         case READ_SUB_STATUS:
             read_sub_status();
-            enqueue(POLL_SUB_STATUS, POLL_SUB_STATUS_PERIOD_MS);
+            enqueue_event(POLL_SUB_STATUS, POLL_SUB_STATUS_PERIOD_MS);
             break;
 
         default:

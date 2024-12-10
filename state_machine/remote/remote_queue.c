@@ -12,19 +12,25 @@
 #include "sub_clock.h"
 #include "math.h"
 
+// Gloabl Remote Queue
+struct queue_remote_t queue = {
+    .head = NULL,
+    .tail = NULL,
+    .size = 0
+};
+
 // Push new event to end of queue
-void enqueue(remote_event_t event, double duration_ms) 
+void enqueue_event(remote_event_t event, double duration_ms) 
 {
     // Allocate memory for queue node
     queue_node_t* new_node = malloc(sizeof(queue_node_t));
     if (new_node == NULL) {
         fprintf(stderr, "[Error] Failed to allocate memory for new event\n");
-        return -1; // error
     }
     // Set new node attributes
     new_node->event = event; // Set event
     new_node->duration_ms = duration_ms;
-    new_node->creation_time = getSubMS()
+    new_node->creation_time = getSubMS();
     new_node->next = NULL; // At end of queue
     new_node->prev = queue.tail; // Point to last tail node
 
@@ -86,10 +92,10 @@ remote_event_t dequeue_by_schedule(void)
 
 void clear_queue(void)
 {
-    queue_node_t curr_node = queue.head;
+    queue_node_t* curr_node = queue.head;
 
     while(curr_node != NULL) {
-      queue_node_t temp = curr_node;
+      queue_node_t* temp = curr_node;
       curr_node = curr_node -> next;
       free(temp);
       queue.size --;

@@ -8,6 +8,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "remote_queue.h"
 
 /* Constants */
 
@@ -23,27 +24,9 @@
 
 /* Types ---------------------------------------------------------*/
 // List of all events in state machine
-typedef enum {
-    // Main events
-    EMPTY_REMOTE,
-    IDLE_REMOTE,
-    INIT_REMOTE,
-    WELCOME_REMOTE,
-    DRIVE_REMOTE,
-    LAND_REMOTE,
 
-    // Other events
-    START_ADC,
-    CYCLE_LED_DISPLAY,
-    READ_TARGET_DEPTH,
-    COUNTDOWN_TIMER,
-    READ_JOYSTICKS,
-    POLL_SUB_STATUS,
-    READ_SUB_STATUS
-} remote_event_t;
 
 /* Global variables --------------------------------------------------------*/
-
 extern remote_event_t remote_state;
 extern uint8_t sub_status;
 
