@@ -87,7 +87,6 @@ void enableEXTI6OnPortC(void)
 {
     // GPIO config
     initGPIOasMode(PORT_C, 6, MODE_IN, 0, PUPD_FLOAT, 0, 0); // setup PC6 as input, push pull, floating
-    initGPIOasMode(PORT_B, 0, MODE_OUT, 0, PUPD_DOWN, 1, 0); // setup PB0 (internal LED) as an output, push pull, PD, init high (debug)
     
     uint32_t *reg_pointer_32;
     // to communicate / update SYSCFG address, need to enable APB2
