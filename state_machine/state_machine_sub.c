@@ -23,9 +23,6 @@ sub_t subState = { .state = IDLE, .initialised = 0,
                 .lr_command = 0, .ds_command = 0, .fb_command = 0
                 };
 
-// define global sub state message
-uint8_t SUBMARINE_CURRENT_STATUS_MSG;
-
 void init_sub(void){
     /* Initialize all Hardware */
     initMotorHardware();
@@ -42,7 +39,6 @@ void init_sub(void){
     subState.lr_command = 0;
     subState.ds_command = 0;
     subState.fb_command = 0;
-    SUBMARINE_CURRENT_STATUS_MSG = subStateToSubStatusMsg(subState);
 
     init_simple_queue(0);
 }
@@ -58,7 +54,6 @@ void init_sub_debugging(sub_states_t testState, uint8_t testBeam){
     subState.lr_command = 0;
     subState.ds_command = 0;
     subState.fb_command = 0;
-    SUBMARINE_CURRENT_STATUS_MSG = subStateToSubStatusMsg(subState);
 }
 
 

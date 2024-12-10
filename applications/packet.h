@@ -21,6 +21,7 @@ typedef enum {
 
 // helper methods for SUBMARINE_CURRENT_STATUS_MSG
 uint8_t subStateToSubStatusMsg(sub_t);
+void loadTXPacket(sub_t state_struct);
 
 
 #ifdef __cplusplus

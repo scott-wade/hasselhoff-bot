@@ -4,17 +4,22 @@
 #include "depth_sensor.h"
 #include "ir_range.h"
 #include <math.h>
+#include "packet.h"
 
 void any_message_in_idle(void)
 {
     // Transition to WELCOME
     subState.state = WELCOME;
+    // reload the status packet to send back to the remote
+    loadTXPacket(subState);
 }
 
 void drive_message_in_welcome(void)
 {
     // Transition to DRIVE
     subState.state = DRIVE;
+    // reload the status packet to send back to the remote
+    loadTXPacket(subState);
 }
 
 void default_in_welcome(void)
@@ -46,6 +51,8 @@ void land_message_in_drive(void)
 
     // Transition to LAND state
     subState.state = LANDING;
+    // reload the status packet to send back to the remote
+    loadTXPacket(subState);
 }
 
 void reset_message_in_any_state(void)
@@ -82,6 +89,8 @@ void reset_message_in_any_state(void)
 
         subState.reset_status = 1;
     }
+    // reload the status packet to send back to the remote
+    loadTXPacket(subState);
 }
 
 void land_message_in_land(void)
@@ -93,6 +102,8 @@ void land_message_in_land(void)
         depthControl(-0.5);
         subState.land_status = 0;
     }
+    // reload the status packet to send back to the remote
+    loadTXPacket(subState);
 }
 
 void poll_sensors(void)
@@ -104,4 +115,7 @@ void poll_sensors(void)
 
     // IR Beam status
     subState.beam_status = getSensorTripped();
+
+    // reload the status packet to send back to the remote
+    loadTXPacket(subState);
 }

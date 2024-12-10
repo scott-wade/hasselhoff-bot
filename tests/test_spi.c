@@ -206,11 +206,6 @@ void testNucleoReceiving(){
     init_state_machine_spi(NUCLEO_CHILD);
     init_sub_debugging(debug_sub_state_state, debug_sub_IR);
 
-    // print the packet that the sub is sending to the remote
-    printf("Sensor message to send to remote: %u\n", SUBMARINE_CURRENT_STATUS_MSG);
-
-    // writeTX(1, (uint8_t)85);
-    writeTX(1, SUBMARINE_CURRENT_STATUS_MSG);
     while(1){
         // service spi state machine
         event_handler_spi(NUCLEO_CHILD);

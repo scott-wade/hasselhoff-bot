@@ -171,7 +171,7 @@ sub_event_type_t packetToSubEvent(packet_type_t msg_type){
         case DRIVE_LR_MSG: subReceivedEvent = DRIVE_MSG_LR_RECEIVED; break;
         case DRIVE_DS_MSG: subReceivedEvent = DRIVE_MSG_DS_RECEIVED; break;
         case LAND_MSG: subReceivedEvent = LAND_MSG_RECEIVED; break;
-        case STATUS_REQ_MSG: subReceivedEvent = IR_REQUEST_RECEIVED; break;
+        case STATUS_REQ_MSG: subReceivedEvent = STATUS_REQUEST_RECEIVED; break;
         default: printf(stderr, "Invalid packet header"); break;
     }
 
@@ -214,17 +214,10 @@ void spiInterruptHandler(uint8_t spi_id){
             receivedEvent.data = last8bits;
 
             // insert the event to the sub state machine event queue
-            insert_to_simple_queue(receivedEvent);
+            // ignoring status request mesages
+            if(receivedEvent.type != STATUS_REQUEST_RECEIVED)
+                insert_to_simple_queue(receivedEvent);
             // printf("Adding event\n");
-
-            // // if incoming msg is a status request, write the status
-            // if (receivedEvent.type == STATUS_REQ_MSG){
-            //     writeTX(spi_id, SUBMARINE_CURRENT_STATUS_MSG);
-            // }
-            // else{
-            //     // otherwise, write an ack. packet
-            //     writeTX(spi_id, ACK_PACKET);
-            // }
             
 
         }
