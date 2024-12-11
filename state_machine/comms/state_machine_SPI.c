@@ -195,7 +195,7 @@ void spiInterruptHandler(uint8_t spi_id){
         state = SPI_COMMS_STATE;
     }
     else if (spi_id == 4) {
-        state = SPI_SENSOR_STATE = 99;
+        state = SPI_SENSOR_STATE;
     }
 
     // check recieve event first
@@ -217,7 +217,7 @@ void spiInterruptHandler(uint8_t spi_id){
             // ignoring status request mesages
             if(receivedEvent.type != STATUS_REQUEST_RECEIVED)
                 insert_to_simple_queue(receivedEvent);
-            // printf("Adding event\n");
+            //printf("Adding event\n");
             
 
         }
@@ -231,6 +231,7 @@ void spiInterruptHandler(uint8_t spi_id){
                 *(CURRENT_SENSOR_TRANSMIT_EVENT.read_var_addr) = receivedData;
                 // raise the CS pin since we're done reading
                 uint8_t childID = CURRENT_SENSOR_TRANSMIT_EVENT.child_id;
+                printf("raise sensor CS pin\n");
                 SETorCLEARGPIOoutput(CS_PINS[childID*2], CS_PINS[childID*2+1], 1);
                 //printf("received: %hhu \n", receivedData);
             }

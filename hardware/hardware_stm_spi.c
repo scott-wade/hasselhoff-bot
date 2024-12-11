@@ -149,7 +149,7 @@ void configureSPIPeripheral(Spi_Hierarchy_t spi_type, uint8_t spi_id){
         software_cs_bits | parent_bit | dff_bit;
 
     // debugging
-    printf("SPI_CR1 reads %u\n", *control_register1_addr);
+    //printf("SPI_CR1 reads %u\n", *control_register1_addr);
     
     //3. Write to SPI_CR2 register:
 
@@ -164,7 +164,7 @@ void configureSPIPeripheral(Spi_Hierarchy_t spi_type, uint8_t spi_id){
     // set SPI_CR2
     *control_register2_addr = *control_register2_addr | SSOE_MASK | INTERRUPT_MASK;
 
-    printf("SPI_CR2 reads %u\n", *control_register2_addr);
+    //printf("SPI_CR2 reads %u\n", *control_register2_addr);
 
     // Enable the interrupts in NVIC
     switch (spi_id){
