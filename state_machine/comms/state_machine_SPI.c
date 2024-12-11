@@ -134,8 +134,8 @@ void event_handler_spi(Spi_State_Machine_t spi_type){
         }
         // write to TX buffer
         // printf("writing to tx: %u\n", currpacket);
-        printf("Writing to TX with packet: %u\n",
-            currentEvent.tx_packet);
+        //printf("Writing to TX with packet: %u\n",
+        //    currentEvent.tx_packet);
         writeTX(spi_id, currentEvent.tx_packet);
         // enable TXE interrupt
         enableSpiTXEInterrupts(spi_id);

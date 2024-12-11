@@ -16,6 +16,7 @@
 #define WELCOME_PERIOD_MS               500
 #define RESET_PERIOD_MS                 200
 #define READ_UX_PERIOD_MS               100
+#define BEAM_STATUS_PERIOD_MS           200
 #define COUNTDOWN_TIMER_PERIOD_MS       1000 // 1 sec
 
 #define JOY_ACTIVE_ZONE         500

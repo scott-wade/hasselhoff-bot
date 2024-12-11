@@ -30,9 +30,11 @@ void default_in_welcome(void)
 
 void drive_message_in_drive(void)
 {
+    printf("Sending Motor Prop\n");
+    printf("Commands : %d, %d, %d\n", subState.fb_command, subState.lr_command, subState.ds_command);
     float ds_command = MIN_POT_DEPTH + (subState.ds_command/255.0)*(MAX_POT_DEPTH - MIN_POT_DEPTH);
-    float lr_command = (subState.lr_command-128.0)/128.0;
-    float fb_command = (subState.fb_command-128.0)/128.0;
+    float lr_command = (subState.lr_command-5.0)/5.0;
+    float fb_command = (subState.fb_command-5.0)/5.0;
     
     // Get current depth
     float current_depth = subState.current_depth;

@@ -51,12 +51,12 @@
 // White: C8
 #define WHITE_PORT      PORT_C // C
 #define WHITE_PIN       8
-// RGB Green: E2
+// RGB Green: E4
 #define RGB_GREEN_PORT  PORT_E // E
-#define RGB_GREEN_PIN   2
-// RGB Red: E4
+#define RGB_GREEN_PIN   4
+// RGB Red: E2
 #define RGB_RED_PORT    PORT_E // E
-#define RGB_RED_PIN     4
+#define RGB_RED_PIN     2
 
 #define CNT_DOWN_DIG_0  0 // Disp digit for countdown timer
 #define CNT_DOWN_DIG_1  1 // Disp digit for countdown timer

@@ -35,8 +35,8 @@ void event_handler_remote(void) {
     remote_event_t event;
     if ((event = dequeue_by_schedule()) != EMPTY_REMOTE) {
         // READY if queue is empty, else keep popping
-        printf("SUb Status : %d\n",sub_status);
-        printf("Handling EVENT: %d\n", event);
+        //printf("SUb Status : %d\n",sub_status);
+        //printf("Handling EVENT: %d\n", event);
         switch (event) {
             case INIT_REMOTE:
                 remote_init_callback();
@@ -71,6 +71,10 @@ void event_handler_remote(void) {
 
             case READ_UX:
                 remote_read_UX_callback();
+                break;
+            
+            case BEAM_STATUS:
+                remote_beam_status_callback();
                 break;
 
             default:

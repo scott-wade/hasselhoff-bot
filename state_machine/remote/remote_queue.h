@@ -24,8 +24,7 @@ typedef enum {
     CYCLE_LED_DISPLAY,
     COUNTDOWN_TIMER,
     READ_UX,
-    POLL_SUB_STATUS,
-    READ_SUB_STATUS
+    BEAM_STATUS
 } remote_event_t;
 
 // Queue node

@@ -62,10 +62,10 @@ void init_sub_debugging(sub_states_t testState, uint8_t testBeam){
 void event_handler_sub(){
     /* Checks and handles events for sub */
     sub_events_t current_event;
-    printf("simpleQ size is %u \n", simpleQ.size);
+    //printf("simpleQ size is %u \n", simpleQ.size);
     if(!isempty_simple_queue()){
         current_event = pop_from_simple_queue();
-        printf("Processing event of type %d\n", current_event.type);
+        //printf("Processing event of type %d\n", current_event.type);
 
         switch(subState.state) {
             case IDLE: {
