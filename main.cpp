@@ -1,4 +1,4 @@
-#define WHICH_NUCLEO 0 //change for compilation, 0 for remote, 1 for submarine, 2 for debug remote, 3 for debug sub3, 94 for NZ debugging
+#define WHICH_NUCLEO 94 //change for compilation, 0 for remote, 1 for submarine, 2 for debug remote, 3 for debug sub3, 94 for NZ debugging
 
 
 #include <cstdint>
@@ -78,16 +78,23 @@ int main(void){
         init_state_machine_spi(SENSOR_PARENT); // this is a home for the spi queue    
         // initalize a sub state machine queue and timeout array
         // initialize the depth sensor settings
-        initPressureSensorSettings();
+        //initPressureSensorSettings();
         // initialize my gpio for debugging
-        initButtonIntInput();    
+        //initButtonIntInput();    
         // queue up initial pressure readings
-        initPressure();
+        //initPressure();
         /* loop */
         while(1){
             // service event queue
-            event_handler_spi(SENSOR_PARENT); // handles the SPI transmissions
-            // check on the timeouts
+            
+            for(int i=0; i<100000; i++){
+                event_handler_spi(SENSOR_PARENT); // handles the SPI transmissions
+                printf("Port %u Pin %u \n", CS_PINS[0], CS_PINS[1]);
+                printf("pin G2 output %u \n", readGPIOoutput(CS_PINS[0], CS_PINS[1]));
+            }
+            //validateSensorInitMsg(); // print out results of who am i
+            //printf("pressure %.2f\n", getPressure());
+            //extraWhoAmICheck(); // queue up another who am i
         }
     } else if (WHICH_NUCLEO == 4)
     {
