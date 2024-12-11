@@ -74,7 +74,7 @@ int main(void){
         init_state_machine_spi(SENSOR_PARENT); // this is a home for the spi queue    
         // initalize a sub state machine queue and timeout array
         // initialize the depth sensor settings
-        //initPressureSensorSettings();
+        initPressureSensorSettings();
         // initialize my gpio for debugging
         //initButtonIntInput();    
         // queue up initial pressure readings
@@ -85,8 +85,8 @@ int main(void){
             
             for(int i=0; i<100000; i++){
                 event_handler_spi(SENSOR_PARENT); // handles the SPI transmissions
-                printf("Port %u Pin %u \n", CS_PINS[0], CS_PINS[1]);
-                printf("pin G2 output %u \n", readGPIOoutput(CS_PINS[0], CS_PINS[1]));
+                //printf("Port %u Pin %u \n", CS_PINS[0], CS_PINS[1]);
+                //printf("pin G2 output %u \n", readGPIOoutput(CS_PINS[0], CS_PINS[1]));
             }
             //validateSensorInitMsg(); // print out results of who am i
             //printf("pressure %.2f\n", getPressure());

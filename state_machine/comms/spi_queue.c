@@ -25,7 +25,7 @@ int isEmpty(Queue* q) {
 
 Queue createQueue() {
     Queue q;
-    q.front = -1;
+    q.front = 0;
     q.rear = -1;
     q.size = 0;
     return q;
