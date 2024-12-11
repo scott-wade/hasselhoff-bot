@@ -15,10 +15,10 @@
 #define START_ADC_DELAY_MS              100
 #define WELCOME_PERIOD_MS               500
 #define RESET_PERIOD_MS                 200
-#define READ_JOYSTICKS_PERIOD_MS        100
+#define READ_UX_PERIOD_MS               100
 #define COUNTDOWN_TIMER_PERIOD_MS       1000 // 1 sec
 
-#define JOY_ACTIVE_ZONE         100
+#define JOY_ACTIVE_ZONE         500
 
 /* Functions ------------------------------------------------------------------*/
 // Main STATE events
@@ -30,8 +30,7 @@ void remote_reset_callback(void);
 
 // AUXILIARY EVENTS
 void remote_start_adc_callback(void);
-void remote_read_joysticks_callback(void);
-void remote_read_target_depth_callback(void);
+void remote_read_UX_callback(void);
 void remote_led_display_callback(void);
 void remote_countdown_timer(void);
 

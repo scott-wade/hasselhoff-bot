@@ -25,16 +25,12 @@
 int main(void){
     if (WHICH_NUCLEO == 0){
 
-        printf("Starting Remote\n");
         init_remote();
-
-        printf("Initialized Remote\n");
         
         /* loop */
         while(1){
             // Check for tasks in queue and then execute them
             event_handler_remote();
-            printf("Handling Event\n");
             
             // SPI event handler
             event_handler_spi(NUCLEO_PARENT); // Remote = parent
@@ -104,6 +100,14 @@ int main(void){
             event_handler_spi(SENSOR_PARENT);
             event_handler_spi(NUCLEO_CHILD);
             event_handler_sub();
+        }
+    }
+
+    else if (WHICH_NUCLEO == 5) {
+        init_sub();
+        while(1) {
+            planarControl(0.5, 0.2);
+            depthControl(0.5);
         }
     }
 

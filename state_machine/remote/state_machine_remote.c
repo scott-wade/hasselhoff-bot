@@ -33,8 +33,10 @@ void event_handler_remote(void) {
     /* Checks and handles events for remote */
     // Pop the first event on the queue
     remote_event_t event;
+    printf("Queue Head : %d, Queue tail : %d, Queue size : %d\n", queue.head->event, queue.tail->event, queue.size);
     if ((event = dequeue_by_schedule()) != EMPTY_REMOTE) {
         // READY if queue is empty, else keep popping
+        printf("Handling EVENT: %d\n", event);
         switch (event) {
             case INIT_REMOTE:
                 remote_init_callback();
@@ -62,17 +64,13 @@ void event_handler_remote(void) {
             case START_ADC:
                 remote_start_adc_callback();
                 break;
-            
-            case READ_TARGET_DEPTH:
-                remote_read_target_depth_callback();
-                break;
 
             case COUNTDOWN_TIMER:
                 remote_countdown_timer();
                 break;
 
-            case READ_JOYSTICKS:
-                remote_read_joysticks_callback();
+            case READ_UX:
+                remote_read_UX_callback();
                 break;
 
             default:

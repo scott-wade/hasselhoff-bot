@@ -43,17 +43,23 @@ void remote_init_callback(void)
 void remote_welcome_callback(void)
 {
     remote_state = WELCOME_REMOTE;
+    printf("Reached Here\n");
     welcome_remote_sequence();
 
+    printf("Scheduling Events\n");
+
     // Schedule Periodic tasks
-    enqueue_event(READ_JOYSTICKS, READ_JOYSTICKS_PERIOD_MS);
+    enqueue_event(READ_UX, READ_UX_PERIOD_MS);
+    printf("Done enqueue\n");
     // self schedule
     enqueue_event(WELCOME_REMOTE, WELCOME_PERIOD_MS);
+    printf("Done self-schedule\n");
 }
 
 void remote_drive_callback(void)
 {
     remote_state = DRIVE_REMOTE;
+    printf("State : %d\n", remote_state);
 
     // NEXT: welcome -> driving
     clear_all_leds();
@@ -61,7 +67,6 @@ void remote_drive_callback(void)
 
     // Schedule periodic events
     enqueue_event(COUNTDOWN_TIMER, COUNTDOWN_TIMER_PERIOD_MS);
-    enqueue_event(READ_TARGET_DEPTH, READ_DEPTH_PERIOD_MS);
 }
 
 void remote_land_callback(void)
@@ -111,7 +116,7 @@ void remote_start_adc_callback(void)
     startADCConversion(ADC_2);
 }
 
-void remote_read_joysticks_callback(void)
+void remote_read_UX_callback(void)
 {
     uint16_t joy_inputs[2];
     read_joysticks(joy_inputs);
@@ -122,7 +127,8 @@ void remote_read_joysticks_callback(void)
             (joy_inputs[1] <= JOY_ACTIVE_ZONE) || (joy_inputs[1] >= (MAX_JOY_VAL - JOY_ACTIVE_ZONE))) {
             
             // Go Welcome -> Drive (singleton event)
-            enqueue_event(DRIVE_REMOTE, getSubMS() + 10);
+            clear_queue();
+            enqueue_event(DRIVE_REMOTE, 0);
         }
     } else if (remote_state == DRIVE_REMOTE) {
         
@@ -131,28 +137,20 @@ void remote_read_joysticks_callback(void)
             clear_queue();
             enqueue_event(LAND_REMOTE, 0);
         }
+        printf("Reading Target Depth\n");
+
+        uint8_t target_depth = read_target_depth();
         
         // When driving, continuously send joystick values
+        requestSpiTransmit_remote(DRIVE_DS_MSG, target_depth, &sub_status); // drive/surface (up/down)
         requestSpiTransmit_remote(DRIVE_LR_MSG, joy_inputs[0], &sub_status); // left/right
         requestSpiTransmit_remote(DRIVE_FB_MSG, joy_inputs[1], &sub_status); // forward/back
 
+    } else {
+
+        // Self schedule
+        enqueue_event(READ_UX, READ_UX_PERIOD_MS);
     }
-
-    // Self schedule
-    enqueue_event(READ_JOYSTICKS, READ_JOYSTICKS_PERIOD_MS);
-}
-
-void remote_read_target_depth_callback(void)
-{
-    if (remote_state != DRIVE_REMOTE){
-            return;
-    }
-            
-    uint8_t target_depth = read_target_depth();
-    requestSpiTransmit_remote(DRIVE_DS_MSG, target_depth, &sub_status); // drive/surface (up/down)
-
-    // Self schedule
-    enqueue_event(READ_TARGET_DEPTH, READ_DEPTH_PERIOD_MS);
 }
 
 void remote_led_display_callback(void)

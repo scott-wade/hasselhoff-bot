@@ -22,9 +22,8 @@ typedef enum {
     // Other events
     START_ADC,
     CYCLE_LED_DISPLAY,
-    READ_TARGET_DEPTH,
     COUNTDOWN_TIMER,
-    READ_JOYSTICKS,
+    READ_UX,
     POLL_SUB_STATUS,
     READ_SUB_STATUS
 } remote_event_t;

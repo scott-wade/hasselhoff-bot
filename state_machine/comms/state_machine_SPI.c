@@ -72,7 +72,7 @@ void event_handler_spi(Spi_State_Machine_t spi_type){
     // check for events
     switch(spi_type){
         case NUCLEO_PARENT: // parent on SPI1
-            printf("SPI_COMMS_EVENT_QUEUE has size %u \n", SPI_COMMS_EVENT_QUEUE.size);
+            //printf("SPI_COMMS_EVENT_QUEUE has size %u \n", SPI_COMMS_EVENT_QUEUE.size);
             if (!isEmpty(&SPI_COMMS_EVENT_QUEUE) && SPI_COMMS_STATE == 99){
                 CURRENT_COMMS_TRANSMIT_EVENT = dequeue(&SPI_COMMS_EVENT_QUEUE);
                 // printf("Dequeued spi comms event \n");
