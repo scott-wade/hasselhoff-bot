@@ -85,10 +85,10 @@ void configureSPIPeripheral(Spi_Hierarchy_t spi_type, uint8_t spi_id){
             // SCLK pin PE2 -> moder 2 for alt, push-pull, neither PUPD, alt func = 5
             initGPIOasMode(PORT_E, PIN_2, MODE_AF, OD_PUSH_PULL, PUPD_FLOAT, 0, 5);
             // CS pin PE4 -> moder 1 for out, push pull, PU, ODR high
-            initGPIOasMode(PORT_E, PIN_4, MODE_OUT, OD_PUPD, PUPD_UP, 1, 0);
+            initGPIOasMode(PORT_E, PIN_4, MODE_OUT, OD_PUSH_PULL, PUPD_UP, 1, 0);
             // CS pins for sensors, as defined in CS_PINS in hardware_stm_spi.h
             for(int i = 0; i < 3; i++){
-                initGPIOasMode(CS_PINS[i/2], CS_PINS[i/2+1], MODE_OUT, OD_PUPD, PUPD_UP, 1, 0);
+                initGPIOasMode(CS_PINS[i*2], CS_PINS[i*2+1], MODE_OUT, OD_PUSH_PULL, PUPD_UP, 1, 0);
             }
         break;
         default:
@@ -106,7 +106,7 @@ void configureSPIPeripheral(Spi_Hierarchy_t spi_type, uint8_t spi_id){
     if(spi_id == 4) // nucleo - sensor comm
     {
         // set baud rate
-        baudrate_bits = (uint16_t)(0b011 << 3); // fpclk/16 = 5.6 MHz (fastest speed below 8 MHz with available prescaler)
+        //baudrate_bits = (uint16_t)(0b011 << 3); // fpclk/16 = 5.6 MHz (fastest speed below 8 MHz with available prescaler)
         baudrate_bits = (uint16_t)(0b100 << 3); // trying at slower baud rates to debug
         // depth sensor looking for CPOL = 1 and CPHA = 1
         cpol_cpha_bits = (uint16_t)(0b11);
@@ -133,12 +133,12 @@ void configureSPIPeripheral(Spi_Hierarchy_t spi_type, uint8_t spi_id){
     //  not implementing CRC for now
     // f) Configure SSM and SSI (Note: 2).
     uint16_t software_cs_bits;
-    if(spi_type==SPI_PARENT || spi_type==SENSOR_PARENT) software_cs_bits = (uint16_t)(0b11 << 8); // manage cs with software
+    if(spi_type==SPI_PARENT) software_cs_bits = (uint16_t)(0b11 << 8); // manage cs with software
     if(spi_type==SPI_CHILD) software_cs_bits = (uint16_t)(0b10 << 8); 
     // g) Configure the MSTR bit (in multimaster NSS configuration, avoid conflict state on
     // NSS if parent is configured to prevent MODF error).
     uint16_t parent_bit;
-    if(spi_type==SPI_PARENT || spi_type==SENSOR_PARENT) {parent_bit = (uint16_t)(0b100);}
+    if(spi_type==SPI_PARENT) {parent_bit = (uint16_t)(0b100);}
     if(spi_type==SPI_CHILD) {parent_bit = (uint16_t)(0b000);}
     
     // h) Set the DFF bit to configure the data frame format (8 or 16 bits).
@@ -149,7 +149,7 @@ void configureSPIPeripheral(Spi_Hierarchy_t spi_type, uint8_t spi_id){
         software_cs_bits | parent_bit | dff_bit;
 
     // debugging
-    //printf("SPI_CR1 reads %u\n", *control_register1_addr);
+    printf("SPI_CR1 reads %u\n", *control_register1_addr);
     
     //3. Write to SPI_CR2 register:
 
@@ -164,7 +164,7 @@ void configureSPIPeripheral(Spi_Hierarchy_t spi_type, uint8_t spi_id){
     // set SPI_CR2
     *control_register2_addr = *control_register2_addr | SSOE_MASK | INTERRUPT_MASK;
 
-    //printf("SPI_CR2 reads %u\n", *control_register2_addr);
+    printf("SPI_CR2 reads %u\n", *control_register2_addr);
 
     // Enable the interrupts in NVIC
     switch (spi_id){
