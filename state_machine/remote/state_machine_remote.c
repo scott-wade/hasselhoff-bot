@@ -33,9 +33,9 @@ void event_handler_remote(void) {
     /* Checks and handles events for remote */
     // Pop the first event on the queue
     remote_event_t event;
-    printf("Queue Head : %d, Queue tail : %d, Queue size : %d\n", queue.head->event, queue.tail->event, queue.size);
     if ((event = dequeue_by_schedule()) != EMPTY_REMOTE) {
         // READY if queue is empty, else keep popping
+        printf("SUb Status : %d\n",sub_status);
         printf("Handling EVENT: %d\n", event);
         switch (event) {
             case INIT_REMOTE:

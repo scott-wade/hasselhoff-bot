@@ -65,7 +65,7 @@ remote_event_t dequeue_by_schedule(void)
         duration_ms = curr_node -> duration_ms;
         creation_time = curr_node->creation_time;
 
-        printf("Iteration: %d, Current Time %f, Creation Time %f, Duration %f, event : %d\n", k, current_time, creation_time, duration_ms, curr_node->event);
+        //printf("Iteration: %d, Current Time %f, Creation Time %f, Duration %f, event : %d\n", k, current_time, creation_time, duration_ms, curr_node->event);
 
         if (fabs(current_time - creation_time) >= duration_ms) {
 
@@ -81,6 +81,10 @@ remote_event_t dequeue_by_schedule(void)
 
             if (queue.head == curr_node) {
                 queue.head = curr_node -> next;
+            }
+
+            if (queue.tail == curr_node) {
+                queue.tail = curr_node->prev;
             }
 
             free(curr_node);

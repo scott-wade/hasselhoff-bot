@@ -123,8 +123,8 @@ void remote_read_UX_callback(void)
 
     // If in welcome state and joysticks are within a range, then go to drive state
     if (remote_state == WELCOME_REMOTE){
-        if ((joy_inputs[0] <= JOY_ACTIVE_ZONE) || (joy_inputs[0] >= (MAX_JOY_VAL - JOY_ACTIVE_ZONE)) ||
-            (joy_inputs[1] <= JOY_ACTIVE_ZONE) || (joy_inputs[1] >= (MAX_JOY_VAL - JOY_ACTIVE_ZONE))) {
+        if ((joy_inputs[0] <= 1) || (joy_inputs[0] >= 9) ||
+            (joy_inputs[1] <= 1) || (joy_inputs[1] >= 9)) {
             
             // Go Welcome -> Drive (singleton event)
             clear_queue();
@@ -146,11 +146,10 @@ void remote_read_UX_callback(void)
         requestSpiTransmit_remote(DRIVE_LR_MSG, joy_inputs[0], &sub_status); // left/right
         requestSpiTransmit_remote(DRIVE_FB_MSG, joy_inputs[1], &sub_status); // forward/back
 
-    } else {
+    } 
 
-        // Self schedule
-        enqueue_event(READ_UX, READ_UX_PERIOD_MS);
-    }
+    // Self schedule
+    enqueue_event(READ_UX, READ_UX_PERIOD_MS);
 }
 
 void remote_led_display_callback(void)

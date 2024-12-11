@@ -10,7 +10,7 @@
 #define MAX_POT_VAL             4095 // Empirically measured max potentiometer value
 #define TAR_DEP_DIG_0           2 // Index of first digit of target depth
 #define TAR_DEP_DIG_1           3 // Index of second digit of target depth
-#define MAX_JOY_VAL             4094 // Empirically measured max joystick value
+#define MAX_JOY_VAL             2860 // Empirically measured max joystick value
 
 extern uint8_t land_button_pressed;
 
