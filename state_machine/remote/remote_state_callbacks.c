@@ -118,11 +118,11 @@ void remote_read_joysticks_callback(void)
 
     // If in welcome state and joysticks are within a range, then go to drive state
     if (remote_state == WELCOME_REMOTE){
-        if ((joy_inputs[0] <= JOY_ACTIVE_ZONE) || (joy_inputs[0] >= (MAX_JOY_VAL - JOY_ACTIVE_ZONE)) ||
-            (joy_inputs[1] <= JOY_ACTIVE_ZONE) || (joy_inputs[1] >= (MAX_JOY_VAL - JOY_ACTIVE_ZONE))) {
+        if ((joy_inputs[0] <= 3) || (joy_inputs[0] >= 7) ||
+            (joy_inputs[1] <= 3) || (joy_inputs[1] >= 7)) {
             
             // Go Welcome -> Drive (singleton event)
-            enqueue_event(DRIVE_REMOTE, getSubMS() + 10);
+            enqueue_event(DRIVE_REMOTE, 0);
         }
     } else if (remote_state == DRIVE_REMOTE) {
         

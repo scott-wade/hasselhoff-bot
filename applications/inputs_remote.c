@@ -144,6 +144,14 @@ void read_joysticks (uint16_t* joy_inputs) {
     uint16_t joy_x = get_joystick_x(prev_joy_x);
     uint16_t joy_y = get_joystick_y(prev_joy_y);
 
+    // Map to 0-10
+    joy_x = analog2discrete(joy_x, 
+                            0, MAX_JOY_VAL, // Input range
+                            0, 10); // Desired range
+    joy_y = analog2discrete(joy_y, 
+                            0, MAX_JOY_VAL, // Input range
+                            0, 10); // Desired range
+
     // Set previous values
     prev_joy_x = joy_x;
     prev_joy_y = joy_y;
