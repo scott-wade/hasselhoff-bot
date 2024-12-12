@@ -18,6 +18,8 @@
 #include "sub_state_callbacks.h"
 #include "packet.h"
 #include "depth_sensor.h"
+#include "sub_clock.h"
+#include "math.h"
 
 // define global subState
 sub_t subState = { .state = IDLE, .initialised = 0, 
@@ -31,6 +33,7 @@ void init_sub(void){
     // TODO : initialize Depth Sensor
     initIRSensor(0);
     initPressureSensorSettings();
+    initSubClock();
     
     /* Initialize State Machine */ 
     subState.state = IDLE;
@@ -62,11 +65,13 @@ void init_sub_debugging(sub_states_t testState, uint8_t testBeam){
 
 
 void event_handler_sub(){
+    // Check if its time to poll sensors
+    poll_sensors_timeout();
+    
     /* Checks and handles events for sub */
     sub_events_t current_event;
     if(!isempty_simple_queue()){
         current_event = pop_from_simple_queue();
-        printf("Processing event of type %d\n", current_event.type);
 
         switch(subState.state) {
             case IDLE: {
@@ -167,5 +172,22 @@ void event_handler_sub(){
             }
         }
         printf("--------------------\n");
+    }
+}
+
+void poll_sensors_timeout(void) 
+{
+    static double last_exec_time = 0;
+
+    double current_time = getSubMS();
+    if (fabs(current_time - last_exec_time) >= SENSOR_POLL_TIMEOUT) {
+
+        sub_events_t sensor_poll;
+        sensor_poll.type = SENSOR_POLLING_TIMEOUT;
+        sensor_poll.data = 0;
+
+        insert_to_simple_queue(sensor_poll);
+
+        last_exec_time = current_time;
     }
 }

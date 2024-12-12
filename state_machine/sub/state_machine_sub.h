@@ -48,6 +48,8 @@ typedef struct {
 } sub_t;
 
 
+#define SENSOR_POLL_TIMEOUT 100
+
 /* Global Variables */
 extern sub_t subState;
 
@@ -59,6 +61,7 @@ void event_handler_sub(void);
 
 // debug init funciton 
 void init_sub_debugging(sub_states_t testState, uint8_t testBeam);
+void poll_sensors_timeout(void);
 
 
 

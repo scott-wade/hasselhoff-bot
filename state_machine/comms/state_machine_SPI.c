@@ -227,7 +227,6 @@ void spiInterruptHandler(uint8_t spi_id){
                 *(CURRENT_SENSOR_TRANSMIT_EVENT.read_var_addr) = receivedData;
                 // raise the CS pin since we're done reading
                 uint8_t childID = CURRENT_SENSOR_TRANSMIT_EVENT.child_id;
-                printf("raise sensor CS pin\n");
                 SETorCLEARGPIOoutput(CS_PINS[childID*2], CS_PINS[childID*2+1], 1);
                 //printf("received: %hhu \n", receivedData);
             }

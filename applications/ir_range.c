@@ -10,5 +10,6 @@ uint8_t getSensorTripped(void)
 {
     // Read the digital value from the sensor
     // Return the digital value
-    return readGPIOinput(IR_RANGE_PORT_NUM, IR_RANGE_PIN_NUM);
+    int beam_status = readGPIOinput(IR_RANGE_PORT_NUM, IR_RANGE_PIN_NUM);
+    return beam_status;
 }

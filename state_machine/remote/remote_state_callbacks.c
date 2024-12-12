@@ -17,6 +17,10 @@
 #include "state_machine_SPI.h"
 #include "sub_clock.h"
 #include "hardware_stm_adc.h"
+#include "math.h"
+
+double landing_start_time = 0.0;
+double reset_start_time = 0.0;
 
 void remote_init_callback(void)
 {
@@ -72,14 +76,14 @@ void remote_land_callback(void)
     clear_white_led(); // Turn off drive status LED
     set_green_led(); // Set landing status LED
     set_rgb_green_led(); // Set RGB Green LED to indicate power active
+    double current_time = getSubMS();
 
-    if (sub_status & (1<<1)) {
+    if ((sub_status & (1<<5))>0 || fabs(current_time - landing_start_time) >= 10000) {
         // Landing is Done
         
-        // Clear Remote queue
-        clear_queue();
         // Schedule a Reset event
-        enqueue_event(RESET_REMOTE, getSubMS());
+        enqueue_event(RESET_REMOTE, 0);
+        reset_start_time = getSubMS();
 
         // Notify Submarine
         requestSpiTransmit_remote(RESET_MSG, 0, &sub_status); // send reset message
@@ -87,12 +91,16 @@ void remote_land_callback(void)
 
         // query the sub status
         requestSpiTransmit_remote(STATUS_REQ_MSG, 0, &sub_status);
+
+        enqueue_event(LAND_REMOTE, RESET_PERIOD_MS);
     }
+
 }
 
 void remote_reset_callback(void)
 {
     remote_state = RESET_REMOTE;
+    double current_time = getSubMS();
 
     // Clear All LEDs
     clear_all_leds();
@@ -106,7 +114,7 @@ void remote_reset_callback(void)
     }
     set_led_disp_vals(vals);
 
-    if (sub_status & (1<<2)) {
+    if ((sub_status & (1<<4)) > 0 || fabs(current_time - reset_start_time) >= 10000) {
         // Reset is done
         clear_queue();
         enqueue_event(WELCOME_REMOTE, 0);
@@ -144,9 +152,9 @@ void remote_read_UX_callback(void)
     } else if (remote_state == DRIVE_REMOTE) {
         
         // Land Activated
-        if (land_button_pressed && (sub_status & (1<<0))) {
-            clear_queue();
+        if (land_button_pressed && ((sub_status & (1<<6)))>0) {
             enqueue_event(LAND_REMOTE, 0);
+            landing_start_time = getSubMS();
         }
 
         uint8_t target_depth = read_target_depth();
@@ -172,9 +180,10 @@ void remote_led_display_callback(void)
 
 void remote_beam_status_callback(void) 
 {
-    int beam_status = sub_status & (1<<0); // IR Beam Status
+    
+    int beam_status = sub_status & (1<<6); // IR Beam Status
 
-    if (beam_status) {
+    if (beam_status > 0) {
         set_blue_led();
     } else {
         clear_blue_led();
@@ -196,6 +205,7 @@ void remote_countdown_timer(void)
 
         // Schedule a Reset event
         enqueue_event(RESET_REMOTE, 0);
+        reset_start_time = getSubMS();
 
 
         // Notify Submarine
