@@ -212,12 +212,6 @@ void spiInterruptHandler(uint8_t spi_id){
             sub_events_t receivedEvent;
             receivedEvent.type = packetToSubEvent((packet_type_t)first8bits);
             receivedEvent.data = last8bits;
-
-            // insert the event to the sub state machine event queue
-            // ignoring status request mesages
-            if(receivedEvent.type != STATUS_REQUEST_RECEIVED)
-                insert_to_simple_queue(receivedEvent);
-            //printf("Adding event\n");
             
 
         }
