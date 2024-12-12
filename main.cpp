@@ -40,12 +40,12 @@ int main(void){
     
     else if(WHICH_NUCLEO == 1) {
         /* submarine state machine */
-
+       // Initialize SPI
+        init_state_machine_spi(SENSOR_PARENT);
         // initialization
         init_sub(); // State machine
 
-        // Initialize SPI
-        init_state_machine_spi(SENSOR_PARENT);
+ 
         init_state_machine_spi(NUCLEO_CHILD);
         
         // loop
