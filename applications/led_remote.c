@@ -60,7 +60,7 @@
 
 #define CNT_DOWN_DIG_0  0 // Disp digit for countdown timer
 #define CNT_DOWN_DIG_1  1 // Disp digit for countdown timer
-#define COUTNDOWN       99 // Value to count down from 
+#define COUTNDOWN       10 // Value to count down from 
 
 
 // Variables
@@ -448,17 +448,8 @@ int countdown_timer (void) {
         // Game over! Exit driving state
         count = COUTNDOWN; // Reset count to starting value
         return 0; // Exit
-    } else {
-        // Negative numbers is game over and leds will flash on and off
-        if (count%2 == 0) {
-            // Even negatives will turn it off
-            first_dig = -1; // off
-            second_dig = -1; // off
-        } else {
-            first_dig = 0; // zero
-            second_dig = 0; // zero
-        }
     }
+    
     // Set the values on the led display
     set_led_disp_val(CNT_DOWN_DIG_0, first_dig);
     set_led_disp_val(CNT_DOWN_DIG_1, second_dig);

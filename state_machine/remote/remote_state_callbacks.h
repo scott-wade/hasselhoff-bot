@@ -34,6 +34,7 @@ void remote_start_adc_callback(void);
 void remote_read_UX_callback(void);
 void remote_led_display_callback(void);
 void remote_countdown_timer(void);
+void remote_beam_status_callback(void);
 
 
 

@@ -71,6 +71,7 @@ void remote_land_callback(void)
     remote_state = LAND_REMOTE;
     clear_white_led(); // Turn off drive status LED
     set_green_led(); // Set landing status LED
+    set_rgb_green_led(); // Set RGB Green LED to indicate power active
 
     if (sub_status & (1<<1)) {
         // Landing is Done
@@ -93,6 +94,18 @@ void remote_reset_callback(void)
 {
     remote_state = RESET_REMOTE;
 
+    // Clear All LEDs
+    clear_all_leds();
+    set_rgb_red_led();
+
+    // Flash all zeros with the coundown timer
+    static int vals[4] = {-1,-1,-1,-1};
+
+    for (int i=0; i<4; i++) {
+        vals[i] = -1-vals[i];
+    }
+    set_led_disp_vals(vals);
+
     if (sub_status & (1<<2)) {
         // Reset is done
         clear_queue();
@@ -103,6 +116,7 @@ void remote_reset_callback(void)
 
         // self Schedule
         enqueue_event(RESET_REMOTE, RESET_PERIOD_MS);
+        enqueue_event(CYCLE_LED_DISPLAY, DISPLAY_CYCLE_PERIOD_MS);
     }
 }
 
@@ -157,7 +171,8 @@ void remote_led_display_callback(void)
     enqueue_event(CYCLE_LED_DISPLAY, DISPLAY_CYCLE_PERIOD_MS);
 }
 
-void remote_beam_status_callback(void) {
+void remote_beam_status_callback(void) 
+{
     int beam_status = sub_status & (1<<0); // IR Beam Status
 
     if (beam_status) {
@@ -181,10 +196,9 @@ void remote_countdown_timer(void)
 
     if (count <= 0) {
 
-        // Clear Remote queue
-        clear_queue();
         // Schedule a Reset event
-        enqueue_event(RESET_REMOTE, getSubMS());
+        enqueue_event(RESET_REMOTE, 0);
+
 
         // Notify Submarine
         requestSpiTransmit_remote(RESET_MSG, 0, &sub_status); // send reset message
