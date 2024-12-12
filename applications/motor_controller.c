@@ -94,8 +94,9 @@
       setDutyCycle(MOTOR_TIMER, PROPULSION_CW_PROP_CH, IDLE_DUTY_CYCLE);
       setDutyCycle(MOTOR_TIMER, PROPULSION_CCW_PROP_CH, IDLE_DUTY_CYCLE);
       
-      for (int i=0; i<200; i++){
-          for (int j=0; j<200; j++){
+      for (int i=0; i<100; i++){
+          for (int j=0; j<100; j++){
+              printf("Holding for Reset\n");s
           }
       }
   }
@@ -109,18 +110,18 @@
     float idle_thrust;
     float left_motor_duty;
     float right_motor_duty;
-    if (x_input >= 0) {
+    if (x_input <= 0) {
         idle_thrust = IDLE_DUTY_CYCLE + FWD_DEADZONE;
-        float thrust = idle_thrust + 0.5*(1-idle_thrust)*x_input;
-        float steering_modifier = 0.5*(1-idle_thrust)*y_input;
+        float thrust = idle_thrust - 0.5*(1-idle_thrust)*x_input;
+        float steering_modifier = -0.5*(1-idle_thrust)*y_input;
 
         left_motor_duty = thrust + steering_modifier;
         right_motor_duty = thrust - steering_modifier;
     }
     else {
         idle_thrust = IDLE_DUTY_CYCLE - REV_DEADZONE;
-        float thrust = idle_thrust - 0.5*(idle_thrust-REV_MIN)*x_input;
-        float steering_modifier = 0.5*(idle_thrust-REV_MIN)*y_input;
+        float thrust = idle_thrust + 0.5*(idle_thrust-REV_MIN)*x_input;
+        float steering_modifier = -0.5*(idle_thrust-REV_MIN)*y_input;
 
         left_motor_duty = thrust + steering_modifier;
         right_motor_duty = thrust - steering_modifier;
