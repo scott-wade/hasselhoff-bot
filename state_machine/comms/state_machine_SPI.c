@@ -212,6 +212,8 @@ void spiInterruptHandler(uint8_t spi_id){
             sub_events_t receivedEvent;
             receivedEvent.type = packetToSubEvent((packet_type_t)first8bits);
             receivedEvent.data = last8bits;
+
+            insert_to_simple_queue(receivedEvent);
             
 
         }
