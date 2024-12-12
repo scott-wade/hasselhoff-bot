@@ -95,9 +95,7 @@
       setDutyCycle(MOTOR_TIMER, PROPULSION_CCW_PROP_CH, IDLE_DUTY_CYCLE);
       
       for (int i=0; i<100; i++){
-          for (int j=0; j<100; j++){
-              printf("Holding for Reset\n");s
-          }
+            printf("Holding for Reset\n");
       }
   }
 
