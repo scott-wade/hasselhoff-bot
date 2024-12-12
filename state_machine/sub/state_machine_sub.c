@@ -17,6 +17,7 @@
 #include "ir_range.h"
 #include "sub_state_callbacks.h"
 #include "packet.h"
+#include "depth_sensor.h"
 
 // define global subState
 sub_t subState = { .state = IDLE, .initialised = 0, 
@@ -29,7 +30,8 @@ void init_sub(void){
     initMotorHardware();
     // TODO : initialize Depth Sensor
     initIRSensor(0);
-
+    initPressureSensorSettings();
+    
     /* Initialize State Machine */ 
     subState.state = IDLE;
     subState.initialised = 0;

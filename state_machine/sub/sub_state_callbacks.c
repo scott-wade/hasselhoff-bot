@@ -12,6 +12,8 @@ void any_message_in_idle(void)
     subState.state = WELCOME;
     // reload the status packet to send back to the remote
     loadTXPacket(subState);
+    // queue up first set of pressure readings to set the atmospheric pressure variable (used in calculating depth)
+    initPressure();
 }
 
 void drive_message_in_welcome(void)
