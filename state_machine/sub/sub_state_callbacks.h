@@ -16,8 +16,8 @@
 #define WELCOME_DEPTH 6
 #define LAND_DEPTH 15
 #define DEPTH_TOLERANCE 1
-#define MIN_POT_DEPTH 4.0
-#define MAX_POT_DEPTH 10.0
+#define MIN_POT_DEPTH 1.0
+#define MAX_POT_DEPTH 17.0
 
 // IDLE State callbacks
 void any_message_in_idle(void);

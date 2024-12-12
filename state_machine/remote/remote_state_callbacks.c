@@ -54,11 +54,11 @@ void remote_welcome_callback(void)
 void remote_drive_callback(void)
 {
     remote_state = DRIVE_REMOTE;
-    printf("State : %d\n", remote_state);
 
     // NEXT: welcome -> driving
     clear_all_leds();
     set_white_led(); // Set driving status LED
+    set_rgb_green_led(); // Set RGB green to indicate accepting commands
 
     // Schedule periodic events
     enqueue_event(COUNTDOWN_TIMER, COUNTDOWN_TIMER_PERIOD_MS);
@@ -150,7 +150,6 @@ void remote_read_UX_callback(void)
         }
 
         uint8_t target_depth = read_target_depth();
-        printf("Target Depth : %d\n", target_depth);
         
         // When driving, continuously send joystick values
         requestSpiTransmit_remote(DRIVE_DS_MSG, target_depth, &sub_status); // drive/surface (up/down)
@@ -192,9 +191,8 @@ void remote_countdown_timer(void)
     }
     
     int count = countdown_timer();
-    printf("Countdown : %d\n", count);
 
-    if (count <= 0) {
+    if (count < 0) {
 
         // Schedule a Reset event
         enqueue_event(RESET_REMOTE, 0);

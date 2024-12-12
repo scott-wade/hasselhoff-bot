@@ -61,12 +61,10 @@ int init_target_depth_knob(void) {
 uint16_t get_target_depth(void) {
     // Filter the value
     // Map to desired range
-    printf("Target Depth RAW : %d\n", target_depth);
     uint16_t processed_val = analog2discrete(target_depth, 
                         0, MAX_POT_VAL, // Input range
                         1, 17); // Desired range
     
-    // printf("Target Depth = %d -> %d\n", target_depth, processed_val);
     return processed_val;
 }
 

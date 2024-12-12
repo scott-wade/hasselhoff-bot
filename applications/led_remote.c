@@ -60,7 +60,7 @@
 
 #define CNT_DOWN_DIG_0  0 // Disp digit for countdown timer
 #define CNT_DOWN_DIG_1  1 // Disp digit for countdown timer
-#define COUTNDOWN       10 // Value to count down from 
+#define COUNTDOWN       99 // Value to count down from 
 
 
 // Variables
@@ -432,7 +432,7 @@ void welcome_remote_sequence (void)
 
 // Display timer that counts down in time
 int countdown_timer (void) {
-    static int count = COUTNDOWN; // Starting count
+    static int count = COUNTDOWN; // Starting count
     int blink_count = 10; // How many times to blink before exiting state
 
     int first_dig, second_dig;
@@ -440,16 +440,16 @@ int countdown_timer (void) {
      * 0-99 shows the number
      * Negative numbers will blink LEDs at 00 to indicate game over!
      */
-    if (count >= 0) {
+    if (count > 0) {
         // If value changed, set the led display value
         first_dig = count / 10; // Integer division
         second_dig = count % 10; // Remainder
-    } else if (count <= -1*blink_count) {
+    } else if (count == 0) {
         // Game over! Exit driving state
-        count = COUTNDOWN; // Reset count to starting value
-        return 0; // Exit
+        count = COUNTDOWN; // Reset count to starting value
+        return -1; // Exit
     }
-    
+
     // Set the values on the led display
     set_led_disp_val(CNT_DOWN_DIG_0, first_dig);
     set_led_disp_val(CNT_DOWN_DIG_1, second_dig);
